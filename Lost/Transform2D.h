@@ -25,13 +25,49 @@ namespace lost
 		{
 			return Vector2D{ x - vec.x, y - vec.y };
 		}
+
+		Vector2D operator*(Vector2D vec)
+		{
+			return Vector2D{ x * vec.x, y * vec.y };
+		}
+
+		Vector2D operator/(Vector2D vec)
+		{
+			return Vector2D{ x / vec.x, y / vec.y };
+		}
+
+		Vector2D operator*(float val)
+		{
+			return Vector2D{ x * val, y * val };
+		}
+
+		Vector2D operator/(float val)
+		{
+			return Vector2D{ x / val, y / val };
+		}
+	};
+
+	struct IntVector2D
+	{
+		int x;
+		int y;
+
+		IntVector2D operator+(IntVector2D vec)
+		{
+			return IntVector2D{ x + vec.x, y + vec.y };
+		}
+
+		IntVector2D operator-(IntVector2D vec)
+		{
+			return IntVector2D{ x - vec.x, y - vec.y };
+		}
 	};
 
 	struct Transform2D
 	{
 		Vector2D position = { 0, 0 };
 		float rotation    = { 0 };
-		Vector2D scale    = { 0, 0 };
+		Vector2D scale    = { 1, 1 };
 
 		Transform2D& lerp(Transform2D& other, float alpha)
 		{
@@ -79,7 +115,11 @@ namespace lost
 			y = _y;
 			w = _w;
 			h = _h;
+			calcSides();
+		}
 
+		void calcSides()
+		{
 			left = x;
 			right = x + w;
 			top = y;
@@ -101,6 +141,23 @@ namespace lost
 		Bound2D operator-(Vector2D vec)
 		{
 			return Bound2D{ x - vec.x, y - vec.y, w, h };
+		}
+
+		void operator+=(Vector2D vec)
+		{
+			x += vec.x;
+			y += vec.y;
+		}
+
+		void operator-=(Vector2D vec)
+		{
+			x -= vec.x;
+			y -= vec.y;
+		}
+
+		Bound2D operator*(Vector2D vec)
+		{
+			return Bound2D{ x, y, w * vec.x, h * vec.y };
 		}
 
 	};

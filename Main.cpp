@@ -1,4 +1,5 @@
 #include "Lost.h"
+#include "World.h"
 
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
@@ -9,27 +10,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct effect_uniforms_t {
-    sgp_vec2 iVelocity;
-    float iPressure;
-    float iTime;
-    float iWarpiness;
-    float iRatio;
-    float iZoom;
-    float iLevel;
-};
-
-static TextureID shmeldonTex = 0;
-static TextureID noiseTex = 0;
 static ShaderID effectShader = 0;
+static TextureID grassTex = 0;
 static float Uptime = 0;
 
-static lost::Transform2D mousePos;
+static lost::Transform2D cameraGoalPos;
 
 static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 {
-    lost::feedKeyEvent(user_event);
+    lost::feedInputEvent(user_event);
 }
+
+static World world;
 
 static void frame()     
 {
@@ -50,60 +42,50 @@ static void frame()
     sgp_clear();
 
     lost::recalcDeltaTime();
+    Uptime += lost::deltaTime;
     lost::globalCamera.setSize(width, height);
+    cameraGoalPos.scale = cameraGoalPos.scale * (1.0f - lost::mouseScroll() / 10.0f);
     lost::globalCamera.update(lost::deltaTime);
     lost::globalCamera.setViewportTransforms();
 
-    lost::bindShader(lost::getShader(effectShader));
-
-    Uptime += lost::deltaTime / 1000.0f;
-
-    effect_uniforms_t uniforms = { };
-    uniforms.iVelocity.x = 0.02f;
-    uniforms.iVelocity.y = 0.01f;
-    uniforms.iPressure = 0.3f;
-    uniforms.iTime = Uptime;
-    uniforms.iWarpiness = 0.2f;
-    uniforms.iRatio = image_ratio;
-    uniforms.iZoom = 0.4f;
-    uniforms.iLevel = 1.0f;
+    //lost::bindShader(lost::getShader(effectShader));
 
     if (lost::keyDown(SAPP_KEYCODE_A))
-        mousePos.position.x -= 10.0f;
+        cameraGoalPos.position.x -= 5.0f;
     if (lost::keyDown(SAPP_KEYCODE_D))
-        mousePos.position.x += 10.0f;
+        cameraGoalPos.position.x += 5.0f;
     if (lost::keyDown(SAPP_KEYCODE_W))
-        mousePos.position.y -= 10.0f;
+        cameraGoalPos.position.y -= 5.0f;
     if (lost::keyDown(SAPP_KEYCODE_S))
-        mousePos.position.y += 10.0f;
+        cameraGoalPos.position.y += 5.0f;
 
-    if (lost::keyTapped(SAPP_KEYCODE_E))
-        mousePos.position.y += 100.0f;
-
-    lost::resetKeyData();
-
-    sgp_set_uniform(&uniforms, sizeof(effect_uniforms_t));
-
-    // Draw an animated rectangle that rotates and changes its colors.
     sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    int i = 0;
-    for (int x = 0; x < width * 2; x += 100)
+    world.render();
+    lost::clearImage();
+
+    // [!] TODO: Finish TileEntity stuff and figure out stuff yk
+
+    lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+
+    Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
+    if (tileHovered)
     {
-        for (int y = 0; y < height * 2; y += 100)
+        if (lost::mouseTapped(0))
+            world.addTileEntity(new TileEntity({ 0, 0 }, 1, { 0.0f, 0.0f, 2.5f, 2.5f }), worldMouse.x / 64.f, worldMouse.y / 64.0f);
+
+        for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
         {
-            if (i % 2 == 0)
-                lost::useImage(shmeldonTex, 0);
-            else
-                lost::useImage(noiseTex, 0);
-
-            sgp_draw_filled_rect(x, y, -100.0f, 100.0f * image_ratio);
-
-            i++;
+            tileHovered->tileEntitiesWithin[i]->renderHitbox();
+            if (lost::mouseTapped(1))
+                world.destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
         }
     }
 
-    lost::unbindShader();
+
+    //lost::unbindShader();
+
+    lost::resetInputData();
 
     // Begin a render pass.
     sg_pass pass = {}; 
@@ -145,10 +127,12 @@ static void init(void) {
 
     effectShader = lost::loadShader("Shaders/vertex.vert", "Shaders/fragment.frag", "EffectShader");
 
-    shmeldonTex = lost::loadImage("Images/Shmeldon.png", "shmeldon");
-    noiseTex = lost::loadImage("Images/perlin.png", "perlin");
+    grassTex = lost::loadImage("Images/Shmeldon.png", "shmeldon");
+    lost::loadImage("Images/Test.png", "test");
 
-    lost::globalCamera.bindGoalTransform(&mousePos, 0);
+    world.addTileEntity(new TileEntity({ 0, 0 }, 1, { 0.0f, 0.0f, 2.5f, 2.5f }), 0.5f, 0.5f);
+
+    lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
     lost::globalCamera.setSize(sapp_width(), sapp_height());
 
     lost::loadImageQueue();
@@ -158,7 +142,7 @@ static void init(void) {
 static void cleanup(void) {
 
     lost::destroyManagers();
-    lost::globalCamera.unbindGoalTransform(&mousePos);
+    lost::globalCamera.unbindGoalTransform(&cameraGoalPos);
 
     // Cleanup Sokol GP and Sokol GFX resources.
     sgp_shutdown();

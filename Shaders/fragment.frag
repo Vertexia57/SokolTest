@@ -1,13 +1,13 @@
 #version 330
 
-uniform vec4 uniforms[2];
 uniform sampler2D samplerChannel0;
 
 in vec2 texUV;
+in vec2 screenXY;
 in vec4 iColor;
 layout(location = 0) out vec4 fragColor;
 
 void main()
 {
-    fragColor = texture(samplerChannel0, texUV) * iColor;
+    fragColor = texture(samplerChannel0, texUV.xy) * iColor;
 }

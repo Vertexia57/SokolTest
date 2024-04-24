@@ -1,141 +1,172 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Lost">
+      <UniqueIdentifier>{ae3c330a-f973-4824-98a5-23e75592a09a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lost\Sokol">
+      <UniqueIdentifier>{13aa1408-676a-4864-af5d-11b8b1c147f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lost\Managers">
+      <UniqueIdentifier>{d5ab8b26-61c2-4c91-a2d9-fd56c7239cb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{6080c3fc-5600-43a0-8eff-2e5066fa3546}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Tiles">
+      <UniqueIdentifier>{8f99d293-819c-4691-9b1a-d70bcb131359}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sokol\sokol_app.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_args.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_audio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_fetch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_gfx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_glue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_debugtext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_fontstash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_gfx_imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_memtrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_nuklear.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\util\sokol_spine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sokol\sokol_gp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lost\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lost\Image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lost\ImageManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SokolReference.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="STBImplementation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lost\ShaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lost\DeltaTime.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Lost\Transform2D.h">
+      <Filter>Lost</Filter>
     </ClInclude>
     <ClInclude Include="Lost.h">
-      <Filter>Header Files</Filter>
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\DeltaTime.h">
+      <Filter>Lost</Filter>
     </ClInclude>
     <ClInclude Include="Lost\Camera.h">
-      <Filter>Header Files</Filter>
+      <Filter>Lost</Filter>
     </ClInclude>
-    <ClInclude Include="Lost\Transform2D.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="sokol\util\sokol_fontstash.h">
+      <Filter>Lost\Sokol</Filter>
     </ClInclude>
-    <ClInclude Include="Lost\KeyManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="sokol\sokol_gfx.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_gfx_imgui.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_gl.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_glue.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_gp.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_imgui.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_log.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_memtrack.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_nuklear.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_shape.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_spine.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_time.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_app.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_args.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_audio.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_color.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\util\sokol_debugtext.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\sokol_fetch.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="SokolReference.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="STBImplementation.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\ImageManager.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\InputManager.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\ShaderManager.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\Image.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\Shader.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>Game\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TileEntity.h">
+      <Filter>Game\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lost\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lost\Image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lost\ImageManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lost\ShaderManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Lost\Camera.cpp">
+      <Filter>Lost</Filter>
     </ClCompile>
     <ClCompile Include="Lost\DeltaTime.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Lost</Filter>
     </ClCompile>
     <ClCompile Include="Lost.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Lost</Filter>
     </ClCompile>
-    <ClCompile Include="Lost\Camera.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Lost\ImageManager.cpp">
+      <Filter>Lost\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="Lost\KeyManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Lost\InputManager.cpp">
+      <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\ShaderManager.cpp">
+      <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\Image.cpp">
+      <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\Shader.cpp">
+      <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Game\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TileEntity.cpp">
+      <Filter>Game\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

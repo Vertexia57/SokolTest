@@ -123,6 +123,11 @@ namespace lost
 		imageManager->getImage(id)->useImage(slot);
 	}
 
+	void clearImage(uint32_t slot)
+	{
+		sgp_reset_image(slot);
+	}
+
 	sg_sampler& getSampler(int samplerID)
 	{
 		return imageManager->getSampler(samplerID);

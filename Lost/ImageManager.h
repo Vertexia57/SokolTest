@@ -63,11 +63,15 @@ namespace lost
 	// Returns the image with the name specified
 	extern Image* getImage(std::string id);
 
-	// Sets the image with id into it's set image slot
+	// Sets the image with id into it's set image slot, "slot" defaults to LOST_TEXTURE_ALBEDO
 	extern void useImage(TextureID id, uint32_t slot = LOST_TEXTURE_ALBEDO);
-	// Sets the image with id into it's set image slot
+	// Sets the image with id into it's set image slot, "slot" defaults to LOST_TEXTURE_ALBEDO
 	extern void useImage(std::string id, uint32_t slot = LOST_TEXTURE_ALBEDO);
+
+	// Clears the image from the sampler with the slot specified
+	extern void clearImage(uint32_t slot = LOST_TEXTURE_ALBEDO);
 
 	// Returns the sampler with samplerID
 	extern sg_sampler& getSampler(int samplerID);
+
 }

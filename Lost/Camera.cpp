@@ -40,9 +40,15 @@ void Camera::setSize(float w, float h)
 	m_Bounds.h = h;
 }
 
+void Camera::setScale(lost::Vector2D scale)
+{
+	m_Transform.scale = scale;
+}
+
 void Camera::setViewportTransforms()
 {
-	lost::Bound2D viewBounds = m_Bounds + m_Transform.position;// -lost::Vector2D{ m_Bounds.w / 2.0f, m_Bounds.h / 2.0f };
+	lost::Bound2D viewBounds = m_Bounds * m_Transform.scale + m_Transform.position;
+	viewBounds = viewBounds - lost::Vector2D{ viewBounds.w / 2.0f, viewBounds.h / 2.0f };
     sgp_project(viewBounds.left, viewBounds.right, viewBounds.top, viewBounds.bottom);
 	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x + m_Bounds.w / 2.0f, m_Transform.position.y + m_Bounds.h / 2.0f);
 }
@@ -59,6 +65,12 @@ void Camera::unbindGoalTransform(lost::Transform2D* transformPtr)
 	cameraFollowList.erase(transformPtr);
 
 	m_UpdateGoalPtr();
+}
+
+lost::Vector2D Camera::screenToWorld(lost::Vector2D mousePos)
+{
+	mousePos = (mousePos - lost::Vector2D{ m_Bounds.w / 2.0f, m_Bounds.h / 2.0f }) * m_Transform.scale + m_Transform.position;
+	return mousePos;
 }
 
 void Camera::m_UpdateGoalPtr()

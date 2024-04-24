@@ -17,6 +17,8 @@ public:
 
 	// Sets the size of the camera's viewport
 	void setSize(float w, float h);
+	// Set scale of the camera's viewport;
+	void setScale(lost::Vector2D scale);
 
 	// Is ran before drawing world, sets the viewports transforms to match the cameras
 	void setViewportTransforms();
@@ -25,6 +27,8 @@ public:
 	void bindGoalTransform(lost::Transform2D* transformPtr, int priority);
 	// Removes a goal transform from the camera
 	void unbindGoalTransform(lost::Transform2D* transformPtr);
+
+	lost::Vector2D screenToWorld(lost::Vector2D mousePos);
 
 private:
 	void m_UpdateGoalPtr();

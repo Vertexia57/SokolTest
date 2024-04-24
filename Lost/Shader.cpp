@@ -40,11 +40,11 @@ sg_shader_desc* Shader::m_CreateDescriptor(const char* vertexShaderCode, const c
     desc->fs.source = fragmentShaderCode;
     desc->fs.entry = "main";
     // Uniform Buffer
-    desc->fs.uniform_blocks[0].size = 32; // Size of uniform block in bytes it seems, there are 8 floats, floats take 4 bytes
-    desc->fs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-    desc->fs.uniform_blocks[0].uniforms[0].name = "uniforms";
-    desc->fs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
-    desc->fs.uniform_blocks[0].uniforms[0].array_count = 2;
+    //desc->fs.uniform_blocks[0].size = 32; // Size of uniform block in bytes it seems, there are 8 floats, floats take 4 bytes
+    //desc->fs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+    //desc->fs.uniform_blocks[0].uniforms[0].name = "uniforms";
+    //desc->fs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
+    //desc->fs.uniform_blocks[0].uniforms[0].array_count = 2;
     // Sampler and texture2d init
     desc->fs.images[0].used = true;
     desc->fs.images[0].multisampled = false;
