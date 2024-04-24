@@ -18,6 +18,10 @@ Camera::Camera(lost::Bound2D bounds)
 
 Camera::~Camera()
 {
+	if (cameraFollowList.size() > 0)
+	{
+		fprintf(stdout, " [Camera::~Camera()] Not all cameras were unbound upon camera destruction. Some may still be trying to use it");
+	}
 }
 
 void Camera::update(double deltaTime)
@@ -43,7 +47,37 @@ void Camera::setViewportTransforms()
 	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x + m_Bounds.w / 2.0f, m_Transform.position.y + m_Bounds.h / 2.0f);
 }
 
-void Camera::bindGoalTransform(lost::Transform2D* transformPtr)
+void Camera::bindGoalTransform(lost::Transform2D* transformPtr, int priority)
 {
-	m_GoalTransform = transformPtr;
+	cameraFollowList[transformPtr] = priority;
+
+	m_UpdateGoalPtr();
+}
+
+void Camera::unbindGoalTransform(lost::Transform2D* transformPtr)
+{
+	cameraFollowList.erase(transformPtr);
+
+	m_UpdateGoalPtr();
+}
+
+void Camera::m_UpdateGoalPtr()
+{
+	int highestPriorityFound = -1;
+	for (auto const& [transformPtr, priority] : cameraFollowList)
+	{
+		if (priority > highestPriorityFound)
+		{
+			highestPriorityFound = priority;
+			m_GoalTransform = transformPtr;
+		}
+	}
+
+}
+
+namespace lost
+{
+
+	Camera globalCamera = Camera();
+
 }

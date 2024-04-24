@@ -2,7 +2,6 @@
 
 uniform vec4 uniforms[2];
 uniform sampler2D samplerChannel0;
-uniform sampler2D samplerChannel1;
 
 in vec2 texUV;
 in vec4 iColor;

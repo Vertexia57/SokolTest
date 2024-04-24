@@ -50,22 +50,12 @@ sg_shader_desc* Shader::m_CreateDescriptor(const char* vertexShaderCode, const c
     desc->fs.images[0].multisampled = false;
     desc->fs.images[0].image_type = SG_IMAGETYPE_2D;
     desc->fs.images[0].sample_type = SG_IMAGESAMPLETYPE_FLOAT;
-    desc->fs.images[1].used = true;
-    desc->fs.images[1].multisampled = false;
-    desc->fs.images[1].image_type = SG_IMAGETYPE_2D;
-    desc->fs.images[1].sample_type = SG_IMAGESAMPLETYPE_FLOAT;
     desc->fs.samplers[0].used = true;
     desc->fs.samplers[0].sampler_type = SG_SAMPLERTYPE_FILTERING;
-    desc->fs.samplers[1].used = true;
-    desc->fs.samplers[1].sampler_type = SG_SAMPLERTYPE_FILTERING;
     desc->fs.image_sampler_pairs[0].used = true;
     desc->fs.image_sampler_pairs[0].image_slot = 0;
     desc->fs.image_sampler_pairs[0].sampler_slot = 0;
     desc->fs.image_sampler_pairs[0].glsl_name = "samplerChannel0";
-    desc->fs.image_sampler_pairs[1].used = true;
-    desc->fs.image_sampler_pairs[1].image_slot = 1;
-    desc->fs.image_sampler_pairs[1].sampler_slot = 1;
-    desc->fs.image_sampler_pairs[1].glsl_name = "samplerChannel1";
     // Shader name
     desc->label = name.c_str();
 

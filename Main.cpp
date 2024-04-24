@@ -24,12 +24,11 @@ static TextureID noiseTex = 0;
 static ShaderID effectShader = 0;
 static float Uptime = 0;
 
-static Camera camera;
 static lost::Transform2D mousePos;
 
-static void event_userdata_cb(const sapp_event* event, void* user_data)
+static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 {
-    mousePos.position = { event->mouse_x, event->mouse_y };
+    lost::feedKeyEvent(user_event);
 }
 
 static void frame()     
@@ -51,10 +50,9 @@ static void frame()
     sgp_clear();
 
     lost::recalcDeltaTime();
-    camera.setSize(width, height);
-    camera.update(lost::deltaTime);
-    camera.setViewportTransforms();
-    camera.bindGoalTransform(&mousePos);
+    lost::globalCamera.setSize(width, height);
+    lost::globalCamera.update(lost::deltaTime);
+    lost::globalCamera.setViewportTransforms();
 
     lost::bindShader(lost::getShader(effectShader));
 
@@ -70,9 +68,21 @@ static void frame()
     uniforms.iZoom = 0.4f;
     uniforms.iLevel = 1.0f;
 
-    sgp_set_uniform(&uniforms, sizeof(effect_uniforms_t));
+    if (lost::keyDown(SAPP_KEYCODE_A))
+        mousePos.position.x -= 10.0f;
+    if (lost::keyDown(SAPP_KEYCODE_D))
+        mousePos.position.x += 10.0f;
+    if (lost::keyDown(SAPP_KEYCODE_W))
+        mousePos.position.y -= 10.0f;
+    if (lost::keyDown(SAPP_KEYCODE_S))
+        mousePos.position.y += 10.0f;
 
-    lost::useImage(noiseTex, 1);
+    if (lost::keyTapped(SAPP_KEYCODE_E))
+        mousePos.position.y += 100.0f;
+
+    lost::resetKeyData();
+
+    sgp_set_uniform(&uniforms, sizeof(effect_uniforms_t));
 
     // Draw an animated rectangle that rotates and changes its colors.
     sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -138,7 +148,8 @@ static void init(void) {
     shmeldonTex = lost::loadImage("Images/Shmeldon.png", "shmeldon");
     noiseTex = lost::loadImage("Images/perlin.png", "perlin");
 
-    camera = Camera( sapp_width(), sapp_height() );
+    lost::globalCamera.bindGoalTransform(&mousePos, 0);
+    lost::globalCamera.setSize(sapp_width(), sapp_height());
 
     lost::loadImageQueue();
 }
@@ -147,6 +158,7 @@ static void init(void) {
 static void cleanup(void) {
 
     lost::destroyManagers();
+    lost::globalCamera.unbindGoalTransform(&mousePos);
 
     // Cleanup Sokol GP and Sokol GFX resources.
     sgp_shutdown();
