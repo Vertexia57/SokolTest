@@ -16,32 +16,32 @@ namespace lost
 			return *this;
 		}
 
-		Vector2D operator+(Vector2D vec)
+		Vector2D operator+(Vector2D vec) const
 		{
 			return Vector2D{ x + vec.x, y + vec.y };
 		}
 
-		Vector2D operator-(Vector2D vec)
+		Vector2D operator-(Vector2D vec) const
 		{
 			return Vector2D{ x - vec.x, y - vec.y };
 		}
 
-		Vector2D operator*(Vector2D vec)
+		Vector2D operator*(Vector2D vec) const
 		{
 			return Vector2D{ x * vec.x, y * vec.y };
 		}
 
-		Vector2D operator/(Vector2D vec)
+		Vector2D operator/(Vector2D vec) const
 		{
 			return Vector2D{ x / vec.x, y / vec.y };
 		}
 
-		Vector2D operator*(float val)
+		Vector2D operator*(float val) const
 		{
 			return Vector2D{ x * val, y * val };
 		}
 
-		Vector2D operator/(float val)
+		Vector2D operator/(float val) const
 		{
 			return Vector2D{ x / val, y / val };
 		}
@@ -52,12 +52,12 @@ namespace lost
 		int x;
 		int y;
 
-		IntVector2D operator+(IntVector2D vec)
+		IntVector2D operator+(IntVector2D vec) const
 		{
 			return IntVector2D{ x + vec.x, y + vec.y };
 		}
 
-		IntVector2D operator-(IntVector2D vec)
+		IntVector2D operator-(IntVector2D vec) const
 		{
 			return IntVector2D{ x - vec.x, y - vec.y };
 		}
@@ -78,7 +78,7 @@ namespace lost
 			return *this;
 		}
 
-		Transform2D& operator+(Transform2D vec)
+		Transform2D& operator+(Transform2D vec) const
 		{
 			Transform2D transform{};
 			transform.position = position + vec.position;
@@ -87,7 +87,7 @@ namespace lost
 			return transform;
 		}
 
-		Transform2D& operator-(Transform2D vec)
+		Transform2D& operator-(Transform2D vec) const
 		{
 			Transform2D transform{};
 			transform.position = position - vec.position;
@@ -133,14 +133,19 @@ namespace lost
 			return false;
 		}
 
-		Bound2D operator+(Vector2D vec) 
+		Bound2D operator+(Vector2D vec) const
 		{
 			return Bound2D{ x + vec.x, y + vec.y, w, h };
 		}
 
-		Bound2D operator-(Vector2D vec)
+		Bound2D operator-(Vector2D vec) const
 		{
 			return Bound2D{ x - vec.x, y - vec.y, w, h };
+		}
+
+		Bound2D operator*(Vector2D vec) const
+		{
+			return Bound2D{ x, y, w * vec.x, h * vec.y };
 		}
 
 		void operator+=(Vector2D vec)
@@ -153,11 +158,6 @@ namespace lost
 		{
 			x -= vec.x;
 			y -= vec.y;
-		}
-
-		Bound2D operator*(Vector2D vec)
-		{
-			return Bound2D{ x, y, w * vec.x, h * vec.y };
 		}
 
 	};

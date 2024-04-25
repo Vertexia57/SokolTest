@@ -64,24 +64,27 @@ static void frame()
     world.render();
     lost::clearImage();
 
-    // [!] TODO: Finish TileEntity stuff and figure out stuff yk
-
     lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 
     Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
     if (tileHovered)
     {
-        if (lost::mouseTapped(0))
-            world.addTileEntity(new TileEntity({ 0, 0 }, 1, { 0.0f, 0.0f, 2.5f, 2.5f }), worldMouse.x / 64.f, worldMouse.y / 64.0f);
+        if (lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f), 2.0f, 2.0f }, { true, false, false }))
+            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 2.0f, 2.0f }), floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
+
+        if (lost::mouseDown(2) && world.checkCanPlace({ floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f), 3.0f, 2.0f }, { true, false, false }))
+            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 3.0f, 2.0f }), floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
 
         for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
         {
-            tileHovered->tileEntitiesWithin[i]->renderHitbox();
-            if (lost::mouseTapped(1))
-                world.destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+            if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 64.0f))
+            {
+                tileHovered->tileEntitiesWithin[i]->renderHitbox();
+                if (lost::mouseDown(1))
+                    world.destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+            }
         }
     }
-
 
     //lost::unbindShader();
 
@@ -129,8 +132,6 @@ static void init(void) {
 
     grassTex = lost::loadImage("Images/Shmeldon.png", "shmeldon");
     lost::loadImage("Images/Test.png", "test");
-
-    world.addTileEntity(new TileEntity({ 0, 0 }, 1, { 0.0f, 0.0f, 2.5f, 2.5f }), 0.5f, 0.5f);
 
     lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
     lost::globalCamera.setSize(sapp_width(), sapp_height());

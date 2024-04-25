@@ -8,12 +8,15 @@ public:
 	~Chunk();
 
 	Tile* getTile(int x, int y);
+	Tile* getLocalTile(int x, int y);
 	void setTile(Tile* tile, int x, int y);
 
 	void addTileEntity(TileEntity* tileEntity, lost::Vector2D position);
 	void destroyTileEntity(TileEntity* tileEntity);
 
-	void render();
+	void renderTiles();
+	void renderTileEntities();
+	void renderBorders();
 
 private:
 	lost::IntVector2D chunkCoord;

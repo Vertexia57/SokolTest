@@ -20,7 +20,7 @@ public:
 
 	void render();
 
-	bool layerFull[3] = {};
+	bool filledLayers[3] = { false, false, false };
 
 	lost::IntVector2D pos;
 	std::vector<TileEntity*> tileEntitiesWithin;

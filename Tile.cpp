@@ -13,6 +13,13 @@ Tile::~Tile()
 void Tile::addTileEntityRef(TileEntity* ref)
 {
 	tileEntitiesWithin.push_back(ref);
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (ref->fillsLayers[i])
+			filledLayers[i] = true;
+	}
+
 }
 
 void Tile::removeTileEntityRef(TileEntity* ref)
@@ -25,6 +32,13 @@ void Tile::removeTileEntityRef(TileEntity* ref)
 			break;
 		}
 	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (ref->fillsLayers[i])
+			filledLayers[i] = false;
+	}
+
 }
 
 void Tile::render()
