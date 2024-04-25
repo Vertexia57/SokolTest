@@ -73,6 +73,13 @@ lost::Vector2D Camera::screenToWorld(lost::Vector2D mousePos)
 	return mousePos;
 }
 
+lost::Bound2D Camera::getViewBounds()
+{
+	lost::Bound2D viewBounds = m_Bounds * (m_Transform.scale + lost::Vector2D{ 0.1f, 0.1f }) + m_Transform.position;
+	viewBounds = viewBounds - lost::Vector2D{ viewBounds.w / 2.0f, viewBounds.h / 2.0f };
+	return viewBounds;
+}
+
 void Camera::m_UpdateGoalPtr()
 {
 	int highestPriorityFound = -1;

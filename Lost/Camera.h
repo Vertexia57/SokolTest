@@ -30,6 +30,8 @@ public:
 
 	lost::Vector2D screenToWorld(lost::Vector2D mousePos);
 
+	lost::Bound2D getViewBounds();
+
 private:
 	void m_UpdateGoalPtr();
 

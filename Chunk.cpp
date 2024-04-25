@@ -1,4 +1,5 @@
 #include "Chunk.h"
+#include "Random.h"
 
 Chunk::Chunk(lost::IntVector2D chunkPos, int width, int height)
 {
@@ -7,10 +8,14 @@ Chunk::Chunk(lost::IntVector2D chunkPos, int width, int height)
 	chunkCoord = chunkPos;
 
 	m_Tiles.reserve(width * height);
-	for (int x = 0; x < width; x++)
+	for (int y = 0; y < height; y++)
 	{
-		for (int y = 0; y < height; y++)
-			m_Tiles.push_back(new Tile({x + chunkCoord.x * 16, y + chunkCoord.y * 16}, 0));
+		for (int x = 0; x < width; x++)
+		{
+			Tile* tileRef = nullptr;
+			tileRef = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, g_TileManager.getTileRef("air"));
+			m_Tiles.push_back(tileRef);
+		}
 	}
 }
 
@@ -22,8 +27,8 @@ Chunk::~Chunk()
 
 Tile* Chunk::getTile(int x, int y)
 {
-	int localX = (x - chunkCoord.x * 16);
-	int localY = (y - chunkCoord.y * 16);
+	int localX = (x - chunkCoord.x * m_Width);
+	int localY = (y - chunkCoord.y * m_Height);
 
 	if (localX >= 0 && localX < m_Width && localY >= 0 && localY < m_Height)
 		return m_Tiles[localX + localY * m_Width];
@@ -37,16 +42,34 @@ Tile* Chunk::getLocalTile(int x, int y)
 	return nullptr;
 }
 
-void Chunk::setTile(Tile* tile, int x, int y)
+void Chunk::setTile(TileRefStruct* tile, int x, int y)
 {
 	// Converts from world position to chunk position
 	// [?] Should this be moved to the world to do?
-	float localX = (x - chunkCoord.x * 16);
-	float localY = (y - chunkCoord.y * 16);
+	float localX = (x - chunkCoord.x * m_Width);
+	float localY = (y - chunkCoord.y * m_Height);
 
-	delete m_Tiles[localX + localY * m_Width];
-	m_Tiles[localX + localY * m_Width] = tile;
-	tile->pos = { x, y };
+	std::vector<TileEntity*> oldCellTileEntityRefs = m_Tiles[localX + localY * m_Width]->tileEntitiesWithin;
+
+	delete getLocalTile(localX, localY);
+	m_Tiles[localX + localY * m_Width] = new Tile({ x, y }, tile);
+	m_Tiles[localX + localY * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
+}
+
+void Chunk::generateChunk(Generator* generator)
+{
+	ChunkDataStruct data = generator->generateChunk(chunkCoord.x, m_Width, m_Height);
+
+	for (int y = 0; y < data.height; y++)
+	{
+		for (int x = 0; x < data.width; x++)
+		{
+			std::vector<TileEntity*> oldCellTileEntityRefs = m_Tiles[x + y * m_Width]->tileEntitiesWithin;
+			delete getLocalTile(x, y);
+			m_Tiles[x + y * m_Width] = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, data.tileMap[x + y * m_Width]);
+			m_Tiles[x + y * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
+		}
+	}
 }
 
 void Chunk::addTileEntity(TileEntity* tileEntity, lost::Vector2D position)
@@ -68,13 +91,20 @@ void Chunk::destroyTileEntity(TileEntity* tileEntity)
 	}
 }
 
-void Chunk::renderTiles()
+void Chunk::renderTiles(lost::Bound2D renderBounds)
 {
-	for (Tile* tile : m_Tiles)
-		tile->render();
+	for (int y = floor(renderBounds.top / 32.0f); y < ceil(renderBounds.bottom / 32.0f); y++)
+	{
+		for (int x = floor(renderBounds.left / 32.0f); x < ceil(renderBounds.right / 32.0f); x++)
+		{
+			Tile* tile = getTile(x, y);
+			if (tile)
+				tile->render();
+		}
+	}
 }
 
-void Chunk::renderTileEntities()
+void Chunk::renderTileEntities(lost::Bound2D renderBounds)
 {
 	for (TileEntity* tileEntity : m_TileEntities)
 		tileEntity->render();
@@ -85,11 +115,11 @@ void Chunk::renderBorders()
 	sgp_set_color(1.0, 0.0, 0.0, 1.0);
 	lost::clearImage();
 
-	sgp_point lines[5] = { {chunkCoord.x * 64.0f * 16.0f, chunkCoord.y * 64.0f * 16.0f},
-						   {chunkCoord.x * 64.0f * 16.0f + 64.0f * 16.0f, chunkCoord.y * 64.0f * 16.0f},
-						   {chunkCoord.x * 64.0f * 16.0f + 64.0f * 16.0f, chunkCoord.y * 64.0f * 16.0f + 64.0f * 16.0f},
-						   {chunkCoord.x * 64.0f * 16.0f, chunkCoord.y * 64.0f * 16.0f + 64.0f * 16.0f},
-						   {chunkCoord.x * 64.0f * 16.0f, chunkCoord.y * 64.0f * 16.0f} };
+	sgp_point lines[5] = { {chunkCoord.x * 32.0f * m_Width, chunkCoord.y * 32.0f * m_Height},
+						   {chunkCoord.x * 32.0f * m_Width + 32.0f * m_Width, chunkCoord.y * 32.0f * m_Height},
+						   {chunkCoord.x * 32.0f * m_Width + 32.0f * m_Width, chunkCoord.y * 32.0f * m_Height + 32.0f * m_Height},
+						   {chunkCoord.x * 32.0f * m_Width, chunkCoord.y * 32.0f * m_Height + 32.0f * m_Height},
+						   {chunkCoord.x * 32.0f * m_Width, chunkCoord.y * 32.0f * m_Height} };
 
 	sgp_draw_lines_strip(lines, 5);
 }

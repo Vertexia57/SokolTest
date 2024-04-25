@@ -1,0 +1,11 @@
+{
+	"Name" : "Air",
+	"ID" : "air",
+    "Description" : "",
+
+    "Empty" : true,
+    
+	"ConnectionType" : "none",
+
+	"FillsLayers" : [ false, false, false ]
+}

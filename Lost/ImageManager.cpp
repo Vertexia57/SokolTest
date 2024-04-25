@@ -31,6 +31,8 @@ ImageManager::~ImageManager()
 TextureID ImageManager::addImageToQueue(const ImageLoadStruct& loadStruct)
 {
 	m_LoadQueue.push_back(loadStruct);
+	m_ImageMap[loadStruct.imageName] = m_ImagesAllocated;
+
 	m_ImagesAllocated++;
 
 	return m_ImagesAllocated - 1;
@@ -44,11 +46,10 @@ void ImageManager::loadImageQueue(float& percentageReturn)
 
 	for (int i = 0; i < imagesToLoad; i++)
 	{
-		Image* image = new Image(m_LoadQueue[i].fileName);
+		Image* image = new Image(m_LoadQueue[i].fileName.c_str());
 		image->id = startingSize + i;
 
 		m_Images.push_back(image);
-		m_ImageMap[m_LoadQueue[i].imageName] = image->id;
 
 		percentageReturn = (float)i / imagesToLoad;
 	}
@@ -63,6 +64,16 @@ Image* ImageManager::getImage(TextureID id)
 Image* ImageManager::getImage(std::string id)
 {
 	return m_Images[m_ImageMap[id]];
+}
+
+bool ImageManager::imageAdded(std::string id)
+{
+	return m_ImageMap.count(id);
+}
+
+TextureID ImageManager::getImageID(std::string id)
+{
+	return m_ImageMap[id];
 }
 
 sg_sampler& ImageManager::getSampler(int id)
@@ -103,6 +114,12 @@ namespace lost
 		return imageManager->addImageToQueue(loadStruct);
 	}
 
+	TextureID loadImage(std::string fileName, std::string imageName)
+	{
+		ImageLoadStruct loadStruct = { fileName.c_str(), imageName.c_str() };
+		return imageManager->addImageToQueue(loadStruct);
+	}
+
 	Image* getImage(TextureID id)
 	{
 		return imageManager->getImage(id);
@@ -111,6 +128,16 @@ namespace lost
 	Image* getImage(std::string id)
 	{
 		return imageManager->getImage(id);
+	}
+
+	bool imageAdded(std::string id)
+	{
+		return imageManager->imageAdded(id);
+	}
+
+	TextureID getImageID(std::string id)
+	{
+		return imageManager->getImageID(id);
 	}
 
 	void useImage(TextureID id, uint32_t slot)

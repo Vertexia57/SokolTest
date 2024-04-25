@@ -1,0 +1,27 @@
+{
+	"Name" : "Stone",
+	"ID" : "stone",
+    "Description" : "",
+
+    "Empty" : false,
+	
+	"ConnectionType" : "base",
+	"ConnectionData" : {
+		"ConnectionGroup" : "BaseMod:Ground",
+		"ConnectsTo" : ["BaseMod:Ground"]
+	},
+	
+	"ImageData" : {
+		"Images" : [
+			{
+				"File" : "TestConnections.png",
+				"ImageName" : "stone",
+				"Pass" : "Albedo"
+			}
+		],
+		"Frames" : 1,
+		"Variants" : 47
+	},
+
+	"FillsLayers" : [ true, false, false ]
+}

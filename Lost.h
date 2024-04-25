@@ -5,6 +5,7 @@
 #include "Lost/ShaderManager.h"
 #include "Lost/Camera.h"
 #include "Lost/InputManager.h"
+#include "Lost/LuaInit.h"
 
 namespace lost
 {

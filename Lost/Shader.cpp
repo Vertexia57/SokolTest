@@ -72,6 +72,7 @@ void Shader::m_CreateShader()
     sgp_pipeline_desc pipedesc = {};
     pipedesc.shader = shader;
     pipedesc.has_vs_color = true;
+    pipedesc.blend_mode = SGP_BLENDMODE_BLEND;
 
     pipeline = sgp_make_pipeline(&pipedesc);
     if (sg_query_pipeline_state(pipeline) != SG_RESOURCESTATE_VALID)

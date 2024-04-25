@@ -2526,7 +2526,8 @@ static void stbi__idct_block(stbi_uc *out, int out_stride, short data[64])
 #ifdef STBI_SSE2
 // sse2 integer IDCT. not the fastest possible implementation but it
 // produces bit-identical results to the generic C version so it's
-// fully "transparent".
+// fully "
+// t".
 static void stbi__idct_simd(stbi_uc *out, int out_stride, short data[64])
 {
    // This is constructed to match our regular (generic) integer IDCT exactly.

@@ -1,9 +1,14 @@
 #include "Tile.h"
 
-Tile::Tile(lost::IntVector2D position, TextureID tileTexture)
+Tile::Tile(lost::IntVector2D position, TileRefStruct* referenceStruct_)
 {
 	pos = position;
-	m_TileTexture = tileTexture;
+	referenceStruct = referenceStruct_;
+
+	for (int i = 0; i < 3; i++)
+		filledLayers[i] = referenceStruct->fillsLayers[i];
+
+	empty = referenceStruct->empty;
 }
 
 Tile::~Tile()
@@ -41,10 +46,18 @@ void Tile::removeTileEntityRef(TileEntity* ref)
 
 }
 
+void Tile::setTextureVariant(uint32_t textureVariant)
+{
+	m_TileID = textureVariant;
+}
+
 void Tile::render()
 {
-	lost::useImage(m_TileTexture);
-	float imageWidth = lost::getImage(m_TileTexture)->width;
-	float imageHeight = lost::getImage(m_TileTexture)->height;
-	sgp_draw_textured_rect(0, { (float)pos.x * 64.0f, (float)pos.y * 64.0f, 64.0f, 64.0f }, { 0, 0, imageWidth, imageHeight });
+	if (!empty)
+	{
+		lost::useImage(referenceStruct->texture);
+		float imageWidth = lost::getImage(referenceStruct->texture)->width;
+		float imageHeight = lost::getImage(referenceStruct->texture)->height / referenceStruct->totalVariants;
+		sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, 32.0f, 32.0f }, { 0, imageHeight * m_TileID, imageWidth, imageHeight });
+	}
 }

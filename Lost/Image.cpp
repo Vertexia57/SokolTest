@@ -32,6 +32,8 @@ void Image::loadImage(const char* fileName)
 
     if (sg_query_image_state(image) != SG_RESOURCESTATE_VALID)
         fprintf(stderr, "[Image::loadImage] Failed to load image: %s\n", fileName);
+    else
+        fprintf(stdout, "[Image::loadImage] Loaded Image: %s\n", fileName);
 }
 
 void Image::useImage(uint32_t slot)

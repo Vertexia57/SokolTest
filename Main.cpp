@@ -1,5 +1,7 @@
 #include "Lost.h"
 #include "World.h"
+#include "TileManager.h"
+#include "Generator.h"
 
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
@@ -22,6 +24,7 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 }
 
 static World world;
+static int worldMaxX = 0;
 
 static void frame()     
 {
@@ -48,8 +51,6 @@ static void frame()
     lost::globalCamera.update(lost::deltaTime);
     lost::globalCamera.setViewportTransforms();
 
-    //lost::bindShader(lost::getShader(effectShader));
-
     if (lost::keyDown(SAPP_KEYCODE_A))
         cameraGoalPos.position.x -= 5.0f;
     if (lost::keyDown(SAPP_KEYCODE_D))
@@ -59,25 +60,32 @@ static void frame()
     if (lost::keyDown(SAPP_KEYCODE_S))
         cameraGoalPos.position.y += 5.0f;
 
+    if (lost::keyTapped(SAPP_KEYCODE_E))
+    {
+        worldMaxX++;
+        world.createChunk(worldMaxX);
+    }
+
     sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    world.render();
-    lost::clearImage();
+    world.render(lost::globalCamera.getViewBounds());
 
     lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 
-    Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
+    Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
     if (tileHovered)
     {
-        if (lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f), 2.0f, 2.0f }, { true, false, false }))
-            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 2.0f, 2.0f }), floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
+        if (lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f), 2.0f, 2.0f }, { true, false, false }))
+            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 2.0f, 2.0f }), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 
-        if (lost::mouseDown(2) && world.checkCanPlace({ floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f), 3.0f, 2.0f }, { true, false, false }))
-            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 3.0f, 2.0f }), floor(worldMouse.x / 64.0f), floor(worldMouse.y / 64.0f));
+        if (lost::mouseDown(2))
+        {
+            world.setTile(g_TileManager.getTileRef("stone"), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+        }
 
         for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
         {
-            if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 64.0f))
+            if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 32.0f))
             {
                 tileHovered->tileEntitiesWithin[i]->renderHitbox();
                 if (lost::mouseDown(1))
@@ -86,15 +94,13 @@ static void frame()
         }
     }
 
-    //lost::unbindShader();
-
     lost::resetInputData();
 
     // Begin a render pass.
     sg_pass pass = {}; 
     pass.swapchain = sglue_swapchain();
 
-    sg_begin_pass(&pass);
+    sg_begin_pass(&pass);   
     // Dispatch all draw commands to Sokol GFX.
     sgp_flush();
     // Finish a draw command queue, clearing it.
@@ -130,13 +136,19 @@ static void init(void) {
 
     effectShader = lost::loadShader("Shaders/vertex.vert", "Shaders/fragment.frag", "EffectShader");
 
-    grassTex = lost::loadImage("Images/Shmeldon.png", "shmeldon");
+    grassTex = lost::loadImage("Images/TestTile.png", "testTile");
     lost::loadImage("Images/Test.png", "test");
 
     lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
     lost::globalCamera.setSize(sapp_width(), sapp_height());
 
+    g_TileManager.loadTileData("TileData/Stone.json");
+    g_TileManager.loadTileData("TileData/Air.json");
+    
     lost::loadImageQueue();
+
+    world.worldInit();
+    world.createChunk(0);
 }
 
 // Called when the application is shutting down.

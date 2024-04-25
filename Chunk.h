@@ -1,5 +1,7 @@
 #pragma once
 #include "Tile.h"
+#include "TileManager.h"
+#include "Generator.h"
 
 class Chunk
 {
@@ -9,13 +11,15 @@ public:
 
 	Tile* getTile(int x, int y);
 	Tile* getLocalTile(int x, int y);
-	void setTile(Tile* tile, int x, int y);
+	void setTile(TileRefStruct* tile, int x, int y);
+
+	void generateChunk(Generator* generator);
 
 	void addTileEntity(TileEntity* tileEntity, lost::Vector2D position);
 	void destroyTileEntity(TileEntity* tileEntity);
 
-	void renderTiles();
-	void renderTileEntities();
+	void renderTiles(lost::Bound2D renderBounds);
+	void renderTileEntities(lost::Bound2D renderBounds);
 	void renderBorders();
 
 private:

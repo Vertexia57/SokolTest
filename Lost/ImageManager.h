@@ -7,8 +7,8 @@
 
 struct ImageLoadStruct
 {
-	const char* fileName;
-	const char* imageName;
+	std::string fileName;
+	std::string imageName;
 };
 
 class ImageManager
@@ -27,6 +27,12 @@ public:
 	// Returns the image with the name specified
 	Image* getImage(std::string id);
 
+	// Returns if an image with the name has been added or not
+	bool imageAdded(std::string id);
+
+	// Returns the imageID with the name specified
+	TextureID getImageID(std::string id);
+
 	// Returns the sampler with samplerID
 	sg_sampler& getSampler(int id);
 
@@ -43,7 +49,7 @@ private:
 namespace lost
 {
 
-	extern ::ImageManager* ImageManager;
+	extern ::ImageManager* imageManager;
 	
 	// These are ran by the system
 	extern void createImageManager();
@@ -57,11 +63,19 @@ namespace lost
 
 	// Loads an image into the image manager load queue 
 	extern TextureID loadImage(const char* fileName, const char* imageName);
+	// Loads an image into the image manager load queue 
+	extern TextureID loadImage(std::string fileName, std::string imageName);
 
 	// Returns the image with the id specified
 	extern Image* getImage(TextureID id);
 	// Returns the image with the name specified
 	extern Image* getImage(std::string id);
+
+	// Returns if an image with the name has been added or not
+	extern bool imageAdded(std::string id);
+
+	// Returns the image with the name specified
+	extern TextureID getImageID(std::string id);
 
 	// Sets the image with id into it's set image slot, "slot" defaults to LOST_TEXTURE_ALBEDO
 	extern void useImage(TextureID id, uint32_t slot = LOST_TEXTURE_ALBEDO);

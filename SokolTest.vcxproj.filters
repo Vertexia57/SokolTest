@@ -127,6 +127,21 @@
     <ClInclude Include="World.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="JSON.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="TileManager.h">
+      <Filter>Game\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\LuaInit.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -166,6 +181,18 @@
       <Filter>Game\Tiles</Filter>
     </ClCompile>
     <ClCompile Include="World.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="JSON.cpp">
+      <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="TileManager.cpp">
+      <Filter>Game\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\LuaInit.cpp">
+      <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>

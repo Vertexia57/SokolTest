@@ -2,6 +2,7 @@
 #include "../SokolReference.h"
 
 #include <fstream>
+#include <sstream>
 #include <string>
 
 #include <stdio.h>
@@ -25,6 +26,15 @@ static std::string read_UTF8_file(const char* fileName)
 	// Failed passed here
 	fprintf(stderr, " [func: read_UTF8_file] Failed to load file with file name: %s\n", fileName);
 	throw(errno);
+}
+
+static std::string read_text_file(const char* fileName)
+{
+	std::ifstream t(fileName);
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+	t.close();
+	return buffer.str();
 }
 
 class Shader
