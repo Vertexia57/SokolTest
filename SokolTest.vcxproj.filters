@@ -17,11 +17,14 @@
     <Filter Include="Game">
       <UniqueIdentifier>{6080c3fc-5600-43a0-8eff-2e5066fa3546}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Tiles">
-      <UniqueIdentifier>{8f99d293-819c-4691-9b1a-d70bcb131359}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lost\Sokol\Imgui">
       <UniqueIdentifier>{d8769021-7f88-476d-9523-e1ac8cd0873d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\World">
+      <UniqueIdentifier>{8f99d293-819c-4691-9b1a-d70bcb131359}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Entity">
+      <UniqueIdentifier>{7be1da25-c30c-4ba0-a93f-d95e3c8cf588}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -119,31 +122,22 @@
       <Filter>Lost\Managers</Filter>
     </ClInclude>
     <ClInclude Include="Tile.h">
-      <Filter>Game\Tiles</Filter>
-    </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>Game</Filter>
+      <Filter>Game\World</Filter>
     </ClInclude>
     <ClInclude Include="TileEntity.h">
-      <Filter>Game\Tiles</Filter>
-    </ClInclude>
-    <ClInclude Include="World.h">
-      <Filter>Game</Filter>
+      <Filter>Game\World</Filter>
     </ClInclude>
     <ClInclude Include="JSON.h">
       <Filter>Lost</Filter>
     </ClInclude>
     <ClInclude Include="TileManager.h">
-      <Filter>Game\Tiles</Filter>
+      <Filter>Game\World</Filter>
     </ClInclude>
     <ClInclude Include="Random.h">
       <Filter>Lost</Filter>
     </ClInclude>
     <ClInclude Include="Lost\LuaInit.h">
       <Filter>Lost</Filter>
-    </ClInclude>
-    <ClInclude Include="Generator.h">
-      <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="sokol\imgui\imconfig.h">
       <Filter>Lost\Sokol\Imgui</Filter>
@@ -168,6 +162,21 @@
     </ClInclude>
     <ClInclude Include="sokol\imgui\imstb_truetype.h">
       <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>Game\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h">
+      <Filter>Game\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Game\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Game\Entity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -199,28 +208,19 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Tile.cpp">
-      <Filter>Game\Tiles</Filter>
-    </ClCompile>
-    <ClCompile Include="Chunk.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\World</Filter>
     </ClCompile>
     <ClCompile Include="TileEntity.cpp">
-      <Filter>Game\Tiles</Filter>
-    </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\World</Filter>
     </ClCompile>
     <ClCompile Include="JSON.cpp">
       <Filter>Lost</Filter>
     </ClCompile>
     <ClCompile Include="TileManager.cpp">
-      <Filter>Game\Tiles</Filter>
+      <Filter>Game\World</Filter>
     </ClCompile>
     <ClCompile Include="Lost\LuaInit.cpp">
       <Filter>Lost</Filter>
-    </ClCompile>
-    <ClCompile Include="Generator.cpp">
-      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="sokol\imgui\imgui.cpp">
       <Filter>Lost\Sokol\Imgui</Filter>
@@ -242,6 +242,21 @@
     </ClCompile>
     <ClCompile Include="sokol\imgui\imgui_widgets.cpp">
       <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>Game\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator.cpp">
+      <Filter>Game\World</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Game\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

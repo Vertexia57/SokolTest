@@ -15,6 +15,8 @@ enum
 struct TileRefStruct
 {
 	bool empty = false;
+	bool stableGround = false;
+	bool collidable = false;
 
 	std::string name = "Null";
 	std::string ID = "Null";
@@ -37,6 +39,8 @@ struct TileRefStruct
 		description = tileData->getString("Description");
 
 		empty = tileData->getBool("Empty");
+		stableGround = tileData->getBool("Stable");
+		collidable = tileData->getBool("Collidable");
 
 		if (tileData->getObjectList().count("ImageData"))
 		{

@@ -4,6 +4,8 @@
     "Description" : "",
 
     "Empty" : true,
+	"Stable" : false,
+	"Collidable" : false,
     
 	"ConnectionType" : "none",
 

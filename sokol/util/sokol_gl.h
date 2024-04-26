@@ -76,7 +76,8 @@
         - texture coordinate generation
         - line width
         - all pixel store functions
-        - no ALPHA_TEST
+        - no 
+        _TEST
         - no clear functions (clearing is handled by the sokol-gfx render pass)
         - fog
 

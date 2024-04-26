@@ -7,15 +7,15 @@ ImageManager::ImageManager()
 	// Creates a sampler with linear sampling
 	sampler_desc.min_filter = SG_FILTER_LINEAR;
 	sampler_desc.mag_filter = SG_FILTER_LINEAR;
-	sampler_desc.wrap_u = SG_WRAP_REPEAT;
-	sampler_desc.wrap_v = SG_WRAP_REPEAT;
+	sampler_desc.wrap_u = SG_WRAP_CLAMP_TO_BORDER;
+	sampler_desc.wrap_v = SG_WRAP_CLAMP_TO_BORDER;
 	samplers[0] = sg_make_sampler(&sampler_desc);
 
 	// Creates a sampler with nearest neighbor sampling
 	sampler_desc.min_filter = SG_FILTER_NEAREST;
 	sampler_desc.mag_filter = SG_FILTER_NEAREST;
-	sampler_desc.wrap_u = SG_WRAP_REPEAT;
-	sampler_desc.wrap_v = SG_WRAP_REPEAT;
+	sampler_desc.wrap_u = SG_WRAP_CLAMP_TO_BORDER;
+	sampler_desc.wrap_v = SG_WRAP_CLAMP_TO_BORDER;
 	samplers[1] = sg_make_sampler(&sampler_desc);
 }
 

@@ -10,7 +10,7 @@ end
 function detailNoise(x, scale, detail)
     local Total = 0
     for i = 0, detail, 1 do
-        Total = Total + perlin:noise(x * math.pow(2, i) * scale, 0, generatorSeed) / math.pow(2, i)
+        Total = Total + perlin:noise(x * math.pow(2, i / 2.0) * scale, 0, generatorSeed) / math.pow(2, i)
     end
     return Total
 end
@@ -26,7 +26,7 @@ end
 -- Noise Maps
 local noiseMap = {}
 for x = 1, chunkWidth, 1 do
-    noiseMap[x] = getNoise((x - 1 + chunkX * chunkWidth), 0.05, 2)
+    noiseMap[x] = detailNoise((x - 1 + chunkX * chunkWidth), 0.05, 2)
     -- cPrint(tostring(x - 1 + chunkX * chunkWidth))
 end
 

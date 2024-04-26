@@ -10,6 +10,8 @@ World::~World()
 		delete chunk;
 	delete m_BorderAir;
 	delete worldGenerator;
+	for (Entity* entity : m_Entities)
+		delete entity;
 }
 
 void World::worldInit()
@@ -18,17 +20,45 @@ void World::worldInit()
 	worldGenerator = new Generator("TileData\\Generator.lua");
 }
 
+void World::update(lost::Bound2D renderBounds)
+{
+	//for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
+	//{
+	//	if (m_Chunks.count(x))
+	//}
+
+	for (int i = m_Entities.size() - 1; i >= 0; i--)
+	{
+		m_Entities[i]->update();
+		if (m_Entities[i]->killEntity)
+		{
+			delete m_Entities[i];
+			m_Entities.erase(m_Entities.begin() + i);
+		}
+	}
+}
+
 void World::render(lost::Bound2D renderBounds)
 {
 	lost::bindShader(lost::getShader(0));
-	for (const auto& [val, chunk] : m_Chunks)
-		chunk->renderTiles(renderBounds);
-	for (const auto& [val, chunk] : m_Chunks)
-		chunk->renderTileEntities(renderBounds);
+	for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
+	{
+		if (m_Chunks.count(x))
+		{
+			m_Chunks[x]->renderTiles(renderBounds);
+			m_Chunks[x]->renderTileEntities(renderBounds);
+		}
+	}
+
+	for (Entity* entity : m_Entities)
+		entity->render(renderBounds);
+
 	lost::unbindShader();
 	lost::clearImage();
 	//for (const auto& [val, chunk] : m_Chunks)
 	//	chunk->renderBorders();
+
+	ImGui::Text("Current Vertex Count: %i", m_Chunks.size() * chunkWidth * chunkHeight * 4);
 }
 
 void World::createChunk(int x)
@@ -133,6 +163,38 @@ bool World::checkCanPlace(lost::Bound2D bounds, std::array<bool, 3> layers)
 	return !taken;
 }
 
+bool World::checkStable(lost::Bound2D bounds)
+{
+	bool notStable = false;
+
+	// Loops through all covered tiles
+	for (int y = floor(bounds.top); y < ceil(bounds.bottom) && !notStable; y++)
+	{
+		for (int x = floor(bounds.left); x < ceil(bounds.right) && !notStable; x++)
+		{
+
+			// Check if any of that tiles filledLayers match up with the layers given
+			Tile* tile = getTileAt(x, y);
+			if (tile != m_BorderAir)
+			{
+				if (!tile->referenceStruct->stableGround)
+				{
+					// If they do, break out, and don't check any further
+					notStable = true;
+					break;
+				}
+			}
+			else
+			{
+				notStable = true;
+			}
+
+		}
+	}
+
+	return !notStable;
+}
+
 void World::setTile(TileRefStruct* tile, int x, int y)
 {
 	if (m_Chunks.count((int)floor(x / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
@@ -219,9 +281,16 @@ void World::updateTileNeighbors(int x, int y)
 	}
 }
 
+void World::addEntity(Entity* entity)
+{
+	m_Entities.push_back(entity);
+}
+
 Tile* World::getTileAt(int x, int y)
 {
 	if (m_Chunks.count((int)floor(x / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
 		return m_Chunks[(int)floor(x / (float)chunkWidth)]->getTile(x, y);
 	return m_BorderAir;
 }
+
+World* world = nullptr;

@@ -29,8 +29,12 @@ void Camera::update(double deltaTime)
 	if (m_GoalTransform)
 	{
 		lost::Transform2D oldTransform = m_Transform;
-		m_Transform.lerp(*m_GoalTransform, deltaTime / 100.0f);
+		m_Transform.lerp(*m_GoalTransform, fminf(deltaTime / 100.0f, 1.0f));
 		m_RotationOffset = lost::lerp(m_RotationOffset, -fmaxf(fminf((m_Transform - oldTransform).position.x / 300.0f, 0.7f), -0.7f), deltaTime / 50.0f);
+	}
+	else
+	{
+		fprintf(stderr, " [Camera::update()] Goal transform not found!!!");
 	}
 }
 

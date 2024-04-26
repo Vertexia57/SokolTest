@@ -21,182 +21,212 @@ static lost::Transform2D cameraGoalPos;
 
 static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 {
-    simgui_handle_event(user_event);
-    lost::feedInputEvent(user_event);
+	simgui_handle_event(user_event);
+	lost::feedInputEvent(user_event);
 }
-
-static World world;
-static int worldMaxX = 0;
 
 static void frame()     
 {
-    lost::recalcDeltaTime();
+	lost::recalcDeltaTime();
 
-    // Get current window size.
-    int width = sapp_width(), height = sapp_height();
+	// Get current window size.
+	int width = sapp_width(), height = sapp_height();
 
-    float window_ratio = (float)width / (float)height;
-    float image_ratio = (float)lost::getImage(0)->height / (float)lost::getImage(0)->width;
+	float window_ratio = (float)width / (float)height;
+	float image_ratio = (float)lost::getImage(0)->height / (float)lost::getImage(0)->width;
 
-    simgui_frame_desc_t imguiFrameData = {};
-    imguiFrameData.width = width;
-    imguiFrameData.height = height;
-    imguiFrameData.delta_time = lost::deltaTime / 1000.0f;
-    imguiFrameData.dpi_scale = 1;
-    simgui_new_frame(&imguiFrameData);
+	simgui_frame_desc_t imguiFrameData = {};
+	imguiFrameData.width = width;
+	imguiFrameData.height = height;
+	imguiFrameData.delta_time = lost::deltaTime / 1000.0f;
+	imguiFrameData.dpi_scale = 1;
+	simgui_new_frame(&imguiFrameData);
 
-    char buffer[20] = {};
-    ImGui::InputText("Text in", buffer, 20);
+	// Begin recording draw commands for a frame buffer of size (width, height).
+	sgp_begin(width, height);
+	// Set frame buffer drawing region to (0,0,width,height).
+	sgp_viewport(0, 0, width, height);
 
-    // Begin recording draw commands for a frame buffer of size (width, height).
-    sgp_begin(width, height);
-    // Set frame buffer drawing region to (0,0,width,height).
-    sgp_viewport(0, 0, width, height);
+	// Clear the frame buffer.
+	sgp_set_color(0.1f, 0.1f, 0.1f, 1.0f);
+	sgp_clear();
 
-    // Clear the frame buffer.
-    sgp_set_color(0.1f, 0.1f, 0.1f, 1.0f);
-    sgp_clear();
+	Uptime += lost::deltaTime;
+	lost::globalCamera.setSize(width, height);
+	float scaleVal = fminf(fmaxf(cameraGoalPos.scale.x * (1.0f - lost::mouseScroll() / 10.0f), 0.5), 2.1f);
+	cameraGoalPos.scale = { scaleVal, scaleVal };
+	lost::globalCamera.update(lost::deltaTime);
+	lost::globalCamera.setViewportTransforms();
 
-    Uptime += lost::deltaTime;
-    lost::globalCamera.setSize(width, height);
-    cameraGoalPos.scale = cameraGoalPos.scale * (1.0f - lost::mouseScroll() / 10.0f);
-    lost::globalCamera.update(lost::deltaTime);
-    lost::globalCamera.setViewportTransforms();
+	if (!ImGui::IsAnyItemActive())
+	{
+		if (lost::keyDown(SAPP_KEYCODE_A))
+			cameraGoalPos.position.x -= 5.0f;
+		if (lost::keyDown(SAPP_KEYCODE_D))
+			cameraGoalPos.position.x += 5.0f;
+		if (lost::keyDown(SAPP_KEYCODE_W))
+			cameraGoalPos.position.y -= 5.0f;
+		if (lost::keyDown(SAPP_KEYCODE_S))
+			cameraGoalPos.position.y += 5.0f;
+	}
 
-    if (!ImGui::IsAnyItemActive())
-    {
-        if (lost::keyDown(SAPP_KEYCODE_A))
-            cameraGoalPos.position.x -= 5.0f;
-        if (lost::keyDown(SAPP_KEYCODE_D))
-            cameraGoalPos.position.x += 5.0f;
-        if (lost::keyDown(SAPP_KEYCODE_W))
-            cameraGoalPos.position.y -= 5.0f;
-        if (lost::keyDown(SAPP_KEYCODE_S))
-            cameraGoalPos.position.y += 5.0f;
+	lost::startProcessTime();
 
-        if (lost::keyTapped(SAPP_KEYCODE_E))
-        {
-            worldMaxX++;
-            world.createChunk(worldMaxX);
-        }
-    }
+	if (ImGui::Button("Generate Chunk +X"))
+	{
+		world->worldMaxX++;
+		world->createChunk(world->worldMaxX);
+	}
 
-    sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+	if (ImGui::Button("Generate Chunk -X"))
+	{
+		world->worldMinX--;
+		world->createChunk(world->worldMinX);
+	}
 
-    world.render(lost::globalCamera.getViewBounds());
+	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
-    lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+	world->update(lost::globalCamera.getViewBounds());
+	lost::calcProcessTime("Update Time");
+	world->render(lost::globalCamera.getViewBounds());
 
-    Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-    if (tileHovered)
-    {
-        if (!ImGui::IsAnyItemActive() && lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f), 2.0f, 2.0f }, { true, false, false }))
-            world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 2.0f, 2.0f }), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
 
-        if (!ImGui::IsAnyItemActive() && lost::mouseDown(2))
-        {
-            world.setTile(g_TileManager.getTileRef("stone"), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-        }
+	Tile* tileHovered = world->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+	if (tileHovered)
+	{
+		if (!ImGui::IsAnyItemActive())
+		{
+			lost::useImage(1);
+			float imageWidth = lost::getImage(1)->width;
+			float imageHeight = lost::getImage(1)->height;
+			bool CanPlace = world->checkStable({ blockMouse.x, blockMouse.y + 8, 0.5f, 1.0f }) && world->checkCanPlace({ blockMouse.x, blockMouse.y, 0.5f, 8.0f }, { true, false, false });
+			
+			if (CanPlace)
+				sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
+			else
+				sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
 
-        for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
-        {
-            if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 32.0f))
-            {
-                tileHovered->tileEntitiesWithin[i]->renderHitbox();
-                if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
-                    world.destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
-            }
-        }
-    }
+			sgp_draw_textured_rect(0, { (float)blockMouse.x * 32.0f, (float)blockMouse.y * 32.0f, 0.5f * 32.0f, 8.0f * 32.0f }, { 0, 0, imageWidth, imageHeight });
+			if (lost::mouseDown(0) && CanPlace)
+				world->addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 0.5f, 7.8f }), floor(worldMouse.x / 32.0f) + 0.1f, floor(worldMouse.y / 32.0f) + 0.2f);
+			lost::clearImage();
+		}
 
-    lost::resetInputData();
+		if (!ImGui::IsAnyItemActive() && lost::mouseTapped(2))
+		{
+			world->addEntity(new Entity({ worldMouse.x, worldMouse.y, 30.0f, 30.0f }));
+		}
 
-    // Begin a render pass.
-    sg_pass pass = {}; 
-    pass.swapchain = sglue_swapchain();
+		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
+		{
+			if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 32.0f))
+			{
+				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+				tileHovered->tileEntitiesWithin[i]->renderHitbox();
+				if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
+					world->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+			}
+		}
+	}
 
-    sg_begin_pass(&pass);   
-    // Dispatch all draw commands to Sokol GFX.
-    sgp_flush();
-    // Finish a draw command queue, clearing it.
-    sgp_end();
-    // Display imgui
-    simgui_render();
+	lost::resetInputData();
 
-    // End render pass.
-    sg_end_pass();
-    // Commit Sokol render.
-    sg_commit();
+	// Begin a render pass.
+	sg_pass pass = {}; 
+	pass.swapchain = sglue_swapchain();
+
+	sg_begin_pass(&pass);   
+	// Dispatch all draw commands to Sokol GFX.
+	sgp_flush();
+	// Finish a draw command queue, clearing it.
+	sgp_end();
+
+	lost::calcProcessTime("Render Time");
+	// Display imgui
+	simgui_render();
+
+	// End render pass.
+	sg_end_pass();
+	// Commit Sokol render.
+	sg_commit();
 }
 
 // Called when the application is initializing.
 static void init(void) {
-    // Initialize Sokol GFX.
-    sg_desc sgdesc = {};
-    sgdesc.environment = sglue_environment();
-    sgdesc.logger.func = slog_func;
+	// Initialize Sokol GFX.
+	sg_desc sgdesc = {};
+	sgdesc.environment = sglue_environment();
+	sgdesc.logger.func = slog_func;
 
-    sg_setup(&sgdesc);
-    if (!sg_isvalid()) {
-        fprintf(stderr, "Failed to create Sokol GFX context!\n");
-        exit(-1);
-    }
+	sg_setup(&sgdesc);
+	if (!sg_isvalid()) {
+		fprintf(stderr, "Failed to create Sokol GFX context!\n");
+		exit(-1);
+	}
 
-    // Initialize Sokol GP, adjust the size of command buffers for your own use.
-    sgp_desc sgpdesc = { 0 };
-    sgp_setup(&sgpdesc);
-    if (!sgp_is_valid()) {
-        fprintf(stderr, "Failed to create Sokol GP context: %s\n", sgp_get_error_message(sgp_get_last_error()));
-        exit(-1);
-    }
+	// Initialize Sokol GP, adjust the size of command buffers for your own use.
+	sgp_desc sgpdesc = { 0 };
 
-    lost::createManagers();
+	sgpdesc.max_vertices = (1 << 18);
+	sgp_setup(&sgpdesc);
+	if (!sgp_is_valid()) {
+		fprintf(stderr, "Failed to create Sokol GP context: %s\n", sgp_get_error_message(sgp_get_last_error()));
+		exit(-1);
+	}
 
-    effectShader = lost::loadShader("Shaders/vertex.vert", "Shaders/fragment.frag", "EffectShader");
+	lost::createManagers();
 
-    grassTex = lost::loadImage("Images/TestTile.png", "testTile");
-    lost::loadImage("Images/Test.png", "test");
+	effectShader = lost::loadShader("Shaders/vertex.vert", "Shaders/fragment.frag", "EffectShader");
 
-    lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
-    lost::globalCamera.setSize(sapp_width(), sapp_height());
+	grassTex = lost::loadImage("Images/TestTile.png", "testTile");
+	lost::loadImage("Images/Test.png", "test");
 
-    g_TileManager.loadTileData("TileData/Stone.json");
-    g_TileManager.loadTileData("TileData/Air.json");
-    
-    lost::loadImageQueue();
+	lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
+	lost::globalCamera.setSize(sapp_width(), sapp_height());
 
-    world.worldInit();
-    world.createChunk(0);
+	g_TileManager.loadTileData("TileData/Stone.json");
+	g_TileManager.loadTileData("TileData/Air.json");
+	
+	lost::loadImageQueue();
 
-    simgui_desc_t simguiSetupDesc = {};
-    simgui_setup(&simguiSetupDesc);
+	world = new World();
+
+	world->worldInit();
+	world->createChunk(0);
+
+	simgui_desc_t simguiSetupDesc = {};
+	simgui_setup(&simguiSetupDesc);
 }
 
 // Called when the application is shutting down.
 static void cleanup(void) {
 
-    lost::destroyManagers();
-    lost::globalCamera.unbindGoalTransform(&cameraGoalPos);
+	lost::destroyManagers();
+	lost::globalCamera.unbindGoalTransform(&cameraGoalPos);
+	
+	delete world;
 
-    // Close Imgui
-    simgui_shutdown();
+	// Close Imgui
+	simgui_shutdown();
 
-    // Cleanup Sokol GP and Sokol GFX resources.
-    sgp_shutdown();
-    sg_shutdown();
+	// Cleanup Sokol GP and Sokol GFX resources.
+	sgp_shutdown();
+	sg_shutdown();
 }
 
 // Implement application main through Sokol APP.
 sapp_desc sokol_main(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
-    sapp_desc sokolAppDescription = {};
-    sokolAppDescription.init_cb = init;
-    sokolAppDescription.frame_cb = frame;
-    sokolAppDescription.cleanup_cb = cleanup;
-    sokolAppDescription.window_title = "Rectangle (Sokol GP)";
-    sokolAppDescription.logger.func = slog_func;
-    sokolAppDescription.win32_console_attach = true;
-    sokolAppDescription.event_userdata_cb = event_userdata_cb;
-    return sokolAppDescription;
+	(void)argc;
+	(void)argv;
+	sapp_desc sokolAppDescription = {};
+	sokolAppDescription.init_cb = init;
+	sokolAppDescription.frame_cb = frame;
+	sokolAppDescription.cleanup_cb = cleanup;
+	sokolAppDescription.window_title = "TestGame";
+	sokolAppDescription.logger.func = slog_func;
+	sokolAppDescription.win32_console_attach = true;
+	sokolAppDescription.event_userdata_cb = event_userdata_cb;
+	return sokolAppDescription;
 }

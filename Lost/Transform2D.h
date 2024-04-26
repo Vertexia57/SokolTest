@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 
 namespace lost
 {
@@ -10,8 +11,14 @@ namespace lost
 
 		Vector2D& lerp(Vector2D other, float alpha)
 		{
-			x = x + (other.x - x) * alpha;
-			y = y + (other.y - y) * alpha;
+			if (fabsf(x - other.x) <= 0.00001)
+				x = other.x;
+			else
+				x = x + (other.x - x) * alpha;
+			if (fabsf(y - other.y) <= 0.00001)
+				x = other.y;
+			else
+				y = y + (other.y - y) * alpha;
 
 			return *this;
 		}
@@ -72,7 +79,12 @@ namespace lost
 		Transform2D& lerp(Transform2D& other, float alpha)
 		{
 			position.lerp(other.position, alpha);
-			rotation = rotation + (other.rotation - rotation) * alpha;
+
+			if (fabsf(rotation - other.rotation) <= 0.00001)
+				rotation = other.rotation;
+			else
+				rotation = rotation + (other.rotation - rotation) * alpha;
+
 			scale.lerp(other.scale, alpha);
 
 			return *this;
@@ -128,9 +140,12 @@ namespace lost
 
 		bool inBounds(Vector2D location) const
 		{
-			if (location.x >= x && location.x < x + w && location.y >= y && location.y < y + h)
-				return true;
-			return false;
+			return (location.x >= x && location.x < x + w && location.y >= y && location.y < y + h);
+		}
+
+		bool inBounds(Bound2D bounds) const
+		{
+			return (bounds.x + bounds.w - 1 >= x && bounds.x <= x + w - 1 && bounds.y + bounds.h - 1 >= y && bounds.y <= y + h - 1);
 		}
 
 		Bound2D operator+(Vector2D vec) const
@@ -146,6 +161,11 @@ namespace lost
 		Bound2D operator*(Vector2D vec) const
 		{
 			return Bound2D{ x, y, w * vec.x, h * vec.y };
+		}
+
+		Bound2D operator*(float val) const
+		{
+			return Bound2D{ x, y, w * val, h * val };
 		}
 
 		void operator+=(Vector2D vec)

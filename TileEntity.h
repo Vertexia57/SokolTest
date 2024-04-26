@@ -18,6 +18,8 @@ public:
 	bool fillsLayers[3] = { true, false, false };
 
 	lost::Vector2D position;
+
+	bool collidable = true;
 private:
 	lost::Bound2D m_Hitbox;
 	TextureID m_TileTexture;
