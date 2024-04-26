@@ -40,6 +40,7 @@ Generator::~Generator()
 
 ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height)
 {
+
 	checkLua(L, luaL_dostring(L, (
 		"chunkX = " + std::to_string(chunkX) + "\n" +
 		"chunkWidth = " + std::to_string(width) + "\n" + 

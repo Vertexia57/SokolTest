@@ -20,6 +20,9 @@
     <Filter Include="Game\Tiles">
       <UniqueIdentifier>{8f99d293-819c-4691-9b1a-d70bcb131359}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lost\Sokol\Imgui">
+      <UniqueIdentifier>{d8769021-7f88-476d-9523-e1ac8cd0873d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lost\Transform2D.h">
@@ -142,6 +145,30 @@
     <ClInclude Include="Generator.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="sokol\imgui\imconfig.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imgui.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imgui_impl_opengl3.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imgui_impl_win32.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imgui_internal.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imstb_rectpack.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imstb_textedit.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol\imgui\imstb_truetype.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -194,6 +221,27 @@
     </ClCompile>
     <ClCompile Include="Generator.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_demo.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_draw.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_impl_win32.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_tables.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol\imgui\imgui_widgets.cpp">
+      <Filter>Lost\Sokol\Imgui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

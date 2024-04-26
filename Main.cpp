@@ -4,6 +4,7 @@
 #include "Generator.h"
 
 #define SOKOL_IMPL
+#define SOKOL_IMGUI_IMPL
 #define SOKOL_GLCORE33
 #define SOKOL_DEBUG
 #include "SokolReference.h"
@@ -20,6 +21,7 @@ static lost::Transform2D cameraGoalPos;
 
 static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 {
+    simgui_handle_event(user_event);
     lost::feedInputEvent(user_event);
 }
 
@@ -28,12 +30,23 @@ static int worldMaxX = 0;
 
 static void frame()     
 {
+    lost::recalcDeltaTime();
 
     // Get current window size.
     int width = sapp_width(), height = sapp_height();
 
     float window_ratio = (float)width / (float)height;
     float image_ratio = (float)lost::getImage(0)->height / (float)lost::getImage(0)->width;
+
+    simgui_frame_desc_t imguiFrameData = {};
+    imguiFrameData.width = width;
+    imguiFrameData.height = height;
+    imguiFrameData.delta_time = lost::deltaTime / 1000.0f;
+    imguiFrameData.dpi_scale = 1;
+    simgui_new_frame(&imguiFrameData);
+
+    char buffer[20] = {};
+    ImGui::InputText("Text in", buffer, 20);
 
     // Begin recording draw commands for a frame buffer of size (width, height).
     sgp_begin(width, height);
@@ -44,26 +57,28 @@ static void frame()
     sgp_set_color(0.1f, 0.1f, 0.1f, 1.0f);
     sgp_clear();
 
-    lost::recalcDeltaTime();
     Uptime += lost::deltaTime;
     lost::globalCamera.setSize(width, height);
     cameraGoalPos.scale = cameraGoalPos.scale * (1.0f - lost::mouseScroll() / 10.0f);
     lost::globalCamera.update(lost::deltaTime);
     lost::globalCamera.setViewportTransforms();
 
-    if (lost::keyDown(SAPP_KEYCODE_A))
-        cameraGoalPos.position.x -= 5.0f;
-    if (lost::keyDown(SAPP_KEYCODE_D))
-        cameraGoalPos.position.x += 5.0f;
-    if (lost::keyDown(SAPP_KEYCODE_W))
-        cameraGoalPos.position.y -= 5.0f;
-    if (lost::keyDown(SAPP_KEYCODE_S))
-        cameraGoalPos.position.y += 5.0f;
-
-    if (lost::keyTapped(SAPP_KEYCODE_E))
+    if (!ImGui::IsAnyItemActive())
     {
-        worldMaxX++;
-        world.createChunk(worldMaxX);
+        if (lost::keyDown(SAPP_KEYCODE_A))
+            cameraGoalPos.position.x -= 5.0f;
+        if (lost::keyDown(SAPP_KEYCODE_D))
+            cameraGoalPos.position.x += 5.0f;
+        if (lost::keyDown(SAPP_KEYCODE_W))
+            cameraGoalPos.position.y -= 5.0f;
+        if (lost::keyDown(SAPP_KEYCODE_S))
+            cameraGoalPos.position.y += 5.0f;
+
+        if (lost::keyTapped(SAPP_KEYCODE_E))
+        {
+            worldMaxX++;
+            world.createChunk(worldMaxX);
+        }
     }
 
     sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -75,10 +90,10 @@ static void frame()
     Tile* tileHovered = world.getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
     if (tileHovered)
     {
-        if (lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f), 2.0f, 2.0f }, { true, false, false }))
+        if (!ImGui::IsAnyItemActive() && lost::mouseDown(0) && world.checkCanPlace({ floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f), 2.0f, 2.0f }, { true, false, false }))
             world.addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 2.0f, 2.0f }), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 
-        if (lost::mouseDown(2))
+        if (!ImGui::IsAnyItemActive() && lost::mouseDown(2))
         {
             world.setTile(g_TileManager.getTileRef("stone"), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
         }
@@ -88,7 +103,7 @@ static void frame()
             if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 32.0f))
             {
                 tileHovered->tileEntitiesWithin[i]->renderHitbox();
-                if (lost::mouseDown(1))
+                if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
                     world.destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
             }
         }
@@ -105,6 +120,9 @@ static void frame()
     sgp_flush();
     // Finish a draw command queue, clearing it.
     sgp_end();
+    // Display imgui
+    simgui_render();
+
     // End render pass.
     sg_end_pass();
     // Commit Sokol render.
@@ -149,6 +167,9 @@ static void init(void) {
 
     world.worldInit();
     world.createChunk(0);
+
+    simgui_desc_t simguiSetupDesc = {};
+    simgui_setup(&simguiSetupDesc);
 }
 
 // Called when the application is shutting down.
@@ -156,6 +177,9 @@ static void cleanup(void) {
 
     lost::destroyManagers();
     lost::globalCamera.unbindGoalTransform(&cameraGoalPos);
+
+    // Close Imgui
+    simgui_shutdown();
 
     // Cleanup Sokol GP and Sokol GFX resources.
     sgp_shutdown();

@@ -546,6 +546,7 @@ SOKOL_IMGUI_API_DECL void simgui_add_touch_button_event(int mouse_button, bool d
 #if !defined(SOKOL_IMGUI_NO_SOKOL_APP)
 SOKOL_IMGUI_API_DECL bool simgui_handle_event(const sapp_event* ev);
 SOKOL_IMGUI_API_DECL int simgui_map_keycode(sapp_keycode keycode);  // returns ImGuiKey_*
+SOKOL_IMGUI_API_DECL int simgui_map_keycodeInt(int keycode);  // returns ImGuiKey_*
 #endif
 SOKOL_IMGUI_API_DECL void simgui_shutdown(void);
 SOKOL_IMGUI_API_DECL void simgui_create_fonts_texture(const simgui_font_tex_desc_t* desc);
@@ -3026,6 +3027,11 @@ _SOKOL_PRIVATE ImGuiKey _simgui_copypaste_modifier(void) {
 SOKOL_API_IMPL int simgui_map_keycode(sapp_keycode keycode) {
     SOKOL_ASSERT(_SIMGUI_INIT_COOKIE == _simgui.init_cookie);
     return (int)_simgui_map_keycode(keycode);
+}
+
+SOKOL_API_IMPL int simgui_map_keycodeInt(int keycode) {
+    SOKOL_ASSERT(_SIMGUI_INIT_COOKIE == _simgui.init_cookie);
+    return (int)_simgui_map_keycode(static_cast<sapp_keycode>(keycode));
 }
 
 SOKOL_API_IMPL bool simgui_handle_event(const sapp_event* ev) {

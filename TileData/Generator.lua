@@ -26,7 +26,7 @@ end
 -- Noise Maps
 local noiseMap = {}
 for x = 1, chunkWidth, 1 do
-    noiseMap[x] = detailNoise((x - 1 + chunkX * chunkWidth), 0.05, 2)
+    noiseMap[x] = getNoise((x - 1 + chunkX * chunkWidth), 0.05, 2)
     -- cPrint(tostring(x - 1 + chunkX * chunkWidth))
 end
 

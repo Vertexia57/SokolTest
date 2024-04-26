@@ -3,3 +3,8 @@
 #include "sokol/sokol_app.h"
 #include "sokol/sokol_glue.h"
 #include "sokol/sokol_log.h"
+
+#include "sokol/imgui/imgui.h"
+#include "sokol/imgui/imgui_impl_opengl3.h"
+#include "sokol/imgui/imgui_impl_win32.h"
+#include "sokol/util/sokol_imgui.h"
