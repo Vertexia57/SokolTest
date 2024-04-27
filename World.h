@@ -19,6 +19,7 @@ public:
 
 	void createChunk(int x);
 
+	void createTileEntity(TileEntityStruct* tileEntity, float x, float y);
 	void addTileEntity(TileEntity* tileEntity, float x, float y);
 	void destroyTileEntity(TileEntity* tileEntity);
 
@@ -34,11 +35,17 @@ public:
 	void addEntity(Entity* entity);
 
 	Tile* getTileAt(int x, int y);
+	int loopX(int x);
+	float loopX(float x);
 
 	int worldMaxX = 0;
 	int worldMinX = 0;
+
+	int worldWidth = 5;
 private:
 	Tile* m_BorderAir = nullptr;
+
+	int m_WorldTileWidth;
 
 	std::map<int, Chunk*> m_Chunks;
 	std::vector<Entity*> m_Entities;
@@ -49,4 +56,4 @@ private:
 	Generator* worldGenerator;
 };
 
-extern World* world;
+extern World* g_World;

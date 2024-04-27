@@ -3,6 +3,8 @@
 #include "TileManager.h"
 #include "Generator.h"
 
+class World;
+
 class Chunk
 {
 public:
@@ -13,13 +15,16 @@ public:
 	Tile* getLocalTile(int x, int y);
 	void setTile(TileRefStruct* tile, int x, int y);
 
-	void generateChunk(Generator* generator);
+	void generateChunk(Generator* generator, World* parentWorld);
 
 	void addTileEntity(TileEntity* tileEntity, lost::Vector2D position);
 	void destroyTileEntity(TileEntity* tileEntity);
 
 	void renderTiles(lost::Bound2D renderBounds);
 	void renderTileEntities(lost::Bound2D renderBounds);
+	void renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
+	void renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
+
 	void renderBorders();
 
 private:

@@ -1,7 +1,12 @@
 local perlin = assert(loadfile(localDir .. "\\Perlin.lua"))()
 
-tileArray = { }
 tileAtlas = { "air", "stone" }
+tileEntityAtlas = { "petrifiedTree" }
+
+tileArray = { }
+tileEntities = { }
+
+math.randomseed(generatorSeed + chunkX)
 
 function getNoise(x, scale)
     return perlin:noise(x * scale, 0, generatorSeed)
@@ -31,18 +36,28 @@ for x = 1, chunkWidth, 1 do
 end
 
 -- Generate terrain
+local tileEntityCount = 1
+
 for y = 1, chunkHeight, 1 do
     for x = 1, chunkWidth, 1 do
 
-        local actualX = x - 1
-        local actualY = y - 1
+        actualX = x - 1
+        actualY = y - 1
 
         if (actualY > noiseMap[x] * 20.0 + 30.0) then
             tileArray[y][x] = 1
+
+            if (math.random() >= 0.5) then
+                tileEntities[tileEntityCount] = {}
+                tileEntities[tileEntityCount][0] = actualY - 1
+                tileEntities[tileEntityCount][1] = 0
+                tileEntities[tileEntityCount][2] = actualX
+                tileEntityCount = tileEntityCount + 1
+            end
         else
             tileArray[y][x] = 0
         end
     end
 end
 
-return tileArray, tileAtlas
+return tileEntities, tileEntityAtlas, tileArray, tileAtlas

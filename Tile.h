@@ -79,6 +79,7 @@ public:
 	void setTextureVariant(uint32_t textureVariant);
 
 	void render();
+	void renderAt(lost::Vector2D position);
 
 	bool filledLayers[3] = { false, false, false };
 

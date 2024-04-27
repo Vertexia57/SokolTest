@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "Random.h"
+#include "World.h"
 
 Chunk::Chunk(lost::IntVector2D chunkPos, int width, int height)
 {
@@ -56,9 +57,9 @@ void Chunk::setTile(TileRefStruct* tile, int x, int y)
 	m_Tiles[localX + localY * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
 }
 
-void Chunk::generateChunk(Generator* generator)
+void Chunk::generateChunk(Generator* generator, World* parentWorld)
 {
-	ChunkDataStruct data = generator->generateChunk(chunkCoord.x, m_Width, m_Height);
+	ChunkDataStruct data = generator->generateChunk(chunkCoord.x, m_Width, m_Height, parentWorld->worldWidth);
 
 	for (int y = 0; y < data.height; y++)
 	{
@@ -69,6 +70,11 @@ void Chunk::generateChunk(Generator* generator)
 			m_Tiles[x + y * m_Width] = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, data.tileMap[x + y * m_Width]);
 			m_Tiles[x + y * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
 		}
+	}
+
+	for (TileEntityCreateStruct& createStruct : data.tileEntities)
+	{
+		parentWorld->createTileEntity(createStruct.tileEntityRef, createStruct.position.x + chunkCoord.x * m_Width, createStruct.position.y + chunkCoord.y * m_Height);
 	}
 }
 
@@ -108,6 +114,32 @@ void Chunk::renderTileEntities(lost::Bound2D renderBounds)
 {
 	for (TileEntity* tileEntity : m_TileEntities)
 		tileEntity->render();
+}
+
+void Chunk::renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
+{
+	for (int y = floor(renderBounds.top / 32.0f); y < ceil(renderBounds.bottom / 32.0f); y++)
+	{
+		for (int x = floor(renderBounds.left / 32.0f); x < ceil(renderBounds.right / 32.0f); x++)
+		{
+			int localX = (x - ChunkRenderPos * m_Width);
+			int localY = (y - 0 * m_Height);
+
+			Tile* tile = getLocalTile(localX, localY);
+			if (tile)
+				tile->renderAt({ (float)(localX + ChunkRenderPos * m_Width), (float)localY });
+		}
+	}
+}
+
+void Chunk::renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
+{
+	for (TileEntity* tileEntity : m_TileEntities)
+	{
+		lost::Vector2D tileEntityPos = tileEntity->position;
+		tileEntityPos.x -= m_Width * (chunkCoord.x - ChunkRenderPos);
+		tileEntity->renderAt(tileEntityPos);
+	}
 }
 
 void Chunk::renderBorders()

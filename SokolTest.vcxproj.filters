@@ -26,6 +26,9 @@
     <Filter Include="Game\Entity">
       <UniqueIdentifier>{7be1da25-c30c-4ba0-a93f-d95e3c8cf588}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Items">
+      <UniqueIdentifier>{d791ae1e-8729-4712-8798-b975cd427d13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lost\Transform2D.h">
@@ -178,6 +181,12 @@
     <ClInclude Include="Entity.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -257,6 +266,12 @@
     </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Game\Items</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

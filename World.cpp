@@ -17,7 +17,8 @@ World::~World()
 void World::worldInit()
 {
 	m_BorderAir = new Tile({ 0, 0 }, g_TileManager.getTileRef("air"));
-	worldGenerator = new Generator("TileData\\Generator.lua");
+	worldGenerator = new Generator("GameData\\TileData\\Generator.lua");
+	m_WorldTileWidth = worldWidth * chunkWidth;
 }
 
 void World::update(lost::Bound2D renderBounds)
@@ -29,6 +30,7 @@ void World::update(lost::Bound2D renderBounds)
 
 	for (int i = m_Entities.size() - 1; i >= 0; i--)
 	{
+		m_Entities[i]->loopPosition(m_WorldTileWidth * 32.0f);
 		m_Entities[i]->update();
 		if (m_Entities[i]->killEntity)
 		{
@@ -43,20 +45,40 @@ void World::render(lost::Bound2D renderBounds)
 	lost::bindShader(lost::getShader(0));
 	for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
 	{
-		if (m_Chunks.count(x))
+		if (x >= 0 && x < worldWidth)
 		{
-			m_Chunks[x]->renderTiles(renderBounds);
-			m_Chunks[x]->renderTileEntities(renderBounds);
+			if (m_Chunks.count(x))
+			{
+				m_Chunks[x]->renderTiles(renderBounds);
+				m_Chunks[x]->renderTileEntities(renderBounds);
+			}
+			else
+			{
+				createChunk(x);
+			}
+		}
+		else
+		{
+			int loopedX = (x + worldWidth) % worldWidth;
+			if (m_Chunks.count(loopedX))
+			{
+				m_Chunks[loopedX]->renderTilesAt(renderBounds, x);
+				m_Chunks[loopedX]->renderTileEntitiesAt(renderBounds, x);
+			}
+			else
+			{
+				createChunk(loopedX);
+			}
 		}
 	}
 
 	for (Entity* entity : m_Entities)
-		entity->render(renderBounds);
+		entity->render(renderBounds, m_WorldTileWidth * 32.0f);
 
 	lost::unbindShader();
 	lost::clearImage();
-	//for (const auto& [val, chunk] : m_Chunks)
-	//	chunk->renderBorders();
+	for (const auto& [val, chunk] : m_Chunks)
+		chunk->renderBorders();
 
 	ImGui::Text("Current Vertex Count: %i", m_Chunks.size() * chunkWidth * chunkHeight * 4);
 }
@@ -65,7 +87,7 @@ void World::createChunk(int x)
 {
 	m_Chunks[x] = new Chunk({ x, 0 }, chunkWidth, chunkHeight);
 
-	m_Chunks[x]->generateChunk(worldGenerator);
+	m_Chunks[x]->generateChunk(worldGenerator, this);
 
 	for (int y = -1; y <= chunkHeight; y++)
 	{
@@ -76,15 +98,29 @@ void World::createChunk(int x)
 	}
 }
 
+void World::createTileEntity(TileEntityStruct* tileEntity, float x, float y)
+{
+	bool& requiresSupport = tileEntity->requiresSupport;
+	lost::Vector2D placeLocation = { x + tileEntity->placementOffsetX, y + tileEntity->placementOffsetY };
+	bool CanPlace = checkCanPlace({ placeLocation.x, placeLocation.y, tileEntity->width, tileEntity->height }, tileEntity->fillsLayers);
+	if (requiresSupport && CanPlace)
+		CanPlace = CanPlace && checkStable({ x + tileEntity->placementOffsetX, fmaxf(y + 1, placeLocation.y + tileEntity->height), tileEntity->width, 0.1});
+
+	if (CanPlace)
+		addTileEntity(new TileEntity(tileEntity), placeLocation.x, placeLocation.y);
+}
+
 void World::addTileEntity(TileEntity* tileEntity, float x, float y)
 {
 	// [!] TODO: make this work when a new chunk is added on a border, making that chunk get the references to the tile entity 
 	// [!]       in the other chunk aswell
 
-	int chunkX = (int)floor(x / (float)chunkWidth);
+	float loopedX = loopX(x);
+
+	int chunkX = (int)floor(loopedX / (float)chunkWidth);
 
 	// Adds the tile entity to the chunk's data
-	m_Chunks[chunkX]->addTileEntity(tileEntity, { x, y });
+	m_Chunks[chunkX]->addTileEntity(tileEntity, { loopedX, y });
 
 	// Finds the bounds for the hitbox in local space
 	lost::Bound2D tileHitbox = tileEntity->getHitbox();
@@ -106,7 +142,7 @@ void World::destroyTileEntity(TileEntity* tileEntity)
 	// [!] TODO: make this work when a new chunk is added on a border, making that chunk get the references to the tile entity 
 	// [!]       in the other chunk aswell
 
-	int chunkX = (int)floor(tileEntity->position.x / (float)chunkWidth);
+	int chunkX = (int)floor(loopX(tileEntity->position.x) / (float)chunkWidth);
 
 	// Adds the tile entity to the chunk's data
 	m_Chunks[chunkX]->destroyTileEntity(tileEntity);
@@ -197,10 +233,11 @@ bool World::checkStable(lost::Bound2D bounds)
 
 void World::setTile(TileRefStruct* tile, int x, int y)
 {
-	if (m_Chunks.count((int)floor(x / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
+	int loopedX = loopX(x);
+	if (m_Chunks.count((int)floor(loopedX / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
 	{
-		m_Chunks[(int)floor(x / (float)chunkWidth)]->setTile(tile, x, y);
-		updateTileNeighbors(x, y);
+		m_Chunks[(int)floor(loopedX / (float)chunkWidth)]->setTile(tile, loopedX, y);
+		updateTileNeighbors(loopedX, y);
 	}
 }
 
@@ -288,9 +325,19 @@ void World::addEntity(Entity* entity)
 
 Tile* World::getTileAt(int x, int y)
 {
-	if (m_Chunks.count((int)floor(x / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
-		return m_Chunks[(int)floor(x / (float)chunkWidth)]->getTile(x, y);
+	if (m_Chunks.count((int)floor(loopX(x) / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
+		return m_Chunks[(int)floor(loopX(x) / (float)chunkWidth)]->getTile(loopX(x), y);
 	return m_BorderAir;
 }
 
-World* world = nullptr;
+int World::loopX(int x)
+{
+	return (x + m_WorldTileWidth) % m_WorldTileWidth;
+}
+
+float World::loopX(float x)
+{
+	return fmodf(x + m_WorldTileWidth, m_WorldTileWidth);
+}
+
+World* g_World = nullptr;

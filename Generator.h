@@ -5,12 +5,18 @@
 #include "TileManager.h"
 #include "Random.h"
 
+struct TileEntityCreateStruct
+{
+	TileEntityStruct* tileEntityRef;
+	lost::Vector2D position;
+};
+
 struct ChunkDataStruct
 {
 	int width;
 	int height;
 	std::vector<TileRefStruct*> tileMap;
-	// [!] TODO: Add support for tileEntities
+	std::vector<TileEntityCreateStruct> tileEntities;
 };
 
 class Generator
@@ -19,7 +25,7 @@ public:
 	Generator(std::string generatorLocation_);
 	~Generator();
 
-	ChunkDataStruct generateChunk(int chunkX, int width, int height);
+	ChunkDataStruct generateChunk(int chunkX, int width, int height, int worldWidth);
 
 	long seed = random(LONG_MIN, LONG_MAX);
 

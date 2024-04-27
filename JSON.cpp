@@ -29,7 +29,7 @@ bool IsStringFloat(std::string& s)
 {
 	for (auto c : s)
 	{
-		if ((c < 48 || c > 57) && c != '.')
+		if ((c < 48 || c > 57) && c != '.' && c != '-')
 			return false;
 	}
 	return true;

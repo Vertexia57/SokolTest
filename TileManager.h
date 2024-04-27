@@ -35,10 +35,13 @@ public:
 	~TileManager();
 
 	void loadTileData(const char* location);
+	void loadTileEntityData(const char* location);
 
 	JSONObject* getTileData(std::string tileName);
+	JSONObject* getTileEntityData(std::string tileName);
 
 	TileRefStruct* getTileRef(std::string tileName);
+	TileEntityStruct* getTileEntityRef(std::string tileName);
 
 	ConnectionData* getConnectionData(std::string connectionName);
 
@@ -46,6 +49,9 @@ private:
 	std::map<std::string, JSONObject*> tileJSONs;
 	std::map<std::string, TileRefStruct*> tileRefs;
 	std::map<std::string, ConnectionData*> connectionDatas;
+
+	std::map<std::string, JSONObject*> tileEntityJSONs;
+	std::map<std::string, TileEntityStruct*> tileEntityRefs;
 };
 
 extern TileManager g_TileManager;

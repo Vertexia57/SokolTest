@@ -7,17 +7,22 @@ class Entity
 {
 public:
 	Entity(lost::Bound2D bounds);
-	~Entity();
+	virtual ~Entity();
 	
-	void update();
-	void render(lost::Bound2D renderBounds);
-	void die(); // Run deletion with extra stuff like drops and particles
+	virtual void loopPosition(float worldLoopWidth);
+
+	virtual void update();
+	virtual void render(lost::Bound2D renderBounds, float worldLoopWidth);
+	virtual void die(); // Run deletion with extra stuff like drops and particles
 
 	bool killEntity = false;
-private:
+protected:
 	lost::Transform2D transform;
 
 	Collider* colliderData;
 	JSONObject* jsonData = nullptr;
+
+	// [!] TODO: Add a "Contains Item" array here, which each entity can carry. This will be used by factories and processes
+	// [!]       std::vector<ItemRef*> containsItem;
 };
 

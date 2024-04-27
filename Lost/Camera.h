@@ -28,6 +28,9 @@ public:
 	// Removes a goal transform from the camera
 	void unbindGoalTransform(lost::Transform2D* transformPtr);
 
+	bool hasFocus(lost::Transform2D* transformPtr);
+	void addPosition(float x, float y);
+
 	lost::Vector2D screenToWorld(lost::Vector2D mousePos);
 
 	lost::Bound2D getViewBounds();

@@ -1,0 +1,28 @@
+{
+    "Name" : "Pertrified Tree",
+    "ID" : "petrifiedTree",
+    "Description" : "",
+
+	"ImageData" : {
+		"Images" : [
+			{
+				"File" : "PetrifiedTree.png",
+				"ImageName" : "petrifiedTree",
+				"Pass" : "Albedo"
+			}
+		],
+		"Frames" : 1,
+		"Variants" : 1
+	},
+
+    "Width" : 3.0,
+    "Height" : 8.0,
+
+	"PlacementOffsetX" : -1.0,
+	"PlacementOffsetY" : -7.0,
+
+    "Stable" : false,
+    "Collidable" : false,
+	"RequiresSupport" : true,
+	"FillsLayers" : [ false, true, false ]
+}

@@ -25,5 +25,5 @@
 		"Variants" : 47
 	},
 
-	"FillsLayers" : [ true, false, false ]
+	"FillsLayers" : [ true, true, true ]
 }

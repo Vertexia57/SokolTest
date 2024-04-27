@@ -16,22 +16,25 @@ class Collider
 {
 public:
 	Collider(lost::Bound2D bound);
-	~Collider();
+	virtual ~Collider();
 
-	void update();
+	virtual void update();
 
-	inline void addVelocity(float x, float y) { m_Velocity = m_Velocity + lost::Vector2D{ x, y }; };
-	inline void setVelocity(float x, float y) { m_Velocity = lost::Vector2D{ x, y }; };
+	inline void addVelocity(float x, float y) { velocity = velocity + lost::Vector2D{ x, y }; };
+	inline void setVelocity(float x, float y) { velocity = lost::Vector2D{ x, y }; };
+
+	inline void addPosition(float x, float y) { bounds.x += x; bounds.y += y; bounds.calcSides(); };
 
 	CollissionStruct sideCollissions = {};
 	double timeAlive = 0.0;
 
 	lost::Bound2D bounds;
+	bool gravity = true;
+
+	lost::Vector2D velocity;
 private:
 	void m_CheckCollissions();
 	void m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities);
-
-	lost::Vector2D m_Velocity;
 
 	std::vector<Tile*> testTilesH;
 	std::vector<Tile*> testTilesV;

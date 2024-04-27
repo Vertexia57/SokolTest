@@ -5,7 +5,7 @@
 Collider::Collider(lost::Bound2D bound)
 {
 	bounds = bound;
-	m_Velocity = { 0.0f, 0.0f };
+	velocity = { 0.0f, 0.0f };
 
 	testTilesH.resize(2 + (int)fmaxf(floor(bounds.w / 32.0f), 0.0f));
 	testTilesV.resize(2 + (int)fmaxf(floor(bounds.w / 32.0f), 0.0f));
@@ -20,21 +20,23 @@ void Collider::update()
 	double deltaTime = lost::deltaTime / 1000.0f;
 
 	timeAlive += lost::deltaTime;
-	bounds = bounds + m_Velocity * deltaTime;
-	m_Velocity = m_Velocity + lost::Vector2D{ 0.0f, 1000.0f } * deltaTime;
+	bounds = bounds + velocity * deltaTime;
+	if (gravity)
+		velocity = velocity + lost::Vector2D{ 0.0f, 1000.0f } * deltaTime;
 
 	m_CheckCollissions();
+	bounds.calcSides();
 
 	// Actual Collission info
 	/*sgp_set_color(1.0, 0.0, 0.0, 1.0);
 	lost::clearImage();
 
 	sgp_point lines[5] = { 
-		{bounds.x - 2, bounds.y + abs(m_Velocity.y * deltaTime / 1000.0f) + 1},
-		{bounds.x + bounds.w + 1, bounds.y + abs(m_Velocity.y * deltaTime / 1000.0f) + 1},
-		{bounds.x + bounds.w + 1, bounds.y + bounds.h - abs(m_Velocity.y * deltaTime / 1000.0f) - 1},
-		{bounds.x - 2, bounds.y + bounds.h - abs(m_Velocity.y * deltaTime / 1000.0f) - 1},
-		{bounds.x - 2, bounds.y + abs(m_Velocity.y * deltaTime / 1000.0f) + 1},
+		{bounds.x - 2, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
+		{bounds.x + bounds.w + 1, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
+		{bounds.x + bounds.w + 1, bounds.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 1},
+		{bounds.x - 2, bounds.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 1},
+		{bounds.x - 2, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
 	};
 
 	sgp_draw_lines_strip(lines, 5);
@@ -50,8 +52,8 @@ void Collider::m_CheckCollissions()
 	std::vector<TileEntity*> testEntities = {};
 
 	lost::Vector2D testLocation = { bounds.x + bounds.w + 1, bounds.y };
-	testTilesV[0] = world->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + abs(m_Velocity.y * deltaTime / 1000.0f) + 1) / 32.0f));
-	testTilesV[1] = world->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + bounds.h - abs(m_Velocity.y * deltaTime / 1000.0f) - 1) / 32.0f));
+	testTilesV[0] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + abs(velocity.y * deltaTime / 1000.0f) + 1) / 32.0f));
+	testTilesV[1] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 2) / 32.0f));
 
 	for (Tile* test : testTilesV)
 	{
@@ -60,7 +62,7 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.right = true;
-				m_Velocity.x = fmaxf(m_Velocity.x, 0.0f);
+				velocity.x = fminf(velocity.x, 0.0f);
 				bounds.x -= testLocation.x - floor(testLocation.x / 32.0f) * 32.0f;
 				break;
 			}
@@ -72,8 +74,8 @@ void Collider::m_CheckCollissions()
 	}
 
 	testLocation = { bounds.x - 2, bounds.y };
-	testTilesV[0] = world->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + abs(m_Velocity.y * deltaTime / 1000.0f) + 1) / 32.0f));
-	testTilesV[1] = world->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + bounds.h - abs(m_Velocity.y * deltaTime / 1000.0f) - 1) / 32.0f));
+	testTilesV[0] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + abs(velocity.y * deltaTime / 1000.0f) + 1) / 32.0f));
+	testTilesV[1] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 2) / 32.0f));
 	for (Tile* test : testTilesV)
 	{
 		if (test)
@@ -81,7 +83,7 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.left = true;
-				m_Velocity.x = fminf(m_Velocity.x, 0.0f);
+				velocity.x = fmaxf(velocity.x, 0.0f);
 				bounds.x -= testLocation.x - (floor(testLocation.x / 32.0f) + 1) * 32.0f;
 				break;
 			}
@@ -93,8 +95,8 @@ void Collider::m_CheckCollissions()
 	}
 
 	testLocation = { bounds.x, bounds.y + bounds.h + 1 };
-	testTilesH[0] = world->getTileAt(floor((testLocation.x + abs(m_Velocity.x * deltaTime / 1000.0f) + 1) / 32.0f), floor(testLocation.y / 32.0f));
-	testTilesH[1] = world->getTileAt(floor((testLocation.x + bounds.w - abs(m_Velocity.x * deltaTime / 1000.0f) - 1) / 32.0f), floor(testLocation.y / 32.0f));
+	testTilesH[0] = g_World->getTileAt(floor((testLocation.x + abs(velocity.x * deltaTime / 1000.0f) + 1) / 32.0f), floor(testLocation.y / 32.0f));
+	testTilesH[1] = g_World->getTileAt(floor((testLocation.x + bounds.w - abs(velocity.x * deltaTime / 1000.0f) - 2) / 32.0f), floor(testLocation.y / 32.0f));
 
 	for (Tile* test : testTilesH)
 	{
@@ -103,7 +105,7 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.down = true;
-				m_Velocity.y = fminf(m_Velocity.y, 0.0f);
+				velocity.y = fminf(velocity.y, 0.0f);
 				bounds.y -= testLocation.y - floor(testLocation.y / 32.0f) * 32.0f;
 				break;
 			}
@@ -115,8 +117,8 @@ void Collider::m_CheckCollissions()
 	}
 
 	testLocation = { bounds.x, bounds.y - 2 };
-	testTilesH[0] = world->getTileAt(floor((testLocation.x + abs(m_Velocity.x * deltaTime / 1000.0f) + 1) / 32.0f), floor(testLocation.y / 32.0f));
-	testTilesH[1] = world->getTileAt(floor((testLocation.x + bounds.w - abs(m_Velocity.x * deltaTime / 1000.0f) - 1) / 32.0f), floor(testLocation.y / 32.0f));
+	testTilesH[0] = g_World->getTileAt(floor((testLocation.x + abs(velocity.x * deltaTime / 1000.0f) + 1) / 32.0f), floor(testLocation.y / 32.0f));
+	testTilesH[1] = g_World->getTileAt(floor((testLocation.x + bounds.w - abs(velocity.x * deltaTime / 1000.0f) - 2) / 32.0f), floor(testLocation.y / 32.0f));
 	for (Tile* test : testTilesH)
 	{
 		if (test)
@@ -124,7 +126,7 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.up = true;
-				m_Velocity.y = fmaxf(m_Velocity.y, 0.0f);
+				velocity.y = fmaxf(velocity.y, 0.0f);
 				bounds.y -= testLocation.y - (floor(testLocation.y / 32.0f) + 1) * 32.0f;
 				break;
 			}
@@ -148,7 +150,7 @@ void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 
 	for (TileEntity* entity : tileEntities)
 	{
-		if (!completedTileEntities.count(entity))
+		if (!completedTileEntities.count(entity) && entity->collidable)
 		{
 			lost::Bound2D hitbox = entity->getHitbox();
 			hitbox = { hitbox.x * 32.0f, hitbox.y * 32.0f, hitbox.w * 32.0f, hitbox.h * 32.0f };
@@ -178,22 +180,22 @@ void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 				{
 				case 0:
 					bounds.x -= lowestValue;
-					m_Velocity.x = fminf(m_Velocity.x, 0.0f);
+					velocity.x = fminf(velocity.x, 0.0f);
 					sideCollissions.right = true;
 					break;
 				case 1:
 					bounds.x += lowestValue;
-					m_Velocity.x = fmaxf(m_Velocity.x, 0.0f);
+					velocity.x = fmaxf(velocity.x, 0.0f);
 					sideCollissions.left = true;
 					break;
 				case 2:
 					bounds.y -= lowestValue;
-					m_Velocity.y = fminf(m_Velocity.y, 0.0f);
+					velocity.y = fminf(velocity.y, 0.0f);
 					sideCollissions.down = true;
 					break;
 				case 3:
 					bounds.y += lowestValue;
-					m_Velocity.y = fmaxf(m_Velocity.y, 0.0f);
+					velocity.y = fmaxf(velocity.y, 0.0f);
 					sideCollissions.up = true;
 					break;
 				}

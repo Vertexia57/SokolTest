@@ -71,6 +71,17 @@ void Camera::unbindGoalTransform(lost::Transform2D* transformPtr)
 	m_UpdateGoalPtr();
 }
 
+bool Camera::hasFocus(lost::Transform2D* transformPtr)
+{
+	return (m_GoalTransform == transformPtr);
+}
+
+void Camera::addPosition(float x, float y)
+{
+	m_Transform.position.x += x;
+	m_Transform.position.y += y;
+}
+
 lost::Vector2D Camera::screenToWorld(lost::Vector2D mousePos)
 {
 	mousePos = (mousePos - lost::Vector2D{ m_Bounds.w / 2.0f, m_Bounds.h / 2.0f }) * m_Transform.scale + m_Transform.position;

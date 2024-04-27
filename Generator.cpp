@@ -38,7 +38,7 @@ Generator::~Generator()
 	lua_close(L);
 }
 
-ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height)
+ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height, int worldWidth)
 {
 
 	checkLua(L, luaL_dostring(L, (
@@ -55,7 +55,7 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height)
 	MapRefIDs.reserve(width * height);
 	std::vector<std::string> MapTileAtlas = {};
 
-	// Reads Second given return value
+	// Reads Fourth given return value
 	lua_pushnil(L);
 	while (lua_next(L, -2)) {
 		MapTileAtlas.push_back(lua_tostring(L, -1));
@@ -63,7 +63,7 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height)
 	}
 	lua_pop(L, 1); // Clears it from the lua stack
 
-	// Reads First given return value
+	// Reads Third given return value
 	lua_pushnil(L);
 	while (lua_next(L, -2)) {
 		lua_pushnil(L); // Checks next sub array of the value
@@ -86,6 +86,44 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height)
 		refList.push_back(g_TileManager.getTileRef(MapTileAtlas[MapRefIDs[i]]));
 
 	dataStruct.tileMap = refList;
+
+	std::vector<TileEntityCreateStruct> MapEntityCreates = {};
+	std::vector<std::string> MapTileEntityAtlas = {};
+
+	// Reads Second given return value
+	lua_pushnil(L);
+	while (lua_next(L, -2)) {
+		MapTileEntityAtlas.push_back(lua_tostring(L, -1));
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1); // Clears it from the lua stack
+
+	// Reads First given return value
+	lua_pushnil(L);
+	while (lua_next(L, -2)) {
+		lua_pushnil(L); // Checks next sub array of the value
+
+		TileEntityCreateStruct createStruct = {};
+
+		lua_next(L, -2);
+		createStruct.tileEntityRef = g_TileManager.getTileEntityRef(MapTileEntityAtlas[(int)lua_tonumber(L, -1)]);
+		lua_pop(L, 1);
+
+		lua_next(L, -2);
+		createStruct.position.x = (float)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		lua_next(L, -2);
+		createStruct.position.y = (float)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		MapEntityCreates.push_back(createStruct);
+
+		lua_pop(L, 2); // Clears it from the lua stack
+	}
+	lua_pop(L, 1); // Clears it from the lua stack
+
+	dataStruct.tileEntities = MapEntityCreates;
 
 	return dataStruct;
 }

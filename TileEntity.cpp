@@ -1,10 +1,14 @@
 #include "TileEntity.h"
 
-TileEntity::TileEntity(TextureID tileTexture, lost::Bound2D hitbox)
+TileEntity::TileEntity(TileEntityStruct* tileEntityRef_)
 {
 	position = { 0, 0 };
-	m_TileTexture = tileTexture;
-	setHitbox(hitbox);
+	setHitbox({ 0, 0, (float)tileEntityRef_->width, (float)tileEntityRef_->height });
+	tileEntityRef = tileEntityRef_;
+	collidable = tileEntityRef->collidable;
+
+	for (int i = 0; i < 3; i++)
+		fillsLayers[i] = tileEntityRef_->fillsLayers[i];
 }
 
 TileEntity::~TileEntity()
@@ -31,10 +35,18 @@ lost::Bound2D TileEntity::getHitbox()
 
 void TileEntity::render()
 {
-	lost::useImage(m_TileTexture);
-	float imageWidth = lost::getImage(m_TileTexture)->width;
-	float imageHeight = lost::getImage(m_TileTexture)->height;
+	lost::useImage(tileEntityRef->texture);
+	float imageWidth = lost::getImage(tileEntityRef->texture)->width;
+	float imageHeight = lost::getImage(tileEntityRef->texture)->height;
 	sgp_draw_textured_rect(0, { (float)position.x * 32.0f, (float)position.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, 0, imageWidth, imageHeight });
+}
+
+void TileEntity::renderAt(lost::Vector2D pos)
+{
+	lost::useImage(tileEntityRef->texture);
+	float imageWidth = lost::getImage(tileEntityRef->texture)->width;
+	float imageHeight = lost::getImage(tileEntityRef->texture)->height;
+	sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, 0, imageWidth, imageHeight });
 }
 
 void TileEntity::renderHitbox()

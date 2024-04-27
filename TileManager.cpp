@@ -32,7 +32,7 @@ void TileManager::loadTileData(const char* location)
 		{
 			JSONObject* data = imageLoadInfo->getJSONObject(i);
 			if (!lost::imageAdded(data->getString("ImageName")))
-				data->setInt("TextureID", lost::loadImage("TileData/" + data->getString("File"), data->getString("ImageName")));
+				data->setInt("TextureID", lost::loadImage("GameData/TileData/" + data->getString("File"), data->getString("ImageName")));
 			else
 				data->setInt("TextureID", lost::getImageID(data->getString("ImageName")));
 		}
@@ -40,9 +40,33 @@ void TileManager::loadTileData(const char* location)
 
 	std::string connectionType = tileData->getString("ConnectionType");
 	if (!connectionDatas.count(connectionType) && connectionType != "none")
-		connectionDatas[connectionType] = new ConnectionData(connectionType, read_text_file(("TileData/" + connectionType + ".conmeta").c_str()));
+		connectionDatas[connectionType] = new ConnectionData(connectionType, read_text_file(("GameData/TileData/" + connectionType + ".conmeta").c_str()));
 
 	tileRefs[tileData->getString("ID")] = new TileRefStruct(tileData);
+
+	fprintf(stderr, (tileData->exportString() + "\n").c_str());
+}
+
+void TileManager::loadTileEntityData(const char* location)
+{
+	JSONObject* tileData = LoadJSONObject(location);
+	tileEntityJSONs[tileData->getString("ID")] = tileData;
+
+	if (tileData->getObjectList().count("ImageData"))
+	{
+		JSONObject* imageData = tileData->getJSONObject("ImageData");
+		JSONArray* imageLoadInfo = imageData->getJSONArray("Images");
+		for (int i = 0; i < imageLoadInfo->size(); i++)
+		{
+			JSONObject* data = imageLoadInfo->getJSONObject(i);
+			if (!lost::imageAdded(data->getString("ImageName")))
+				data->setInt("TextureID", lost::loadImage("GameData/TileEntityData/" + data->getString("File"), data->getString("ImageName")));
+			else
+				data->setInt("TextureID", lost::getImageID(data->getString("ImageName")));
+		}
+	}
+
+	tileEntityRefs[tileData->getString("ID")] = new TileEntityStruct(tileData);
 
 	fprintf(stderr, (tileData->exportString() + "\n").c_str());
 }
@@ -52,9 +76,19 @@ JSONObject* TileManager::getTileData(std::string tileName)
 	return tileJSONs[tileName];
 }
 
+JSONObject* TileManager::getTileEntityData(std::string tileName)
+{
+	return tileEntityJSONs[tileName];
+}
+
 TileRefStruct* TileManager::getTileRef(std::string tileName)
 {
 	return tileRefs[tileName];
+}
+
+TileEntityStruct* TileManager::getTileEntityRef(std::string tileName)
+{
+	return tileEntityRefs[tileName];
 }
 
 ConnectionData* TileManager::getConnectionData(std::string connectionName)

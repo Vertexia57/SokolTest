@@ -2,6 +2,7 @@
 #include "World.h"
 #include "TileManager.h"
 #include "Generator.h"
+#include "Player.h"
 
 #define SOKOL_IMPL
 #define SOKOL_IMGUI_IMPL
@@ -53,47 +54,31 @@ static void frame()
 
 	Uptime += lost::deltaTime;
 	lost::globalCamera.setSize(width, height);
-	float scaleVal = fminf(fmaxf(cameraGoalPos.scale.x * (1.0f - lost::mouseScroll() / 10.0f), 0.5), 2.1f);
-	cameraGoalPos.scale = { scaleVal, scaleVal };
-	lost::globalCamera.update(lost::deltaTime);
-	lost::globalCamera.setViewportTransforms();
-
-	if (!ImGui::IsAnyItemActive())
-	{
-		if (lost::keyDown(SAPP_KEYCODE_A))
-			cameraGoalPos.position.x -= 5.0f;
-		if (lost::keyDown(SAPP_KEYCODE_D))
-			cameraGoalPos.position.x += 5.0f;
-		if (lost::keyDown(SAPP_KEYCODE_W))
-			cameraGoalPos.position.y -= 5.0f;
-		if (lost::keyDown(SAPP_KEYCODE_S))
-			cameraGoalPos.position.y += 5.0f;
-	}
 
 	lost::startProcessTime();
 
-	if (ImGui::Button("Generate Chunk +X"))
-	{
-		world->worldMaxX++;
-		world->createChunk(world->worldMaxX);
-	}
-
-	if (ImGui::Button("Generate Chunk -X"))
-	{
-		world->worldMinX--;
-		world->createChunk(world->worldMinX);
-	}
-
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
-	world->update(lost::globalCamera.getViewBounds());
+	g_World->update(lost::globalCamera.getViewBounds());
 	lost::calcProcessTime("Update Time");
-	world->render(lost::globalCamera.getViewBounds());
+
+	lost::globalCamera.update(lost::deltaTime);
+	lost::globalCamera.setViewportTransforms();
+
+	g_World->render(lost::globalCamera.getViewBounds());
 
 	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
 
-	Tile* tileHovered = world->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+	// [!] TODO: Add tileEntity generation to the lua code, and figure out the chunk border stuff :<
+	// [!]       When an entity is added on the edge, add it to a "To be added" list and then when that entity can be added
+	// [!]       it will be created
+	// [?] Note: Okay so I added the tileEntity generation but it kinda just works, because it checks if it can place in that
+	// [?]       spot before it adds the tileEntity, so it'll never put it in a place where it would be generating into unloaded chunks
+	// [?]       Layer chunks can be unloaded and so it's important to still add this feature with a "AwaitCreateEntity" which will be
+	// [?]       used for loading and generation, but the CreateTileEntity being used for the player adding stuff to the world
+
+	Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 	if (tileHovered)
 	{
 		if (!ImGui::IsAnyItemActive())
@@ -101,33 +86,30 @@ static void frame()
 			lost::useImage(1);
 			float imageWidth = lost::getImage(1)->width;
 			float imageHeight = lost::getImage(1)->height;
-			bool CanPlace = world->checkStable({ blockMouse.x, blockMouse.y + 8, 0.5f, 1.0f }) && world->checkCanPlace({ blockMouse.x, blockMouse.y, 0.5f, 8.0f }, { true, false, false });
+			bool CanPlace = g_World->checkStable({ blockMouse.x, blockMouse.y + 8, 3.0f, 1.0f }) && g_World->checkCanPlace({ blockMouse.x, blockMouse.y, 3.0f, 8.0f }, { false, true, false });
 			
 			if (CanPlace)
 				sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
 			else
 				sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
 
-			sgp_draw_textured_rect(0, { (float)blockMouse.x * 32.0f, (float)blockMouse.y * 32.0f, 0.5f * 32.0f, 8.0f * 32.0f }, { 0, 0, imageWidth, imageHeight });
+			sgp_draw_textured_rect(0, { (float)blockMouse.x * 32.0f, (float)blockMouse.y * 32.0f, 3.0f * 32.0f, 8.0f * 32.0f }, { 0, 0, imageWidth, imageHeight });
 			if (lost::mouseDown(0) && CanPlace)
-				world->addTileEntity(new TileEntity(1, { 0.0f, 0.0f, 0.5f, 7.8f }), floor(worldMouse.x / 32.0f) + 0.1f, floor(worldMouse.y / 32.0f) + 0.2f);
+				g_World->addTileEntity(new TileEntity(g_TileManager.getTileEntityRef("petrifiedTree")), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 			lost::clearImage();
 		}
 
 		if (!ImGui::IsAnyItemActive() && lost::mouseTapped(2))
 		{
-			world->addEntity(new Entity({ worldMouse.x, worldMouse.y, 30.0f, 30.0f }));
+			g_World->addEntity(new Entity({ worldMouse.x, worldMouse.y, 30.0f, 30.0f }));
 		}
 
 		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
 		{
-			if (tileHovered->tileEntitiesWithin[i]->getHitbox().inBounds(worldMouse / 32.0f))
-			{
-				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-				tileHovered->tileEntitiesWithin[i]->renderHitbox();
-				if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
-					world->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
-			}
+			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+			tileHovered->tileEntitiesWithin[i]->renderHitbox();
+			if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
+				g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
 		}
 	}
 
@@ -186,15 +168,18 @@ static void init(void) {
 	lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
 	lost::globalCamera.setSize(sapp_width(), sapp_height());
 
-	g_TileManager.loadTileData("TileData/Stone.json");
-	g_TileManager.loadTileData("TileData/Air.json");
+	g_TileManager.loadTileData("GameData/TileData/Stone.json");
+	g_TileManager.loadTileData("GameData/TileData/Air.json");
+	g_TileManager.loadTileEntityData("GameData/TileEntityData/PetrifiedTree.json");
 	
 	lost::loadImageQueue();
 
-	world = new World();
+	g_World = new World();
 
-	world->worldInit();
-	world->createChunk(0);
+	g_World->worldInit();
+	g_World->createChunk(0);
+	
+	g_World->addEntity(new Player({0, 0}));
 
 	simgui_desc_t simguiSetupDesc = {};
 	simgui_setup(&simguiSetupDesc);
@@ -206,7 +191,7 @@ static void cleanup(void) {
 	lost::destroyManagers();
 	lost::globalCamera.unbindGoalTransform(&cameraGoalPos);
 	
-	delete world;
+	delete g_World;
 
 	// Close Imgui
 	simgui_shutdown();
