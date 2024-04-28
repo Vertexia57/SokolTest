@@ -2,6 +2,7 @@
 #include "Tile.h"
 #include "TileManager.h"
 #include "Generator.h"
+#include <thread>
 
 class World;
 
@@ -16,9 +17,12 @@ public:
 	void setTile(TileRefStruct* tile, int x, int y);
 
 	void generateChunk(Generator* generator, World* parentWorld);
+	void loadChunkGeneratedData(Generator* generator);
 
 	void addTileEntity(TileEntity* tileEntity, lost::Vector2D position);
 	void destroyTileEntity(TileEntity* tileEntity);
+
+	void update();
 
 	void renderTiles(lost::Bound2D renderBounds);
 	void renderTileEntities(lost::Bound2D renderBounds);
@@ -27,9 +31,14 @@ public:
 
 	void renderBorders();
 
+	bool generatedData = true;
+	bool ready = true;
 private:
 	lost::IntVector2D chunkCoord;
 	int m_Width, m_Height;
 	std::vector<Tile*> m_Tiles;
 	std::vector<TileEntity*> m_TileEntities;
+	World* m_ParentWorld;
+	std::thread generationThread;
+	ChunkDataStruct chunkData;
 };

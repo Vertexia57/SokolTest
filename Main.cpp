@@ -70,14 +70,6 @@ static void frame()
 	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
 
-	// [!] TODO: Add tileEntity generation to the lua code, and figure out the chunk border stuff :<
-	// [!]       When an entity is added on the edge, add it to a "To be added" list and then when that entity can be added
-	// [!]       it will be created
-	// [?] Note: Okay so I added the tileEntity generation but it kinda just works, because it checks if it can place in that
-	// [?]       spot before it adds the tileEntity, so it'll never put it in a place where it would be generating into unloaded chunks
-	// [?]       Layer chunks can be unloaded and so it's important to still add this feature with a "AwaitCreateEntity" which will be
-	// [?]       used for loading and generation, but the CreateTileEntity being used for the player adding stuff to the world
-
 	Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 	if (tileHovered)
 	{

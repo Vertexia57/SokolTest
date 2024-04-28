@@ -9,13 +9,12 @@ Chunk::Chunk(lost::IntVector2D chunkPos, int width, int height)
 	chunkCoord = chunkPos;
 
 	m_Tiles.reserve(width * height);
+	TileRefStruct* airTile = g_TileManager.getTileRef("air");
 	for (int y = 0; y < height; y++)
 	{
 		for (int x = 0; x < width; x++)
 		{
-			Tile* tileRef = nullptr;
-			tileRef = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, g_TileManager.getTileRef("air"));
-			m_Tiles.push_back(tileRef);
+			m_Tiles.push_back(new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, airTile));
 		}
 	}
 }
@@ -57,25 +56,38 @@ void Chunk::setTile(TileRefStruct* tile, int x, int y)
 	m_Tiles[localX + localY * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
 }
 
-void Chunk::generateChunk(Generator* generator, World* parentWorld)
+void Chunk::generateChunk(Generator* generator, World* parentWorld_)
 {
-	ChunkDataStruct data = generator->generateChunk(chunkCoord.x, m_Width, m_Height, parentWorld->worldWidth);
+	m_ParentWorld = parentWorld_;
+	ready = false;
+	generatedData = false;
+	generationThread = std::thread(&Chunk::loadChunkGeneratedData, this, generator);
+}
 
-	for (int y = 0; y < data.height; y++)
+void Chunk::loadChunkGeneratedData(Generator* generator)
+{
+	chunkData = generator->generateChunk(chunkCoord.x, m_Width, m_Height, m_ParentWorld->worldWidth * m_Width);
+
+	for (int y = 0; y < chunkData.height; y++)
 	{
-		for (int x = 0; x < data.width; x++)
+		for (int x = 0; x < chunkData.width; x++)
 		{
 			std::vector<TileEntity*> oldCellTileEntityRefs = m_Tiles[x + y * m_Width]->tileEntitiesWithin;
 			delete getLocalTile(x, y);
-			m_Tiles[x + y * m_Width] = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, data.tileMap[x + y * m_Width]);
+			m_Tiles[x + y * m_Width] = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, chunkData.tileMap[x + y * m_Width]);
 			m_Tiles[x + y * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
 		}
 	}
 
-	for (TileEntityCreateStruct& createStruct : data.tileEntities)
+	for (int y = -1; y <= m_Height; y++)
 	{
-		parentWorld->createTileEntity(createStruct.tileEntityRef, createStruct.position.x + chunkCoord.x * m_Width, createStruct.position.y + chunkCoord.y * m_Height);
+		for (int xPos = -1; xPos <= m_Width; xPos++)
+		{
+			m_ParentWorld->updateTileConnections(xPos + chunkCoord.x * m_Width, y);
+		}
 	}
+
+	generatedData = true;
 }
 
 void Chunk::addTileEntity(TileEntity* tileEntity, lost::Vector2D position)
@@ -94,6 +106,24 @@ void Chunk::destroyTileEntity(TileEntity* tileEntity)
 			m_TileEntities.erase(m_TileEntities.begin() + i);
 			break;
 		}
+	}
+}
+
+void Chunk::update()
+{
+	if (!ready && generatedData) 
+	{
+		generationThread.join();
+		ready = true;
+		m_ParentWorld->finishCreation(chunkCoord.x);
+
+		int timesLooped = 0;
+		for (TileEntityCreateStruct& createStruct : chunkData.tileEntities)
+		{
+			m_ParentWorld->createTileEntity(createStruct.tileEntityRef, createStruct.position.x + chunkCoord.x * m_Width, createStruct.position.y + chunkCoord.y * m_Height);
+			timesLooped++;
+		}
+		fprintf(stdout, " [World::checkOutOfBoundEntities()] checked %i\n", timesLooped);
 	}
 }
 

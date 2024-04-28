@@ -4,7 +4,7 @@ Player::Player(lost::Vector2D position)
 	: Entity({ position.x, position.y, 20.0f, 20.0f })
 {
 	colliderData->gravity = false;
-	transform.scale = { 0.75f, 0.75f }; // The scale is only used by the camera
+	transform.scale = { 0.5f, 0.5f }; // The scale is only used by the camera
 	lost::globalCamera.bindGoalTransform(&transform, 3);
 }
 
@@ -45,7 +45,7 @@ void Player::update()
 			colliderData->addVelocity(0.0f, 5.0f);
 	}
 
-	colliderData->velocity = colliderData->velocity * (1.0 - (0.1 * lost::deltaTime / 1000.0f));
+	colliderData->velocity = colliderData->velocity * (1.0 - (2.0 * lost::deltaTime / 1000.0f));
 
 	ImGui::Text("Player Position: (%f, %f)", colliderData->bounds.x, colliderData->bounds.y);
 }

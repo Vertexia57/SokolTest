@@ -19,6 +19,8 @@ struct ChunkDataStruct
 	std::vector<TileEntityCreateStruct> tileEntities;
 };
 
+class Chunk;
+
 class Generator
 {
 public:
@@ -30,7 +32,6 @@ public:
 	long seed = random(LONG_MIN, LONG_MAX);
 
 private:
-	lua_State* L;
 
 	std::string generatorLocation;
 	std::string generatorPathStr;

@@ -16,13 +16,13 @@
 	},
 
     "Width" : 3.0,
-    "Height" : 8.0,
+    "Height" : 3.0,
 
 	"PlacementOffsetX" : -1.0,
 	"PlacementOffsetY" : -7.0,
 
     "Stable" : false,
-    "Collidable" : false,
+    "Collidable" : true,
 	"RequiresSupport" : true,
 	"FillsLayers" : [ false, true, false ]
 }

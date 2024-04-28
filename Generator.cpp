@@ -1,12 +1,9 @@
 #include "Generator.h"
+#include "Chunk.h"
 #include <filesystem>
 
 Generator::Generator(std::string generatorLocation_)
 {
-	L = luaL_newstate();
-	luaL_openlibs(L);
-	luaBindDebugPrint(L);
-
 	generatorCode = read_text_file(generatorLocation_.c_str());
 	generatorLocation = generatorLocation_;
 
@@ -35,17 +32,21 @@ Generator::Generator(std::string generatorLocation_)
 
 Generator::~Generator()
 {
-	lua_close(L);
 }
 
 ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height, int worldWidth)
 {
+	lua_State* L;
+	L = luaL_newstate();
+	luaL_openlibs(L);
+	luaBindDebugPrint(L);
 
 	checkLua(L, luaL_dostring(L, (
 		"chunkX = " + std::to_string(chunkX) + "\n" +
-		"chunkWidth = " + std::to_string(width) + "\n" + 
-		"chunkHeight = " + std::to_string(height) + "\n" + 
-		"generatorSeed = " + std::to_string(seed) + "\n" + 
+		"chunkWidth = " + std::to_string(width) + "\n" +
+		"chunkHeight = " + std::to_string(height) + "\n" +
+		"generatorSeed = " + std::to_string(seed) + "\n" +
+		"worldWidth = " + std::to_string(worldWidth) + "\n" +
 		"localDir = \"" + generatorPathStr + "\"").c_str()
 	));
 
@@ -124,6 +125,8 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height, int 
 	lua_pop(L, 1); // Clears it from the lua stack
 
 	dataStruct.tileEntities = MapEntityCreates;
+
+	lua_close(L);
 
 	return dataStruct;
 }

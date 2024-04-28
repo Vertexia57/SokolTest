@@ -155,6 +155,9 @@ void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 			lost::Bound2D hitbox = entity->getHitbox();
 			hitbox = { hitbox.x * 32.0f, hitbox.y * 32.0f, hitbox.w * 32.0f, hitbox.h * 32.0f };
 
+			if (hitbox.right > bounds.left + g_World->worldTileWidth * 32.0f && hitbox.left - g_World->worldTileWidth * 32.0f < bounds.left)
+				hitbox = { hitbox.x - g_World->worldTileWidth * 32.0f, hitbox.y, hitbox.w, hitbox.h };
+
 			if (bounds.inBounds(hitbox))
 			{
 
