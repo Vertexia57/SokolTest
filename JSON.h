@@ -7,6 +7,7 @@
 #include <cassert>
 #include <map>
 #include <iterator>
+#include "Lost/LuaInit.h"
 
 template <typename Out>
 void split(const std::string& s, char delim, Out result);
@@ -118,3 +119,4 @@ public:
 
 JSONObject* LoadJSONObject(std::string fileLocation);
 JSONArray* LoadJSONArray(std::string fileLocation);
+JSONObject* LuaStackToJSONObject(lua_State* luaState);

@@ -1,4 +1,5 @@
 #include "JSON.h"
+#include <iostream>
 
 template <typename Out>
 void split(const std::string& s, char delim, Out result) {
@@ -705,4 +706,64 @@ JSONArray* LoadJSONArray(std::string fileLocation)
 	FinalOutput->loadDataFromString(processedString);
 
 	return FinalOutput;
+}
+
+JSONObject* LuaStackToJSONObject(lua_State* luaState)
+{
+	JSONObject* jsonReturn = new JSONObject();
+
+	lua_pushnil(luaState);
+	while (true) {
+
+		// Check if it's iterated over the whole table
+		if (!lua_next(luaState, -2))
+			break;
+
+		std::string key;
+		int index = 0;
+		switch (lua_type(luaState, -2))
+		{
+		case LUA_TSTRING:
+			key = lua_tostring(luaState, -2);
+			break;
+		case LUA_TNUMBER:
+			key = std::to_string((int)lua_tonumber(luaState, -2) - 1);
+			break;
+		}
+
+		float value = 0;
+		switch (lua_type(luaState, -1))
+		{
+		case LUA_TSTRING:
+			jsonReturn->setString(key, lua_tostring(luaState, -1));
+			lua_pop(luaState, 1);
+			break;
+		case LUA_TBOOLEAN:
+			jsonReturn->setBool(key, lua_toboolean(luaState, -1));
+			lua_pop(luaState, 1);
+			break;
+		case LUA_TNUMBER:
+			value = lua_tonumber(luaState, -1);
+
+			if (lua_isinteger(luaState, -1))
+				jsonReturn->setInt(key, (int)value);
+			else
+				jsonReturn->setFloat(key, value);
+
+			lua_pop(luaState, 1);
+			break;
+		case LUA_TTABLE:
+			jsonReturn->setJSONObject(key, LuaStackToJSONObject(luaState));
+			// Honestly I have absolutely no idea why this doesn't need to be lua_pop'ed
+			break;
+		default:
+			// This should NEVER happen
+			fprintf(stdout, "Type not found: %i\n", lua_type(luaState, -1));
+			lua_pop(luaState, 1);
+			break;
+		}
+	}
+	lua_pop(luaState, 1);
+
+	return jsonReturn;
 }

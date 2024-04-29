@@ -26,31 +26,31 @@ struct TileEntityStruct
 
 	TileEntityStruct(JSONObject* tileEntityData)
 	{
-		name = tileEntityData->getString("Name");
+		name = tileEntityData->getString("name");
 		ID = tileEntityData->getString("ID");
-		description = tileEntityData->getString("Description");
+		description = tileEntityData->getString("description");
 
-		if (tileEntityData->getObjectList().count("ImageData"))
+		if (tileEntityData->getObjectList().count("imageData"))
 		{
-			JSONObject* imageData = tileEntityData->getJSONObject("ImageData");
+			JSONObject* imageData = tileEntityData->getJSONObject("imageData");
 
-			texture = imageData->getJSONArray("Images")->getJSONObject(0)->getInt("TextureID");
-			totalFrames = imageData->getInt("Frames");
-			totalVariants = imageData->getInt("Variants");
+			texture = imageData->getJSONObject("images")->getInt("textureID");
+			totalFrames = imageData->getInt("frames");
+			totalVariants = imageData->getInt("variants");
 		}
 
-		width = tileEntityData->getFloat("Width");
-		height = tileEntityData->getFloat("Height");
-		placementOffsetX = tileEntityData->getFloat("PlacementOffsetX");
-		placementOffsetY = tileEntityData->getFloat("PlacementOffsetY");
+		width = tileEntityData->getFloat("width");
+		height = tileEntityData->getFloat("height");
+		placementOffsetX = tileEntityData->getFloat("placementOffsetX");
+		placementOffsetY = tileEntityData->getFloat("placementOffsetY");
 
-		stableGround = tileEntityData->getBool("Stable");
-		collidable = tileEntityData->getBool("Collidable");
-		requiresSupport = tileEntityData->getBool("RequiresSupport");
+		stableGround = tileEntityData->getBool("stable");
+		collidable = tileEntityData->getBool("collidable");
+		requiresSupport = tileEntityData->getBool("requiresSupport");
 
-		JSONArray* fillsLayersArray = tileEntityData->getJSONArray("FillsLayers");
-		for (int i = 0; i < fillsLayersArray->size(); i++)
-			fillsLayers[i] = fillsLayersArray->getBool(i);
+		JSONObject* fillsLayersArray = tileEntityData->getJSONObject("fillsLayers");
+		for (int i = 0; i < fillsLayersArray->getNamesList().size(); i++)
+			fillsLayers[i] = fillsLayersArray->getBool(fillsLayersArray->getNamesList()[i]);
 	}
 
 };

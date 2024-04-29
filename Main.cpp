@@ -70,6 +70,10 @@ static void frame()
 	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
 
+	// [!] TODO: Finish the PetrifiedTree.lua file, and figure out a system that workds for loading it in
+	// [!]       Use an object called "data" that has an "extend" function that when given data for a tile
+	// [!]       Adds it to a table that is returned after all tiles have been loaded
+
 	Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 	if (tileHovered)
 	{
@@ -160,9 +164,13 @@ static void init(void) {
 	lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
 	lost::globalCamera.setSize(sapp_width(), sapp_height());
 
-	g_TileManager.loadTileData("GameData/TileData/Stone.json");
-	g_TileManager.loadTileData("GameData/TileData/Air.json");
-	g_TileManager.loadTileEntityData("GameData/TileEntityData/PetrifiedTree.json");
+	g_TileManager.loadTileEntityData("GameData/TileEntityData/PetrifiedTree.lua");
+	g_TileManager.loadTileData("GameData/TileData/Stone.lua");
+	g_TileManager.loadTileData("GameData/TileData/Air.lua");
+
+	g_TileManager.createImageData();
+	g_TileManager.createTileData();
+	g_TileManager.createTileEntityData();
 	
 	lost::loadImageQueue();
 

@@ -34,36 +34,36 @@ struct TileRefStruct
 
 	TileRefStruct(JSONObject* tileData)
 	{
-		name = tileData->getString("Name");
+		name = tileData->getString("name");
 		ID = tileData->getString("ID");
-		description = tileData->getString("Description");
+		description = tileData->getString("description");
 
-		empty = tileData->getBool("Empty");
-		stableGround = tileData->getBool("Stable");
-		collidable = tileData->getBool("Collidable");
+		empty = tileData->getBool("empty");
+		stableGround = tileData->getBool("stable");
+		collidable = tileData->getBool("collidable");
 
-		if (tileData->getObjectList().count("ImageData"))
+		if (tileData->getObjectList().count("imageData"))
 		{
-			JSONObject* imageData = tileData->getJSONObject("ImageData");
+			JSONObject* imageData = tileData->getJSONObject("imageData");
 
-			texture = imageData->getJSONArray("Images")->getJSONObject(0)->getInt("TextureID");
-			totalFrames = imageData->getInt("Frames");
-			totalVariants = imageData->getInt("Variants");
+			texture = imageData->getJSONObject("images")->getInt("textureID");
+			totalFrames = imageData->getInt("frames");
+			totalVariants = imageData->getInt("variants");
 		}
 
-		connectionType = tileData->getString("ConnectionType");
+		connectionType = tileData->getString("connectionType");
 		if (connectionType != "none")
 		{
-			JSONObject* connectionData = tileData->getJSONObject("ConnectionData");
-			connectionGroup = connectionData->getString("ConnectionGroup");
-			JSONArray* connectsToArray = connectionData->getJSONArray("ConnectsTo");
-			for (int i = 0; i < connectsToArray->size(); i++)
-				connectsTo.insert(connectsToArray->getString(i));
+			JSONObject* connectionData = tileData->getJSONObject("connectionData");
+			connectionGroup = connectionData->getString("connectionGroup");
+			JSONObject* connectsToArray = connectionData->getJSONObject("connectsTo");
+			for (int i = 0; i < connectsToArray->getNamesList().size(); i++)
+				connectsTo.insert(connectsToArray->getString(connectsToArray->getNamesList()[i]));
 		}
 
-		JSONArray* fillsLayersArray = tileData->getJSONArray("FillsLayers");
-		for (int i = 0; i < fillsLayersArray->size(); i++)
-			fillsLayers[i] = fillsLayersArray->getBool(i);
+		JSONObject* fillsLayersArray = tileData->getJSONObject("fillsLayers");
+		for (int i = 0; i < fillsLayersArray->getNamesList().size(); i++)
+			fillsLayers[i] = fillsLayersArray->getBool(fillsLayersArray->getNamesList()[i]);
 	}
 };
 
