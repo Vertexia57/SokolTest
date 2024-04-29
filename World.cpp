@@ -17,7 +17,7 @@ World::~World()
 void World::worldInit()
 {
 	m_BorderAir = new Tile({ 0, 0 }, g_TileManager.getTileRef("air"));
-	worldGenerator = new Generator("GameData\\TileData\\Generator.lua");
+	worldGenerator = new Generator("GameData\\WorldGeneration\\Generator.lua");
 	worldTileWidth = worldWidth * chunkWidth;
 }
 

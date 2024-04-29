@@ -144,6 +144,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Generator.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="ItemManager.h" />
     <ClInclude Include="JSON.h" />
     <ClInclude Include="Lost\InputManager.h" />
     <ClInclude Include="Lost\Camera.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Generator.cpp" />
     <ClCompile Include="Item.cpp" />
+    <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="JSON.cpp" />
     <ClCompile Include="Lost\InputManager.cpp" />
     <ClCompile Include="Lost\Camera.cpp" />

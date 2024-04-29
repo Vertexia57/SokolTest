@@ -41,6 +41,8 @@ public:
 	void createTileData();
 	void createTileEntityData();
 
+	void finishLoading();
+
 	JSONObject* getTileData(std::string tileName);
 	JSONObject* getTileEntityData(std::string tileName);
 

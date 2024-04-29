@@ -1,4 +1,5 @@
 #include "TileEntity.h"
+#include "Random.h"
 
 TileEntity::TileEntity(TileEntityStruct* tileEntityRef_)
 {
@@ -9,6 +10,9 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_)
 
 	for (int i = 0; i < 3; i++)
 		fillsLayers[i] = tileEntityRef_->fillsLayers[i];
+
+	if (tileEntityRef->randomVariant)
+		m_Variant = random(0, tileEntityRef->totalVariants - 1);
 }
 
 TileEntity::~TileEntity()
@@ -37,16 +41,16 @@ void TileEntity::render()
 {
 	lost::useImage(tileEntityRef->texture);
 	float imageWidth = lost::getImage(tileEntityRef->texture)->width;
-	float imageHeight = lost::getImage(tileEntityRef->texture)->height;
-	sgp_draw_textured_rect(0, { (float)position.x * 32.0f, (float)position.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, 0, imageWidth, imageHeight });
+	float imageHeight = lost::getImage(tileEntityRef->texture)->height / tileEntityRef->totalVariants;
+	sgp_draw_textured_rect(0, { (float)position.x * 32.0f, (float)position.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, imageHeight * m_Variant, imageWidth, imageHeight });
 }
 
 void TileEntity::renderAt(lost::Vector2D pos)
 {
 	lost::useImage(tileEntityRef->texture);
 	float imageWidth = lost::getImage(tileEntityRef->texture)->width;
-	float imageHeight = lost::getImage(tileEntityRef->texture)->height;
-	sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, 0, imageWidth, imageHeight });
+	float imageHeight = lost::getImage(tileEntityRef->texture)->height / tileEntityRef->totalVariants;
+	sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { 0, imageHeight * m_Variant, imageWidth, imageHeight });
 }
 
 void TileEntity::renderHitbox()

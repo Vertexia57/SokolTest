@@ -29,23 +29,9 @@ function data:addImages(images)
 end
 
 function data:extend(object)
-	printTable(object, 0)
-
 	if (object["dataType"] == "tileEntity") then
 		self.tileEntityData[object["ID"]] = object
 	elseif (object["dataType"] == "tile") then
 		self.tileData[object["ID"]] = object
 	end
-end
-
-function readImageData()
-	return data.imageData
-end
-
-function readTileEntityData()
-	return data.tileEntityData
-end
-
-function readTileData()
-	return data.tileData
 end

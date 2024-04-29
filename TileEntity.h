@@ -16,6 +16,7 @@ struct TileEntityStruct
 	TextureID texture = 0;
 	int totalFrames = 1;
 	int totalVariants = 1;
+	bool randomVariant = false;
 
 	float width = 0.0f;
 	float height = 0.0f;
@@ -37,6 +38,8 @@ struct TileEntityStruct
 			texture = imageData->getJSONObject("images")->getInt("textureID");
 			totalFrames = imageData->getInt("frames");
 			totalVariants = imageData->getInt("variants");
+			if (imageData->getObjectList().count("randomVariant"))
+				randomVariant = imageData->getBool("randomVariant");
 		}
 
 		width = tileEntityData->getFloat("width");
@@ -79,6 +82,6 @@ public:
 	TileEntityStruct* tileEntityRef;
 private:
 	lost::Bound2D m_Hitbox;
-	TextureID m_TileID;
+	TextureID m_Variant;
 };
 

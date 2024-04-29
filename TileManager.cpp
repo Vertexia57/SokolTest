@@ -5,7 +5,7 @@ TileManager::TileManager()
 	luaTileData = luaL_newstate();
 	luaL_openlibs(luaTileData);
 	luaBindDebugPrint(luaTileData);
-	checkLua(luaTileData, luaL_dostring(luaTileData, read_text_file("GameData/TileEntityData/dataBase.lua").c_str()));
+	checkLua(luaTileData, luaL_dostring(luaTileData, read_text_file("GameData/dataBase.lua").c_str()));
 }
 
 TileManager::~TileManager()
@@ -21,8 +21,6 @@ TileManager::~TileManager()
 	for (const auto& [name, object] : tileRefs)
 		delete object;
 	tileRefs.clear();
-
-	lua_close(luaTileData);
 }
 
 void TileManager::loadTileData(const char* location)
@@ -40,8 +38,6 @@ void TileManager::createImageData()
 	checkLua(luaTileData, luaL_dostring(luaTileData, "return data.imageData"));
 	JSONObject* imageDatas = LuaStackToJSONObject(luaTileData);
 
-	fprintf(stdout, imageDatas->exportString().c_str());
-
 	for (int i = 0; i < imageDatas->getNamesList().size(); i++)
 	{
 		JSONObject* imageData = imageDatas->getJSONObject(imageDatas->getNamesList()[i]);
@@ -54,13 +50,13 @@ void TileManager::createTileData()
 	checkLua(luaTileData, luaL_dostring(luaTileData, "return data.tileData"));
 	JSONObject* tileDatas = LuaStackToJSONObject(luaTileData);
 
-	fprintf(stdout, tileDatas->exportString().c_str());
-
 	for (int i = 0; i < tileDatas->getNamesList().size(); i++)
 	{
 		JSONObject* tileData = tileDatas->getJSONObject(tileDatas->getNamesList()[i]);
 
 		tileJSONs[tileData->getString("ID")] = tileData;
+
+		fprintf(stdout, (" [TileManager::createTileData] Loaded Tile: " + tileData->getString("ID") + "\n").c_str());
 
 		// Needs to be ran AFTER images have been loaded from "return data.imageData"
 		if (tileData->getObjectList().count("imageData"))
@@ -74,7 +70,7 @@ void TileManager::createTileData()
 
 		std::string connectionType = tileData->getString("connectionType");
 		if (!connectionDatas.count(connectionType) && connectionType != "none")
-			connectionDatas[connectionType] = new ConnectionData(connectionType, read_text_file(("GameData/TileData/" + connectionType + ".conmeta").c_str()));
+			connectionDatas[connectionType] = new ConnectionData(connectionType, read_text_file(("GameData/TileData/ConnectionData/" + connectionType + ".conmeta").c_str()));
 
 		tileRefs[tileData->getString("ID")] = new TileRefStruct(tileData);
 	}
@@ -85,13 +81,13 @@ void TileManager::createTileEntityData()
 	checkLua(luaTileData, luaL_dostring(luaTileData, "return data.tileEntityData"));
 	JSONObject* tileDatas = LuaStackToJSONObject(luaTileData);
 
-	fprintf(stdout, tileDatas->exportString().c_str());
-
 	for (int i = 0; i < tileDatas->getNamesList().size(); i++)
 	{
 		JSONObject* tileData = tileDatas->getJSONObject(tileDatas->getNamesList()[i]);
 
 		tileEntityJSONs[tileData->getString("ID")] = tileData;
+
+		fprintf(stdout, (" [TileManager::createTileEntityData] Loaded TileEntity: " + tileData->getString("ID") + "\n").c_str());
 
 		// Needs to be ran AFTER images have been loaded from "return data.imageData"
 		if (tileData->getObjectList().count("imageData"))
@@ -105,6 +101,11 @@ void TileManager::createTileEntityData()
 
 		tileEntityRefs[tileData->getString("ID")] = new TileEntityStruct(tileData);
 	}
+}
+
+void TileManager::finishLoading()
+{
+	lua_close(luaTileData);
 }
 
 JSONObject* TileManager::getTileData(std::string tileName)

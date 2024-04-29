@@ -187,6 +187,9 @@
     <ClInclude Include="Item.h">
       <Filter>Game\Items</Filter>
     </ClInclude>
+    <ClInclude Include="ItemManager.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -271,6 +274,9 @@
       <Filter>Game\Entity</Filter>
     </ClCompile>
     <ClCompile Include="Item.cpp">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemManager.cpp">
       <Filter>Game\Items</Filter>
     </ClCompile>
   </ItemGroup>

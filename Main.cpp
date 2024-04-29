@@ -13,6 +13,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <filesystem>
 
 static ShaderID effectShader = 0;
 static TextureID grassTex = 0;
@@ -69,10 +71,6 @@ static void frame()
 
 	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
-
-	// [!] TODO: Finish the PetrifiedTree.lua file, and figure out a system that workds for loading it in
-	// [!]       Use an object called "data" that has an "extend" function that when given data for a tile
-	// [!]       Adds it to a table that is returned after all tiles have been loaded
 
 	Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 	if (tileHovered)
@@ -164,21 +162,33 @@ static void init(void) {
 	lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
 	lost::globalCamera.setSize(sapp_width(), sapp_height());
 
-	g_TileManager.loadTileEntityData("GameData/TileEntityData/PetrifiedTree.lua");
-	g_TileManager.loadTileData("GameData/TileData/Stone.lua");
-	g_TileManager.loadTileData("GameData/TileData/Air.lua");
+	// Reads the files within the TileData folder and loads them if they end in .lua
+	std::string tileDataPath = "GameData/TileData/";
+	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
+	{
+		std::string pathToString = entry.path().string();
+		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
+			g_TileManager.loadTileData(pathToString.c_str());
+	}
+
+	// Reads the files within the TileEntityData folder and loads them if they end in .lua
+	tileDataPath = "GameData/TileEntityData/";
+	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
+	{
+		std::string pathToString = entry.path().string();
+		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
+			g_TileManager.loadTileEntityData(pathToString.c_str());
+	}
 
 	g_TileManager.createImageData();
 	g_TileManager.createTileData();
 	g_TileManager.createTileEntityData();
-	
+	g_TileManager.finishLoading();
+
 	lost::loadImageQueue();
 
 	g_World = new World();
-
 	g_World->worldInit();
-	g_World->createChunk(0);
-	
 	g_World->addEntity(new Player({0, 0}));
 
 	simgui_desc_t simguiSetupDesc = {};
