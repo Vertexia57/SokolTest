@@ -1,7 +1,9 @@
 #include "Lost.h"
 #include "World.h"
 #include "TileManager.h"
+#include "ItemManager.h"
 #include "Generator.h"
+#include "ItemEntity.h"
 #include "Player.h"
 
 #define SOKOL_IMPL
@@ -67,6 +69,8 @@ static void frame()
 	lost::globalCamera.update(lost::deltaTime);
 	lost::globalCamera.setViewportTransforms();
 
+	lost::bindShader(lost::getShader(0));
+
 	g_World->render(lost::globalCamera.getViewBounds());
 
 	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
@@ -95,17 +99,41 @@ static void frame()
 
 		if (!ImGui::IsAnyItemActive() && lost::mouseTapped(2))
 		{
-			g_World->addEntity(new Entity({ worldMouse.x, worldMouse.y, 30.0f, 30.0f }));
+			g_World->addEntity(new ItemEntity({ worldMouse.x, worldMouse.y }, g_ItemManager.getItemData("ironOre"), 1));
 		}
 
 		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
 		{
+			lost::unbindShader();
+			lost::clearImage();
+
 			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 			tileHovered->tileEntitiesWithin[i]->renderHitbox();
 			if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
 				g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+
+			lost::bindShader(lost::getShader(0));
 		}
 	}
+
+	lost::globalCamera.resetViewportTransforms();
+
+	Container* playerInventory = g_PlayerPointer->getInventory();
+	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+	for (int i = 0; i < playerInventory->size; i++)
+	{
+		Item* item = playerInventory->getItem(i);
+		if (!item->empty)
+		{
+			lost::useImage(item->textureID);
+			float imageWidth = lost::getImage(item->textureID)->width / item->refStruct->frames;
+			float imageHeight = lost::getImage(item->textureID)->height / item->refStruct->variants;
+			sgp_draw_textured_rect(0, { 10.0f + (5.0f + imageWidth * 4.0f) * i, 10.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0, imageHeight * item->variant, imageWidth, imageHeight });
+		}
+	}
+
+	lost::unbindShader();
+	lost::clearImage();
 
 	lost::resetInputData();
 
@@ -116,6 +144,7 @@ static void frame()
 	sg_begin_pass(&pass);   
 	// Dispatch all draw commands to Sokol GFX.
 	sgp_flush();
+
 	// Finish a draw command queue, clearing it.
 	sgp_end();
 
@@ -162,13 +191,18 @@ static void init(void) {
 	lost::globalCamera.bindGoalTransform(&cameraGoalPos, 0);
 	lost::globalCamera.setSize(sapp_width(), sapp_height());
 
+	lua_State* loaderState = luaL_newstate();
+	luaL_openlibs(loaderState);
+	luaBindDebugPrint(loaderState);
+	checkLua(loaderState, luaL_dostring(loaderState, read_text_file("GameData/dataBase.lua").c_str()));
+
 	// Reads the files within the TileData folder and loads them if they end in .lua
 	std::string tileDataPath = "GameData/TileData/";
 	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
 	{
 		std::string pathToString = entry.path().string();
 		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
-			g_TileManager.loadTileData(pathToString.c_str());
+			g_TileManager.loadTileData(loaderState, pathToString.c_str());
 	}
 
 	// Reads the files within the TileEntityData folder and loads them if they end in .lua
@@ -177,19 +211,31 @@ static void init(void) {
 	{
 		std::string pathToString = entry.path().string();
 		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
-			g_TileManager.loadTileEntityData(pathToString.c_str());
+			g_TileManager.loadTileEntityData(loaderState, pathToString.c_str());
 	}
 
-	g_TileManager.createImageData();
-	g_TileManager.createTileData();
-	g_TileManager.createTileEntityData();
-	g_TileManager.finishLoading();
+	// Reads the files within the ItemData folder and loads them if they end in .lua
+	tileDataPath = "GameData/ItemData/";
+	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
+	{
+		std::string pathToString = entry.path().string();
+		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
+			g_ItemManager.loadItemData(loaderState, pathToString.c_str());
+	}
+
+	g_TileManager.createImageData(loaderState);
+	g_TileManager.createTileData(loaderState);
+	g_TileManager.createTileEntityData(loaderState);
+	g_ItemManager.createItemData(loaderState);
+
+	lua_close(loaderState);
 
 	lost::loadImageQueue();
 
 	g_World = new World();
 	g_World->worldInit();
-	g_World->addEntity(new Player({0, 0}));
+	g_PlayerPointer = new Player({ 0, 0 });
+	g_World->addEntity(g_PlayerPointer);
 
 	simgui_desc_t simguiSetupDesc = {};
 	simgui_setup(&simguiSetupDesc);

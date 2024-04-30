@@ -15,6 +15,8 @@ public:
 	virtual void render(lost::Bound2D renderBounds, float worldLoopWidth);
 	virtual void die(); // Run deletion with extra stuff like drops and particles
 
+	lost::Vector2D getPosition();
+
 	bool killEntity = false;
 protected:
 	lost::Transform2D transform;

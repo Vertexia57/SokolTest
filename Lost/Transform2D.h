@@ -52,6 +52,23 @@ namespace lost
 		{
 			return Vector2D{ x / val, y / val };
 		}
+
+		float dist(Vector2D other) const
+		{
+			return sqrtf( powf(x - other.x, 2) + powf(y - other.y, 2) );
+		}
+
+		float magnitude()
+		{
+			return sqrtf(powf(x, 2) + powf(y, 2));
+		}
+
+		void normalize()
+		{
+			float mag = magnitude();
+			x /= mag;
+			y /= mag;
+		}
 	};
 
 	struct IntVector2D

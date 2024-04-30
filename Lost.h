@@ -14,3 +14,8 @@ namespace lost
 	void destroyManagers();
 
 }
+
+static int min(int a, int b)
+{
+	return (a > b) ? a : b;
+};

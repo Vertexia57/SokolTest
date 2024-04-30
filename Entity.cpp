@@ -55,3 +55,8 @@ void Entity::render(lost::Bound2D renderBounds, float worldLoopWidth)
 void Entity::die()
 {
 }
+
+lost::Vector2D Entity::getPosition()
+{
+	return lost::Vector2D{ colliderData->bounds.x + colliderData->bounds.w / 2, colliderData->bounds.y + colliderData->bounds.h / 2 };
+}

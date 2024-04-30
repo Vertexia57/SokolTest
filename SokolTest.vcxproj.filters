@@ -190,6 +190,18 @@
     <ClInclude Include="ItemManager.h">
       <Filter>Game\Items</Filter>
     </ClInclude>
+    <ClInclude Include="Container.h">
+      <Filter>Game\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemEntity.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="fontstash.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_truetype.h">
+      <Filter>Lost\Sokol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -278,6 +290,12 @@
     </ClCompile>
     <ClCompile Include="ItemManager.cpp">
       <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Container.cpp">
+      <Filter>Game\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemEntity.cpp">
+      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

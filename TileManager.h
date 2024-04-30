@@ -34,14 +34,12 @@ public:
 	TileManager();
 	~TileManager();
 
-	void loadTileData(const char* location);
-	void loadTileEntityData(const char* location);
+	void loadTileData(lua_State* loaderState, const char* location);
+	void loadTileEntityData(lua_State* loaderState, const char* location);
 	
-	void createImageData();
-	void createTileData();
-	void createTileEntityData();
-
-	void finishLoading();
+	void createImageData(lua_State* loaderState);
+	void createTileData(lua_State* loaderState);
+	void createTileEntityData(lua_State* loaderState);
 
 	JSONObject* getTileData(std::string tileName);
 	JSONObject* getTileEntityData(std::string tileName);
@@ -58,8 +56,6 @@ private:
 
 	std::map<std::string, JSONObject*> tileEntityJSONs;
 	std::map<std::string, TileEntityStruct*> tileEntityRefs;
-
-	lua_State* luaTileData;
 };
 
 extern TileManager g_TileManager;

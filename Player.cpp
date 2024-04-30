@@ -2,6 +2,7 @@
 
 Player::Player(lost::Vector2D position)
 	: Entity({ position.x, position.y, 20.0f, 20.0f })
+	, inventory(10)
 {
 	colliderData->gravity = false;
 	transform.scale = { 0.5f, 0.5f }; // The scale is only used by the camera
@@ -50,10 +51,32 @@ void Player::update()
 	ImGui::Text("Player Position: (%f, %f)", colliderData->bounds.x, colliderData->bounds.y);
 }
 
-void Player::render(lost::Bound2D renderBounds)
+void Player::render(lost::Bound2D renderBounds, float worldLoopWidth)
 {
-	lost::useImage(1);
-	float imageWidth = lost::getImage(1)->width;
-	float imageHeight = lost::getImage(1)->height;
-	sgp_draw_textured_rect(0, { (float)transform.position.x, (float)transform.position.y, colliderData->bounds.w, colliderData->bounds.h }, { 0, 0, imageWidth, imageHeight });
+	if (colliderData->bounds.inBounds(renderBounds))
+	{
+		lost::useImage(1);
+		float imageWidth = lost::getImage(1)->width;
+		float imageHeight = lost::getImage(1)->height;
+		sgp_draw_textured_rect(0, { (float)transform.position.x, (float)transform.position.y, colliderData->bounds.w, colliderData->bounds.h }, { 0, 0, imageWidth, imageHeight });
+	}
+	else
+	{
+		float xOffset = (colliderData->bounds.x > renderBounds.right) ? -worldLoopWidth : worldLoopWidth;
+		lost::Bound2D loopedBounds = { colliderData->bounds.x + xOffset, colliderData->bounds.y, colliderData->bounds.w, colliderData->bounds.h };
+		if (loopedBounds.inBounds(renderBounds))
+		{
+			lost::useImage(1);
+			float imageWidth = lost::getImage(1)->width;
+			float imageHeight = lost::getImage(1)->height;
+			sgp_draw_textured_rect(0, { loopedBounds.x, loopedBounds.y, loopedBounds.w, loopedBounds.h }, { 0, 0, imageWidth, imageHeight });
+		}
+	}
 }
+
+int Player::addItem(Item& item)
+{
+	return inventory.addItem(item);
+}
+
+Player* g_PlayerPointer = nullptr;

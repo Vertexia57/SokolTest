@@ -57,6 +57,12 @@ void Camera::setViewportTransforms()
 	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x + m_Bounds.w / 2.0f, m_Transform.position.y + m_Bounds.h / 2.0f);
 }
 
+void Camera::resetViewportTransforms()
+{
+	sgp_reset_transform();
+	sgp_project(0, m_Bounds.w, 0, m_Bounds.h);
+}
+
 void Camera::bindGoalTransform(lost::Transform2D* transformPtr, int priority)
 {
 	cameraFollowList[transformPtr] = priority;

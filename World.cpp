@@ -47,7 +47,6 @@ void World::update(lost::Bound2D renderBounds)
 
 void World::render(lost::Bound2D renderBounds)
 {
-	lost::bindShader(lost::getShader(0));
 	for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
 	{
 		if (x >= 0 && x < worldWidth)
@@ -85,9 +84,6 @@ void World::render(lost::Bound2D renderBounds)
 
 	for (Entity* entity : m_Entities)
 		entity->render(renderBounds, worldTileWidth * 32.0f);
-
-	lost::unbindShader();
-	lost::clearImage();
 	//for (const auto& [val, chunk] : m_Chunks)
 	//	chunk->renderBorders();
 

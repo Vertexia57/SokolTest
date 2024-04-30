@@ -23,6 +23,8 @@ public:
 	// Is ran before drawing world, sets the viewports transforms to match the cameras
 	void setViewportTransforms();
 
+	void resetViewportTransforms();
+
 	// Adds a goal transform to the camera, if it's priority is the highest, it gets control
 	void bindGoalTransform(lost::Transform2D* transformPtr, int priority);
 	// Removes a goal transform from the camera
