@@ -22,7 +22,7 @@ data:extend(
             frames = 1
         },
 
-        stackCount = 1,
+        stackCount = 12,
         placesTile = "stone"
     }
 )

@@ -44,6 +44,7 @@ namespace lost
 	void createShaderManager()
 	{
 		shaderManager = new ShaderManager();
+		loadShader("Shaders/vertex.vert", "Shaders/fragment.frag", "base");
 	}
 
 	void destroyShaderManager()
@@ -78,20 +79,25 @@ namespace lost
 	void bindShader(Shader* shader)
 	{
 		shader->bindShader();
+		shaderManager->currentShader = shader->id;
 	}
 
 	void bindShader(ShaderID shaderID)
 	{
 		shaderManager->getShader(shaderID)->bindShader();
+		shaderManager->currentShader = shaderID;
 	}
 
 	void bindShader(std::string shaderName)
 	{
-		shaderManager->getShader(shaderName)->bindShader();
+		Shader* shader = shaderManager->getShader(shaderName);
+		shader->bindShader();
+		shaderManager->currentShader = shader->id;
 	}
 
 	void unbindShader()
 	{
 		sgp_reset_pipeline();
+		shaderManager->currentShader = 0;
 	}
 }

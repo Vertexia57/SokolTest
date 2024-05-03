@@ -30,8 +30,11 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 	lost::feedInputEvent(user_event);
 }
 
+static char testBuffer[256];
+
 static void frame()     
 {
+
 	lost::recalcDeltaTime();
 
 	// Get current window size.
@@ -129,6 +132,12 @@ static void frame()
 			float imageWidth = lost::getImage(item->textureID)->width / item->refStruct->frames;
 			float imageHeight = lost::getImage(item->textureID)->height / item->refStruct->variants;
 			sgp_draw_textured_rect(0, { 10.0f + (5.0f + imageWidth * 4.0f) * i, 10.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0, imageHeight * item->variant, imageWidth, imageHeight });
+			lost::renderTextPro(
+				std::to_string(item->StackSize), 
+				{ 10.0f + (5.0f + imageWidth * 4.0f) * i + imageWidth * 4.0f, 10.0f + imageHeight * 4.0f }, 
+				1.0f,
+				LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_MIDDLE
+			);
 		}
 	}
 
@@ -239,6 +248,8 @@ static void init(void) {
 
 	simgui_desc_t simguiSetupDesc = {};
 	simgui_setup(&simguiSetupDesc);
+
+	lost::loadFont("GameData/Fonts/PixeloidSans.ttf", 36, "Pixel");
 }
 
 // Called when the application is shutting down.

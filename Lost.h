@@ -6,6 +6,7 @@
 #include "Lost/Camera.h"
 #include "Lost/InputManager.h"
 #include "Lost/LuaInit.h"
+#include "Lost/FontManager.h"
 
 namespace lost
 {

@@ -26,6 +26,7 @@ public:
 	// Returns the shader with the shader name specified
 	Shader* getShader(std::string id);
 
+	ShaderID currentShader = 0;
 private:
 	uint32_t m_ShadersAllocated = 0; // This is used to assign TextureID
 

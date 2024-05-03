@@ -202,6 +202,9 @@
     <ClInclude Include="stb_truetype.h">
       <Filter>Lost\Sokol</Filter>
     </ClInclude>
+    <ClInclude Include="Lost\FontManager.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -296,6 +299,9 @@
     </ClCompile>
     <ClCompile Include="ItemEntity.cpp">
       <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\FontManager.cpp">
+      <Filter>Lost\Managers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
