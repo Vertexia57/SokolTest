@@ -36,7 +36,7 @@ void ItemEntity::update()
 		m_Following = true;
 		lost::Vector2D directionVector = playerPosition - getPosition();
 		directionVector.normalize();
-		directionVector = directionVector * 50.0f * lost::deltaTime * fmaxf((175.0f - playerPosition.dist(getPosition())) / 25.0f, 1.0f);
+		directionVector = directionVector * 50.0f * lost::deltaTime * fmaxf((175.0f - playerPosition.dist(getPosition())) / 25.0f, 2.0f);
 		colliderData->setVelocity(directionVector.x, directionVector.y);
 		colliderData->gravity = false;
 

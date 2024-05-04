@@ -5,6 +5,7 @@ void lost::createManagers()
 	createImageManager();
 	createShaderManager();
 	createFontManager();
+	createUIManager();
 }
 
 void lost::destroyManagers()
@@ -12,4 +13,5 @@ void lost::destroyManagers()
 	destroyImageManager();
 	destroyShaderManager();
 	destroyFontManager();
+	destroyUIManager();
 }

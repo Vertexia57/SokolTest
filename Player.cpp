@@ -2,7 +2,8 @@
 
 Player::Player(lost::Vector2D position)
 	: Entity({ position.x, position.y, 20.0f, 20.0f })
-	, inventory(10)
+	, inventory(21)
+	, holdingItem()
 {
 	colliderData->gravity = false;
 	transform.scale = { 0.5f, 0.5f }; // The scale is only used by the camera

@@ -81,6 +81,12 @@ sg_sampler& ImageManager::getSampler(int id)
 	return samplers[id];
 }
 
+void ImageManager::reload()
+{
+	for (Image* image : m_Images)
+		image->reload();
+}
+
 namespace lost
 {
 
@@ -158,6 +164,11 @@ namespace lost
 	sg_sampler& getSampler(int samplerID)
 	{
 		return imageManager->getSampler(samplerID);
+	}
+
+	void reloadImages()
+	{
+		imageManager->reload();
 	}
 
 }

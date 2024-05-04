@@ -107,7 +107,7 @@ namespace lost
 			return *this;
 		}
 
-		Transform2D& operator+(Transform2D vec) const
+		Transform2D operator+(Transform2D vec) const
 		{
 			Transform2D transform{};
 			transform.position = position + vec.position;
@@ -116,7 +116,7 @@ namespace lost
 			return transform;
 		}
 
-		Transform2D& operator-(Transform2D vec) const
+		Transform2D operator-(Transform2D vec) const
 		{
 			Transform2D transform{};
 			transform.position = position - vec.position;

@@ -85,13 +85,14 @@ void Container::setItem(Item item, int slot)
 int Container::findAccessableSlot(Item& item)
 {
 	int foundSlot = -1;
+	bool foundEmptySlot = false;
 
 	for (int i = 0; i < m_Items.size(); i++)
 	{
-		if (!isSlotTaken(i))
+		if (!isSlotTaken(i) && !foundEmptySlot)
 		{
 			foundSlot = i;
-			break;
+			foundEmptySlot = true;
 		}
 		else
 		{
@@ -104,4 +105,33 @@ int Container::findAccessableSlot(Item& item)
 	}
 
 	return foundSlot;
+}
+
+bool Container::isSlotAccessable(int slot, Item& itemHoveredWith)
+{
+	if (!isSlotTaken(slot))
+	{
+		// Slot is empty
+		return true;
+	}
+
+	if (m_Items[slot].StackSize < m_Items[slot].refStruct->maxStack)
+	{
+		if (m_Items[slot].itemID == itemHoveredWith.itemID)
+		{
+			// Slot is not full and item is off same type
+			return true;
+		}
+
+		// Item in slot was of different type
+		return false;
+	}
+
+	// Slot is full
+	return false;
+}
+
+bool Container::isSlotSameType(int slot, Item& itemHoveredWith)
+{
+	return (m_Items[slot].itemID == itemHoveredWith.itemID);
 }

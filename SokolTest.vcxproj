@@ -171,6 +171,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BoxWindow.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Container.h" />
@@ -192,8 +193,11 @@
     <ClInclude Include="Lost\Shader.h" />
     <ClInclude Include="Lost\ShaderManager.h" />
     <ClInclude Include="Lost\Transform2D.h" />
+    <ClInclude Include="Lost\UIManager.h" />
+    <ClInclude Include="Lost\UIWindow.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="Lost\RenderExtras.h" />
     <ClInclude Include="SokolReference.h" />
     <ClInclude Include="sokol\imgui\imconfig.h" />
     <ClInclude Include="sokol\imgui\imgui.h" />
@@ -225,12 +229,14 @@
     <ClInclude Include="STBImplementation.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_truetype.h" />
+    <ClInclude Include="StorageWindow.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileEntity.h" />
     <ClInclude Include="TileManager.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BoxWindow.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Container.cpp" />
@@ -248,6 +254,9 @@
     <ClCompile Include="Lost\Image.cpp" />
     <ClCompile Include="Lost\ImageManager.cpp" />
     <ClCompile Include="Lost\LuaInit.cpp" />
+    <ClCompile Include="Lost\RenderExtras.cpp" />
+    <ClCompile Include="Lost\UIManager.cpp" />
+    <ClCompile Include="Lost\UIWindow.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Lost\Shader.cpp" />
     <ClCompile Include="Lost\ShaderManager.cpp" />
@@ -259,6 +268,7 @@
     <ClCompile Include="sokol\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="sokol\imgui\imgui_tables.cpp" />
     <ClCompile Include="sokol\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="StorageWindow.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileEntity.cpp" />
     <ClCompile Include="TileManager.cpp" />

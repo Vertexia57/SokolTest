@@ -17,6 +17,8 @@ Image::~Image()
 
 void Image::loadImage(const char* fileName)
 {
+	m_FileName = fileName;
+
 	int channels;
 	uint8_t* data = stbi_load(fileName, &width, &height, &channels, 4);
 	image = { SG_INVALID_ID };
@@ -40,4 +42,10 @@ void Image::useImage(uint32_t slot)
 {
 	sgp_set_image(slot, image);
 	sgp_set_sampler(slot, lost::getSampler(samplerID));
+}
+
+void Image::reload()
+{
+	sg_destroy_image(image);
+	loadImage(m_FileName.c_str());
 }

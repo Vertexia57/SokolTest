@@ -97,7 +97,9 @@ namespace lost
 
 	void unbindShader()
 	{
-		sgp_reset_pipeline();
+		// [?] Might not be necessary?
+		//sgp_reset_pipeline();
+		bindShader(ShaderID{ 0 });
 		shaderManager->currentShader = 0;
 	}
 }

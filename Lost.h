@@ -1,3 +1,6 @@
+#pragma warning(disable:4305)
+#pragma warning(disable:4244)
+#pragma warning(disable:4267)
 #pragma once
 
 #include "Lost/DeltaTime.h"
@@ -7,6 +10,8 @@
 #include "Lost/InputManager.h"
 #include "Lost/LuaInit.h"
 #include "Lost/FontManager.h"
+#include "Lost/UIManager.h"
+#include "Lost/RenderExtras.h"
 
 namespace lost
 {

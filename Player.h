@@ -15,6 +15,8 @@ public:
 	// Returns the amount of that item that COULDN'T be added to the container
 	int addItem(Item& item);
 	inline Container* getInventory() { return &inventory; };
+
+	Item holdingItem;
 private:
 	Container inventory;
 };

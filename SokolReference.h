@@ -1,3 +1,7 @@
+#pragma warning(disable:4305)
+#pragma warning(disable:4244)
+#pragma warning(disable:4267)
+
 #include "sokol/sokol_gfx.h"
 #include "sokol/sokol_gp.h"
 #include "sokol/sokol_app.h"

@@ -5,6 +5,7 @@
 #include "Generator.h"
 #include "ItemEntity.h"
 #include "Player.h"
+#include "StorageWindow.h"
 
 #define SOKOL_IMPL
 #define SOKOL_IMGUI_IMPL
@@ -30,7 +31,7 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 	lost::feedInputEvent(user_event);
 }
 
-static char testBuffer[256];
+// [?]
 
 static void frame()     
 {
@@ -64,6 +65,9 @@ static void frame()
 
 	lost::startProcessTime();
 
+	if (lost::keyDown(SAPP_KEYCODE_LEFT_CONTROL) && lost::keyTapped(SAPP_KEYCODE_R))
+		lost::reloadImages();
+
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
 	g_World->update(lost::globalCamera.getViewBounds());
@@ -87,7 +91,7 @@ static void frame()
 			lost::useImage(1);
 			float imageWidth = lost::getImage(1)->width;
 			float imageHeight = lost::getImage(1)->height;
-			bool CanPlace = g_World->checkStable({ blockMouse.x, blockMouse.y + 8, 3.0f, 1.0f }) && g_World->checkCanPlace({ blockMouse.x, blockMouse.y, 3.0f, 8.0f }, { false, true, false });
+			bool CanPlace = g_World->checkStable({ blockMouse.x, blockMouse.y + 1, 1.0f, 1.0f }) && g_World->checkCanPlace({ blockMouse.x, blockMouse.y, 1.0f, 1.0f }, { true, false, false });
 			
 			if (CanPlace)
 				sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
@@ -96,7 +100,7 @@ static void frame()
 
 			sgp_draw_textured_rect(0, { (float)blockMouse.x * 32.0f, (float)blockMouse.y * 32.0f, 3.0f * 32.0f, 8.0f * 32.0f }, { 0, 0, imageWidth, imageHeight });
 			if (lost::mouseDown(0) && CanPlace)
-				g_World->addTileEntity(new TileEntity(g_TileManager.getTileEntityRef("petrifiedTree")), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+				g_World->addTileEntity(new TileEntity(g_TileManager.getTileEntityRef("chest")), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 			lost::clearImage();
 		}
 
@@ -121,28 +125,9 @@ static void frame()
 
 	lost::globalCamera.resetViewportTransforms();
 
-	Container* playerInventory = g_PlayerPointer->getInventory();
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-	for (int i = 0; i < playerInventory->size; i++)
-	{
-		Item* item = playerInventory->getItem(i);
-		if (!item->empty)
-		{
-			lost::useImage(item->textureID);
-			float imageWidth = lost::getImage(item->textureID)->width / item->refStruct->frames;
-			float imageHeight = lost::getImage(item->textureID)->height / item->refStruct->variants;
-			sgp_draw_textured_rect(0, { 10.0f + (5.0f + imageWidth * 4.0f) * i, 10.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0, imageHeight * item->variant, imageWidth, imageHeight });
-			lost::renderTextPro(
-				std::to_string(item->StackSize), 
-				{ 10.0f + (5.0f + imageWidth * 4.0f) * i + imageWidth * 4.0f, 10.0f + imageHeight * 4.0f }, 
-				1.0f,
-				LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_MIDDLE
-			);
-		}
-	}
-
-	lost::unbindShader();
-	lost::clearImage();
+	lost::updateUI();
+	lost::renderUI();
 
 	lost::resetInputData();
 
@@ -239,6 +224,8 @@ static void init(void) {
 
 	lua_close(loaderState);
 
+	lost::loadImage("GameData/NBoxBase.png", "NBoxBase");
+	lost::loadImage("GameData/SlotNBox.png", "SlotNBox");
 	lost::loadImageQueue();
 
 	g_World = new World();
@@ -250,6 +237,11 @@ static void init(void) {
 	simgui_setup(&simguiSetupDesc);
 
 	lost::loadFont("GameData/Fonts/PixeloidSans.ttf", 36, "Pixel");
+
+	StorageWindow* window = new StorageWindow({ 50, 50, 500, 300 });
+	window->setName("Inventory");
+	window->bindContainer(g_PlayerPointer->getInventory(), 7, 3, 0, 20);
+	lost::addUIWindow(window);
 }
 
 // Called when the application is shutting down.

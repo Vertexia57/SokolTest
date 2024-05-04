@@ -36,6 +36,9 @@ public:
 	// Returns the sampler with samplerID
 	sg_sampler& getSampler(int id);
 
+	// Reloads all images within the imageManager
+	void reload();
+
 private:
 	uint32_t m_ImagesAllocated = 0; // This is used to assign TextureID
 
@@ -87,5 +90,8 @@ namespace lost
 
 	// Returns the sampler with samplerID
 	extern sg_sampler& getSampler(int samplerID);
+
+	// Reloads all loaded images
+	extern void reloadImages();
 
 }

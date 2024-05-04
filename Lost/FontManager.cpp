@@ -251,6 +251,7 @@ namespace lost
 
 			if (oldShader != fontManager->textShader)
 				bindShader(oldShader);
+			sgp_set_sampler(0, getSampler(LOST_SAMPLER_NEAREST));
 
 		}
 	}

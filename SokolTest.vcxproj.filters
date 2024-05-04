@@ -29,6 +29,9 @@
     <Filter Include="Game\Items">
       <UniqueIdentifier>{d791ae1e-8729-4712-8798-b975cd427d13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\UI">
+      <UniqueIdentifier>{941243be-6391-4baf-afc4-0d0e28e5db0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lost\Transform2D.h">
@@ -205,6 +208,21 @@
     <ClInclude Include="Lost\FontManager.h">
       <Filter>Lost\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="Lost\UIManager.h">
+      <Filter>Lost\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\UIWindow.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\RenderExtras.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxWindow.h">
+      <Filter>Game\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="StorageWindow.h">
+      <Filter>Game\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -302,6 +320,21 @@
     </ClCompile>
     <ClCompile Include="Lost\FontManager.cpp">
       <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\UIManager.cpp">
+      <Filter>Lost\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\UIWindow.cpp">
+      <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxWindow.cpp">
+      <Filter>Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="StorageWindow.cpp">
+      <Filter>Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\RenderExtras.cpp">
+      <Filter>Lost</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

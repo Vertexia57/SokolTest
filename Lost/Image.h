@@ -1,6 +1,7 @@
 #pragma once
 #include "../SokolReference.h"
 #include "../stb_image.h"
+#include <string>
 
 typedef uint32_t TextureID;
 
@@ -29,6 +30,9 @@ public:
 	// Sets the sampler with this images samplerID within the shader to use this image
 	void useImage(uint32_t slot);
 
+	// Reloads the image
+	void reload();
+
 	sg_image image = { SG_INVALID_ID };
 
 	int width = 0;
@@ -37,6 +41,6 @@ public:
 
 	uint32_t samplerID = LOST_SAMPLER_NEAREST;
 private:
-
+	std::string m_FileName = "";
 };
 
