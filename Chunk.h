@@ -29,6 +29,8 @@ public:
 	void renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
 	void renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
 
+	std::vector<TileEntity*>& getTileEntities();
+
 	void renderBorders();
 
 	bool generatedData = true;

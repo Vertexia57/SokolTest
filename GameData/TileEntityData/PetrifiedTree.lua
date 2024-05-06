@@ -28,10 +28,12 @@ data:extend(
 		
 		placementOffsetX = -1.0,
 		placementOffsetY = -7.0,
-		
+
 		stable = false,
 		collidable = false,
 		requiresSupport = true,
-		fillsLayers = { false, true, false }
+		fillsLayers = { false, true, false },
+
+        building = false
 	}
 )

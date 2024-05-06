@@ -96,6 +96,9 @@ void TileManager::createTileEntityData(lua_State* loaderState)
 		}
 
 		tileEntityRefs[tileData->getString("ID")] = new TileEntityStruct(tileData);
+
+		if (tileData->getBool("building"))
+			buildingRefs.push_back(tileEntityRefs[tileData->getString("ID")]);
 	}
 }
 

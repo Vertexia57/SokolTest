@@ -65,13 +65,23 @@ namespace lost
 	void UIManager::renderUI()
 	{
 		ShaderID oldShader = lost::shaderManager->currentShader;
-		lost::unbindShader();
+		lost::resetShader();
 		lost::clearImage();
 
 		for (UIWindow* window : m_UIWindows)
 			window->render();
 
 		lost::bindShader(oldShader);
+	}
+
+	bool UIManager::isUISelected()
+	{
+		for (UIWindow* window : m_UIWindows)
+		{
+			if (window->selected)
+				return true;
+		}
+		return false;
 	}
 
 	// Global function definitions
@@ -111,5 +121,10 @@ namespace lost
 	void renderUI()
 	{
 		uiManager->renderUI();
+	}
+
+	bool isUISelected()
+	{
+		return ImGui::IsAnyItemActive() || uiManager->isUISelected();
 	}
 }

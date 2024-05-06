@@ -3,7 +3,7 @@
 #include "../stb_image.h"
 #include <string>
 
-typedef uint32_t TextureID;
+typedef unsigned int TextureID;
 
 enum
 {

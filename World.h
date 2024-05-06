@@ -52,8 +52,13 @@ public:
 	Tile* getTileAt(int x, int y);
 	Tile* forceGetTileAt(int x, int y);
 
+	std::vector<TileEntity*> getTileEntitiesInArea(int x, int y, float range);
+	std::vector<TileEntity*> getTileEntitiesInBoxArea(int x, int y, float range);
+
 	int loopX(int x);
 	float loopX(float x);
+	int loopChunkX(int x);
+	float loopChunkX(float x);
 
 	int worldMaxX = 0;
 	int worldMinX = 0;

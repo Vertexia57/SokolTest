@@ -172,6 +172,11 @@ void Chunk::renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
 	}
 }
 
+std::vector<TileEntity*>& Chunk::getTileEntities()
+{
+	return m_TileEntities;
+}
+
 void Chunk::renderBorders()
 {
 	sgp_set_color(1.0, 0.0, 0.0, 1.0);

@@ -15,6 +15,7 @@ public:
 	virtual void render();
 
 	std::string windowType = "base";
+	bool selected = false;
 protected:
 	lost::Bound2D m_Bounds;
 };

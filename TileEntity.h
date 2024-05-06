@@ -25,6 +25,12 @@ struct TileEntityStruct
 
 	std::array<bool, 3> fillsLayers = { false, false, false };
 
+	bool building = false;
+	float cost = 0.0f;
+	float powerUsage = 0.0f;
+	std::string updateAction = "none";
+	JSONObject* updateData = nullptr;
+
 	TileEntityStruct(JSONObject* tileEntityData)
 	{
 		name = tileEntityData->getString("name");
@@ -54,6 +60,17 @@ struct TileEntityStruct
 		JSONObject* fillsLayersArray = tileEntityData->getJSONObject("fillsLayers");
 		for (int i = 0; i < fillsLayersArray->getNamesList().size(); i++)
 			fillsLayers[i] = fillsLayersArray->getBool(fillsLayersArray->getNamesList()[i]);
+		
+		building = tileEntityData->getBool("building");
+		if (building)
+		{
+			JSONObject* buildingData = tileEntityData->getJSONObject("buildingData");
+
+			powerUsage = buildingData->getFloat("powerUsage");
+			cost = buildingData->getFloat("cost");
+			updateAction = buildingData->getString("updateAction");
+			updateData = buildingData->getJSONObject("updateData");
+		}
 	}
 
 };

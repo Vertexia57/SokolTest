@@ -20,6 +20,7 @@ public:
 	bool killEntity = false;
 protected:
 	lost::Transform2D transform;
+	lost::Transform2D centerTransform;
 
 	Collider* colliderData;
 	JSONObject* jsonData = nullptr;

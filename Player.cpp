@@ -7,12 +7,12 @@ Player::Player(lost::Vector2D position)
 {
 	colliderData->gravity = false;
 	transform.scale = { 0.5f, 0.5f }; // The scale is only used by the camera
-	lost::globalCamera.bindGoalTransform(&transform, 3);
+	lost::globalCamera.bindGoalTransform(&centerTransform, 3);
 }
 
 Player::~Player()
 {
-	lost::globalCamera.unbindGoalTransform(&transform);
+	lost::globalCamera.unbindGoalTransform(&centerTransform);
 }
 
 void Player::loopPosition(float worldLoopWidth)
@@ -20,13 +20,13 @@ void Player::loopPosition(float worldLoopWidth)
 	if (colliderData->bounds.left > worldLoopWidth)
 	{
 		colliderData->addPosition(-worldLoopWidth, 0.0f);
-		if (lost::globalCamera.hasFocus(&transform))
+		if (lost::globalCamera.hasFocus(&centerTransform))
 			lost::globalCamera.addPosition(-worldLoopWidth, 0.0f);
 	}
 	else if (colliderData->bounds.right < 0)
 	{
 		colliderData->addPosition(worldLoopWidth, 0.0f);
-		if (lost::globalCamera.hasFocus(&transform))
+		if (lost::globalCamera.hasFocus(&centerTransform))
 			lost::globalCamera.addPosition(worldLoopWidth, 0.0f);
 	}
 }
@@ -35,7 +35,7 @@ void Player::update()
 {
 	Entity::update();
 
-	if (!ImGui::IsAnyItemActive())
+	if (!ImGui::IsAnyItemActive() && !lockInput && !lockMovement)
 	{
 		if (lost::keyDown(SAPP_KEYCODE_A))
 			colliderData->addVelocity(-5.0f, 0.0f);
@@ -46,6 +46,9 @@ void Player::update()
 		if (lost::keyDown(SAPP_KEYCODE_S))
 			colliderData->addVelocity(0.0f, 5.0f);
 	}
+	
+	float scaleAmount = fmaxf(fminf(transform.scale.x * (1 - (float)lost::mouseScroll() / 16.0f), 2.0f), 0.25f);
+	transform.scale = { scaleAmount, scaleAmount };
 
 	colliderData->velocity = colliderData->velocity * (1.0 - (2.0 * lost::deltaTime / 1000.0f));
 

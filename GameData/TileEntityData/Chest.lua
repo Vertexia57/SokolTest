@@ -20,7 +20,7 @@ data:extend(
 			images = { "chest" },
 			frames = 1,
 			variants = 1,
-			randomVariant = true	
+			randomVariant = false	
 		},
 		
 		width = 1.0,
@@ -33,6 +33,8 @@ data:extend(
 		collidable = true,
 		requiresSupport = true,
 		fillsLayers = { true, false, false },
+
+        building = false,
 
         containerData = {
             slots = {

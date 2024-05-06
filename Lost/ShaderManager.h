@@ -59,6 +59,8 @@ namespace lost
 	// Binds the shader pipeline
 	extern void bindShader(std::string shaderName);
 
+	// Resets the current shader pipeline
+	extern void resetShader();
 	// Unbinds the current shader pipeline
 	extern void unbindShader();
 

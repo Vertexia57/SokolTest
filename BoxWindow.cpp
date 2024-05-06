@@ -51,6 +51,8 @@ void BoxWindow::update()
 			m_Bounds.y = m_WindowDraggingStart.y + dragOffset.y;
 		}
 	}
+
+	selected = m_Bounds.inBounds(mousePos) || m_Dragging;
 }
 
 void BoxWindow::render()

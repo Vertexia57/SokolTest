@@ -25,6 +25,8 @@ void Entity::update()
 {
 	colliderData->update();
 	transform.position = { colliderData->bounds.x, colliderData->bounds.y };
+	centerTransform = transform;
+	centerTransform.position = centerTransform.position + lost::Vector2D{ colliderData->bounds.w / 2.0f, colliderData->bounds.h / 2.0f };
 	if (transform.position.y >= 200.0f * 32.0f)
 		killEntity = true;
 }

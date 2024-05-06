@@ -17,6 +17,10 @@ public:
 	inline Container* getInventory() { return &inventory; };
 
 	Item holdingItem;
+	int moneyCount = 100;
+	bool lockInput = false;
+	bool lockMovement = false;
+	bool lockActions = false;
 private:
 	Container inventory;
 };

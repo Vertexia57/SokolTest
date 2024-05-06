@@ -49,6 +49,7 @@ public:
 
 	ConnectionData* getConnectionData(std::string connectionName);
 
+	std::vector<TileEntityStruct*> buildingRefs;
 private:
 	std::map<std::string, JSONObject*> tileJSONs;
 	std::map<std::string, TileRefStruct*> tileRefs;

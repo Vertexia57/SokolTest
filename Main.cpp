@@ -6,6 +6,7 @@
 #include "ItemEntity.h"
 #include "Player.h"
 #include "StorageWindow.h"
+#include "HUDWindow.h"
 
 #define SOKOL_IMPL
 #define SOKOL_IMGUI_IMPL
@@ -31,7 +32,11 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 	lost::feedInputEvent(user_event);
 }
 
-// [?]
+// [?] I don't feel like there should be an inventory in all honesty
+// [?] I think buildings should just cost money, which you get at the start of the game
+// [?] So I guess:
+// [!] TODO: Add building costs, add player money and create a UI for it. Add a building menu and figure that out
+// [!]       FOLLOW THE STUFF YOU WROTE!!!! Also make demo art.
 
 static void frame()     
 {
@@ -79,54 +84,10 @@ static void frame()
 	lost::bindShader(lost::getShader(0));
 
 	g_World->render(lost::globalCamera.getViewBounds());
-
-	lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
-	lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
-
-	Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-	if (tileHovered)
-	{
-		if (!ImGui::IsAnyItemActive())
-		{
-			lost::useImage(1);
-			float imageWidth = lost::getImage(1)->width;
-			float imageHeight = lost::getImage(1)->height;
-			bool CanPlace = g_World->checkStable({ blockMouse.x, blockMouse.y + 1, 1.0f, 1.0f }) && g_World->checkCanPlace({ blockMouse.x, blockMouse.y, 1.0f, 1.0f }, { true, false, false });
-			
-			if (CanPlace)
-				sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
-			else
-				sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
-
-			sgp_draw_textured_rect(0, { (float)blockMouse.x * 32.0f, (float)blockMouse.y * 32.0f, 3.0f * 32.0f, 8.0f * 32.0f }, { 0, 0, imageWidth, imageHeight });
-			if (lost::mouseDown(0) && CanPlace)
-				g_World->addTileEntity(new TileEntity(g_TileManager.getTileEntityRef("chest")), floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-			lost::clearImage();
-		}
-
-		if (!ImGui::IsAnyItemActive() && lost::mouseTapped(2))
-		{
-			g_World->addEntity(new ItemEntity({ worldMouse.x, worldMouse.y }, g_ItemManager.getItemData("ironOre"), 1));
-		}
-
-		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
-		{
-			lost::unbindShader();
-			lost::clearImage();
-
-			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-			tileHovered->tileEntitiesWithin[i]->renderHitbox();
-			if (!ImGui::IsAnyItemActive() && lost::mouseDown(1))
-				g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
-
-			lost::bindShader(lost::getShader(0));
-		}
-	}
-
-	lost::globalCamera.resetViewportTransforms();
-
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+
 	lost::updateUI();
+	lost::globalCamera.resetViewportTransforms();
 	lost::renderUI();
 
 	lost::resetInputData();
@@ -226,6 +187,8 @@ static void init(void) {
 
 	lost::loadImage("GameData/NBoxBase.png", "NBoxBase");
 	lost::loadImage("GameData/SlotNBox.png", "SlotNBox");
+	lost::loadImage("GameData/HUDTopLeft.png", "HUDTopLeft");
+	lost::loadImage("GameData/Credit.png", "Credit");
 	lost::loadImageQueue();
 
 	g_World = new World();
@@ -238,10 +201,13 @@ static void init(void) {
 
 	lost::loadFont("GameData/Fonts/PixeloidSans.ttf", 36, "Pixel");
 
-	StorageWindow* window = new StorageWindow({ 50, 50, 500, 300 });
-	window->setName("Inventory");
-	window->bindContainer(g_PlayerPointer->getInventory(), 7, 3, 0, 20);
-	lost::addUIWindow(window);
+	StorageWindow* windowS = new StorageWindow({ 50, 50, 500, 300 });
+	windowS->setName("Inventory");
+	windowS->bindContainer(g_PlayerPointer->getInventory(), 7, 3, 0, 20);
+	lost::addUIWindow(windowS);
+
+	HUDWindow* windowH = new HUDWindow({ 0, 0, (float)sapp_width(), (float)sapp_height() });
+	lost::addUIWindow(windowH);
 }
 
 // Called when the application is shutting down.

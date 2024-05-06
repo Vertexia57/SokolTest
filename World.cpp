@@ -422,6 +422,48 @@ Tile* World::forceGetTileAt(int x, int y)
 	return m_BorderAir;
 }
 
+std::vector<TileEntity*> World::getTileEntitiesInArea(int x, int y, float range)
+{
+	std::vector<TileEntity*> inRange;
+
+	int minXChunk = (int)floor(loopX(x - range) / (float)chunkWidth);
+	int maxXChunk = (int)floor(loopX(x + range) / (float)chunkWidth);
+
+	for (int x = minXChunk; x <= maxXChunk; x++)
+	{
+		std::vector<TileEntity*>& chunkEntities = m_Chunks[x]->getTileEntities();
+		for (TileEntity* entity : chunkEntities)
+		{
+			if (entity->position.dist({ x * 32.0f, y * 32.0f }) / 32.0f <= range)
+				inRange.push_back(entity);
+		}
+	}
+
+	return inRange;
+}
+
+std::vector<TileEntity*> World::getTileEntitiesInBoxArea(int x, int y, float range)
+{
+	std::vector<TileEntity*> inRange;
+
+	int minXChunk = (int)floor(loopX(x - range) / (float)chunkWidth);
+	int maxXChunk = (int)floor(loopX(x + range) / (float)chunkWidth);
+
+	lost::Bound2D areaBounds = { x - range, y - range, range * 2.0f, range * 2.0f };
+
+	for (int x = minXChunk; x <= maxXChunk; x++)
+	{
+		std::vector<TileEntity*>& chunkEntities = m_Chunks[x]->getTileEntities();
+		for (TileEntity* entity : chunkEntities)
+		{
+			if (areaBounds.inBounds(entity->position))
+				inRange.push_back(entity);
+		}
+	}
+
+	return inRange;
+}
+
 int World::loopX(int x)
 {
 	return (x + worldTileWidth) % worldTileWidth;
@@ -430,6 +472,16 @@ int World::loopX(int x)
 float World::loopX(float x)
 {
 	return fmodf(x + worldTileWidth, worldTileWidth);
+}
+
+int World::loopChunkX(int x)
+{
+	return (x + worldWidth) % worldWidth;
+}
+
+float World::loopChunkX(float x)
+{
+	return fmodf(x + worldWidth, worldWidth);
 }
 
 World* g_World = nullptr;

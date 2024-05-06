@@ -95,11 +95,15 @@ namespace lost
 		shaderManager->currentShader = shader->id;
 	}
 
+	void resetShader()
+	{
+		bindShader(ShaderID{ 0 });
+		shaderManager->currentShader = 0;
+	}
+
 	void unbindShader()
 	{
-		// [?] Might not be necessary?
-		//sgp_reset_pipeline();
-		bindShader(ShaderID{ 0 });
+		sgp_reset_pipeline();
 		shaderManager->currentShader = 0;
 	}
 }

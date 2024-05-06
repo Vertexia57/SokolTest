@@ -33,6 +33,7 @@ namespace lost
 		void updateUI();
 		void renderUI();
 
+		bool isUISelected();
 	private:
 		std::vector<UIWindow*> m_UIWindows;
 	};
@@ -67,5 +68,8 @@ namespace lost
 	extern void updateUI();
 	// Renders the UI to the screen all rendering at the same time
 	extern void renderUI();
+
+	// Returns if any UI is currently selected/active
+	extern bool isUISelected();
 
 }

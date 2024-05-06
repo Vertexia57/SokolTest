@@ -178,6 +178,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="fontstash.h" />
     <ClInclude Include="Generator.h" />
+    <ClInclude Include="HUDWindow.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="ItemEntity.h" />
     <ClInclude Include="ItemManager.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Generator.cpp" />
+    <ClCompile Include="HUDWindow.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemEntity.cpp" />
     <ClCompile Include="ItemManager.cpp" />

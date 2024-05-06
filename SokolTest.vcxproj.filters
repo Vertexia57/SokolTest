@@ -223,6 +223,9 @@
     <ClInclude Include="StorageWindow.h">
       <Filter>Game\UI</Filter>
     </ClInclude>
+    <ClInclude Include="HUDWindow.h">
+      <Filter>Game\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -335,6 +338,9 @@
     </ClCompile>
     <ClCompile Include="Lost\RenderExtras.cpp">
       <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDWindow.cpp">
+      <Filter>Game\UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
