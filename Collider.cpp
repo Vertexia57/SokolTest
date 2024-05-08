@@ -73,7 +73,7 @@ void Collider::m_CheckCollissions()
 		}
 	}
 
-	testLocation = { bounds.x - 2, bounds.y };
+	testLocation = { bounds.x - 1, bounds.y };
 	testTilesV[0] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + abs(velocity.y * deltaTime / 1000.0f) + 1) / 32.0f));
 	testTilesV[1] = g_World->getTileAt(floor(testLocation.x / 32.0f), floor((testLocation.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 2) / 32.0f));
 	for (Tile* test : testTilesV)

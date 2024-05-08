@@ -32,6 +32,9 @@
     <Filter Include="Game\UI">
       <UniqueIdentifier>{941243be-6391-4baf-afc4-0d0e28e5db0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\BuildingObjects">
+      <UniqueIdentifier>{fd4eb117-2ab3-4283-8c71-21b6ba8407bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lost\Transform2D.h">
@@ -226,6 +229,15 @@
     <ClInclude Include="HUDWindow.h">
       <Filter>Game\UI</Filter>
     </ClInclude>
+    <ClInclude Include="BuildingTileEntities.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="ChestTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="ConveyerBeltTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -341,6 +353,12 @@
     </ClCompile>
     <ClCompile Include="HUDWindow.cpp">
       <Filter>Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ChestTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="ConveyerBeltTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -219,7 +219,7 @@ namespace lost
 				origin.y -= (float)textHeight(text, size, fontID) / 2.0f - font->fontHeight * size / 2.0f;
 				break;
 			case LOST_TEXT_ALIGN_BOTTOM:
-				origin.y -= (float)textHeight(text, size, fontID) - font->fontHeight * size;
+				origin.y -= (float)textHeight(text, size, fontID) - font->fontHeight * size / 2.0f;
 				break;
 			}
 

@@ -3,11 +3,16 @@
 #include "Lost/FontManager.h"
 #include "World.h"
 #include "Lost/UIManager.h"
+#include "ItemEntity.h"
+#include "ItemManager.h"
 
 HUDWindow::HUDWindow(lost::Bound2D bounds)
 	: UIWindow(bounds)
 {
 	m_TopLeftUITexID = lost::getImageID("HUDTopLeft");
+	orderValue = 5;
+	windowType = "HUD";
+	maxOne = true;
 }
 
 HUDWindow::~HUDWindow()
@@ -28,7 +33,31 @@ void HUDWindow::update()
 			g_PlayerPointer->lockActions = false;
 	}
 
-	if (m_Building)
+	if (lost::keyTapped(SAPP_KEYCODE_E))
+		g_PlayerPointer->openInventory({ 0.0f, 0.0f }, true);
+
+	if (!m_Building)
+	{
+		lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+		lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
+		Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+
+		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
+		{
+			lost::unbindShader();
+			lost::clearImage();
+
+			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+			tileHovered->tileEntitiesWithin[i]->renderHitbox();
+			if (!lost::isUISelected())
+			{
+				tileHovered->tileEntitiesWithin[i]->mouseInteractFunction();
+			}
+
+			lost::bindShader(lost::getShader(0));
+		}
+	}
+	else
 	{
 		int buildingCount = g_TileManager.buildingRefs.size();
 		m_HoveredBuildingSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingCount * 76.0f) / 2.0f) / 76.0f) : -1;
@@ -48,6 +77,23 @@ void HUDWindow::update()
 		Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 		if (tileHovered)
 		{
+
+			for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
+			{
+				lost::unbindShader();
+				lost::clearImage();
+
+				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+				tileHovered->tileEntitiesWithin[i]->renderHitbox();
+				if (!lost::isUISelected() && lost::mouseDown(1))
+				{
+					g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+					g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+				}
+
+				lost::bindShader(lost::getShader(0));
+			}
+
 			if (!lost::isUISelected() && m_SelectedBuilding)
 			{
 				lost::useImage(m_SelectedBuilding->texture);
@@ -69,25 +115,14 @@ void HUDWindow::update()
 				));
 				if (lost::mouseDown(0) && m_CanPlaceBuilding && g_PlayerPointer->moneyCount >= m_SelectedBuilding->cost)
 				{
-					g_World->addTileEntity(new TileEntity(m_SelectedBuilding), floor(blockMouse.x + m_SelectedBuilding->placementOffsetX), floor(blockMouse.y + m_SelectedBuilding->placementOffsetY));
+					createBuilding(m_SelectedBuilding, blockMouse);
 					g_PlayerPointer->moneyCount -= m_SelectedBuilding->cost;
 				}
 			}
-
-			for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
+			
+			if (!lost::isUISelected() && lost::mouseTapped(2))
 			{
-				lost::unbindShader();
-				lost::clearImage();
-
-				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-				tileHovered->tileEntitiesWithin[i]->renderHitbox();
-				if (!lost::isUISelected() && lost::mouseDown(1))
-				{
-					g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
-					g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
-				}
-
-				lost::bindShader(lost::getShader(0));
+				g_World->addEntity(new ItemEntity({ worldMouse.x, worldMouse.y }, g_ItemManager.getItemData("ironOre"), 1));
 			}
 
 		}
@@ -140,5 +175,23 @@ void HUDWindow::render()
 				{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f, m_Bounds.h - 74.0f }, 1.0f,
 				LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
 		}
+	}
+
+	if (!g_PlayerPointer->holdingItem.empty)
+	{
+
+		lost::useImage(g_PlayerPointer->holdingItem.textureID);
+		float imageWidth = lost::getImage(g_PlayerPointer->holdingItem.textureID)->width / g_PlayerPointer->holdingItem.refStruct->frames;
+		float imageHeight = lost::getImage(g_PlayerPointer->holdingItem.textureID)->height / g_PlayerPointer->holdingItem.refStruct->variants;
+
+		sgp_rect renderArea = { lost::mousePos().x - 32.0f, lost::mousePos().y - 32.0f, 64.0f, 64.0f };
+
+		sgp_draw_textured_rect(0, renderArea, { 0, imageHeight * g_PlayerPointer->holdingItem.variant, imageWidth, imageHeight });
+		lost::renderTextPro(
+			std::to_string(g_PlayerPointer->holdingItem.StackSize),
+			{ lost::mousePos().x + 32.0f, lost::mousePos().y + 32.0f },
+			0.5,
+			LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_MIDDLE
+		);
 	}
 }

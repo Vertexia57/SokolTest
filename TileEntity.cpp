@@ -37,6 +37,10 @@ lost::Bound2D TileEntity::getHitbox()
 	return m_Hitbox;
 }
 
+void TileEntity::update()
+{
+}
+
 void TileEntity::render()
 {
 	lost::useImage(tileEntityRef->texture);
@@ -62,4 +66,8 @@ void TileEntity::renderHitbox()
 						   {m_Hitbox.x * 32.0f, m_Hitbox.y * 32.0f} };
 
 	sgp_draw_lines_strip(lines, 5);
+}
+
+void TileEntity::mouseInteractFunction()
+{
 }

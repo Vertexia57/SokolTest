@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Lost/UIManager.h"
 
 Player::Player(lost::Vector2D position)
 	: Entity({ position.x, position.y, 20.0f, 20.0f })
@@ -17,13 +18,13 @@ Player::~Player()
 
 void Player::loopPosition(float worldLoopWidth)
 {
-	if (colliderData->bounds.left > worldLoopWidth)
+	if (colliderData->bounds.right > worldLoopWidth)
 	{
 		colliderData->addPosition(-worldLoopWidth, 0.0f);
 		if (lost::globalCamera.hasFocus(&centerTransform))
 			lost::globalCamera.addPosition(-worldLoopWidth, 0.0f);
 	}
-	else if (colliderData->bounds.right < 0)
+	else if (colliderData->bounds.left < 0)
 	{
 		colliderData->addPosition(worldLoopWidth, 0.0f);
 		if (lost::globalCamera.hasFocus(&centerTransform))
@@ -81,6 +82,36 @@ void Player::render(lost::Bound2D renderBounds, float worldLoopWidth)
 int Player::addItem(Item& item)
 {
 	return inventory.addItem(item);
+}
+
+void Player::openInventory(lost::Vector2D offset, bool toggle)
+{
+	if (toggle)
+	{
+		if (!lost::UIHasWindow(inventoryWindow))
+		{
+			inventoryWindow = new StorageWindow({ floor(sapp_width() / 2.0f + offset.x), floor(sapp_height() / 2.0f + offset.y), 500, 300 });
+			inventoryWindow->setName("Inventory");
+			inventoryWindow->setType("inventory", true);
+			inventoryWindow->bindContainer(&inventory, 7, 3, 0, 20);
+			lost::addUIWindow(inventoryWindow);
+		}
+		else
+		{
+			lost::removeInventoryWindows();
+		}
+	}
+	else
+	{
+		if (!lost::UIHasWindow(inventoryWindow))
+		{
+			inventoryWindow = new StorageWindow({ floor(sapp_width() / 2.0f + offset.x), floor(sapp_height() / 2.0f + offset.y), 500, 300 });
+			inventoryWindow->setName("Inventory");
+			inventoryWindow->setType("inventory", true);
+			inventoryWindow->bindContainer(&inventory, 7, 3, 0, 20);
+			lost::addUIWindow(inventoryWindow);
+		}
+	}
 }
 
 Player* g_PlayerPointer = nullptr;

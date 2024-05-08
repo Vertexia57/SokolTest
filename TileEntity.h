@@ -2,6 +2,7 @@
 #include "JSON.h"
 #include "Lost.h"
 #include <array>
+#include <functional>
 
 struct TileEntityStruct
 {
@@ -30,6 +31,10 @@ struct TileEntityStruct
 	float powerUsage = 0.0f;
 	std::string updateAction = "none";
 	JSONObject* updateData = nullptr;
+
+	bool container = false;
+	std::vector<std::pair<std::string, int>> slotTypes;
+	int slotCount = 0;
 
 	TileEntityStruct(JSONObject* tileEntityData)
 	{
@@ -71,6 +76,20 @@ struct TileEntityStruct
 			updateAction = buildingData->getString("updateAction");
 			updateData = buildingData->getJSONObject("updateData");
 		}
+
+		container = tileEntityData->getObjectList().count("containerData") == 1;
+		if (container)
+		{
+			JSONObject* slotData = tileEntityData->getJSONObject("containerData")->getJSONObject("slots");
+			for (int i = 0; slotData->getObjectList().count(std::to_string(i)) > 0; i++)
+			{
+				std::pair<std::string, int> slotPair;
+				JSONObject* slotPairData = slotData->getJSONObject(std::to_string(i));
+				slotPair = { slotPairData->getString("0"), slotPairData->getInt("1") };
+				slotTypes.push_back(slotPair);
+				slotCount += slotPair.second;
+			}
+		}
 	}
 
 };
@@ -79,25 +98,31 @@ class TileEntity
 {
 public:
 	TileEntity(TileEntityStruct* tileEntityRef_);
-	~TileEntity();
+	virtual ~TileEntity();
 
-	// Sets the hitbox for the tile, with a max of 64 x 64
 	void setHitbox(lost::Bound2D hitbox);
 	void setPosition(lost::Vector2D position_);
 	lost::Bound2D getHitbox();
 
-	void render();
-	void renderAt(lost::Vector2D pos);
-	void renderHitbox();
+	virtual void update();
+
+	virtual void render();
+	virtual void renderAt(lost::Vector2D pos);
+	virtual void renderHitbox();
 
 	bool fillsLayers[3] = { false, false, false };
 
 	lost::Vector2D position;
 
+	bool updates = false;
 	bool collidable = true;
 
+	bool interactable = false;
+	virtual void mouseInteractFunction();
+
 	TileEntityStruct* tileEntityRef;
-private:
+	lost::Vector2D relativeVelocity = { 0.0f, 0.0f }; // Used for conveyer belts and pipes
+protected:
 	lost::Bound2D m_Hitbox;
 	TextureID m_Variant;
 };

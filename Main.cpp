@@ -201,11 +201,6 @@ static void init(void) {
 
 	lost::loadFont("GameData/Fonts/PixeloidSans.ttf", 36, "Pixel");
 
-	StorageWindow* windowS = new StorageWindow({ 50, 50, 500, 300 });
-	windowS->setName("Inventory");
-	windowS->bindContainer(g_PlayerPointer->getInventory(), 7, 3, 0, 20);
-	lost::addUIWindow(windowS);
-
 	HUDWindow* windowH = new HUDWindow({ 0, 0, (float)sapp_width(), (float)sapp_height() });
 	lost::addUIWindow(windowH);
 }

@@ -13,7 +13,7 @@ public:
 	virtual void render() override;
 
 	virtual void setName(std::string name);
-
+	void setType(std::string type, bool maxOne_ = false);
 protected:
 	lost::NBoxData m_NBoxData;
 	int m_ToastHeight = 0;

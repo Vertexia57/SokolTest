@@ -1,6 +1,7 @@
 #pragma once
 #include "Container.h"
 #include "Entity.h"
+#include "StorageWindow.h"
 
 class Player : public Entity
 {
@@ -16,11 +17,15 @@ public:
 	int addItem(Item& item);
 	inline Container* getInventory() { return &inventory; };
 
+	void openInventory(lost::Vector2D offset, bool toggle);
+
 	Item holdingItem;
 	int moneyCount = 100;
 	bool lockInput = false;
 	bool lockMovement = false;
 	bool lockActions = false;
+
+	StorageWindow* inventoryWindow = nullptr;
 private:
 	Container inventory;
 };

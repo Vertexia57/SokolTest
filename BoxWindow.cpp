@@ -72,3 +72,9 @@ void BoxWindow::setName(std::string name)
 {
 	m_WindowName = name;
 }
+
+void BoxWindow::setType(std::string type, bool maxOne_)
+{
+	windowType = type;
+	maxOne = maxOne_;
+}

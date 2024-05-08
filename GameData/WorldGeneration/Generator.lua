@@ -41,9 +41,12 @@ local ironOreMap = {}
 for y = 1, chunkHeight, 1 do
     ironOreMap[y] = {}
     for x = 1, chunkWidth, 1 do
+        local distFromSurface = math.max((y - 1) - (noiseMap[x] * 20.0 + 30.0), 0)
+        local depleetion = math.abs(distFromSurface - 5) * 0.05
+
         xValue = math.sin((x - 1 + chunkX * chunkWidth) / worldWidth * 2.0 * math.pi) * 10.0
         yValue = math.cos((x - 1 + chunkX * chunkWidth) / worldWidth * 2.0 * math.pi) * 10.0
-        ironOreMap[y][x] = detailNoise(xValue, yValue, (y - 1) / worldWidth * 40.0 * math.pi, 2, 1) -- magical fucking value that works for some reason okay thanks maths, somewhere there's 2^2
+        ironOreMap[y][x] = detailNoise(xValue, yValue, (y - 1) / worldWidth * 40.0 * math.pi, 1.1, 1) - depleetion -- magical fucking value that works for some reason okay thanks maths, somewhere there's 2^2
     end
 end
 
@@ -57,7 +60,7 @@ for y = 1, chunkHeight, 1 do
         actualY = y - 1
 
         if (actualY > noiseMap[x] * 20.0 + 30.0) then
-            if (ironOreMap[y][x] > 0.8) then
+            if (ironOreMap[y][x] > 0.85) then
                 tileArray[y][x] = 2
             else
                 tileArray[y][x] = 1

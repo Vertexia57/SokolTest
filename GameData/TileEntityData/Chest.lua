@@ -34,14 +34,21 @@ data:extend(
 		requiresSupport = true,
 		fillsLayers = { true, false, false },
 
-        building = false,
+        building = true,
+		buildingData = {
+            powerUsage = 0.0,  
+            cost = 10.0,    
+            updateAction = "chest",
+            updateData = {
+                invWidth = 5,
+				invHeight = 2
+            }
+		},
 
         containerData = {
             slots = {
-                { "storage", 5 } -- First is the type of the slot, second is the amount of slot of that type
+                { "storage", 10 } -- First is the type of the slot, second is the amount of slot of that type
             }
-        },
-
-        interactAction = "chestUI",
+        }
     }
 )

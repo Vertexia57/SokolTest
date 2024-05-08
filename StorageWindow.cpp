@@ -5,6 +5,7 @@ StorageWindow::StorageWindow(lost::Bound2D bounds)
 	: BoxWindow(bounds)
 {
 	setName("Container");
+	inventoryWindow = true;
 }
 
 StorageWindow::StorageWindow(lost::Bound2D bounds, lost::NBoxData nBoxData, int toastHeight)

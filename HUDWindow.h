@@ -2,6 +2,7 @@
 #include "Lost/UIWindow.h"
 #include "Lost/ImageManager.h"
 #include "TileManager.h"
+#include "BuildingTileEntities.h"
 
 class HUDWindow : public UIWindow
 {

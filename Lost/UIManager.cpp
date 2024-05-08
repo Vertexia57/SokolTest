@@ -1,6 +1,7 @@
 #include "UIManager.h"
 #include "ShaderManager.h"
 #include "ImageManager.h"
+#include <algorithm>
 
 namespace lost
 {
@@ -16,45 +17,75 @@ namespace lost
 
 	void UIManager::addUIWindow(UIWindow* windowPtr)
 	{
-		m_UIWindows.push_back(windowPtr);
-	}
-
-	void UIManager::destroyUIWindow(UIWindow* windowPtr)
-	{
-		// [?] This is slower than storing an map of the pointers to the location in the vector.
-		// [?] Though that does use a lot more ram and is really a waste of time
-
-		for (int i = 0; i < m_UIWindows.size(); i++)
+		if (windowPtr->maxOne)
 		{
-			if (m_UIWindows[i] = windowPtr)
+			int windowOfType = FindWindowOfType(windowPtr->windowType);
+			if (windowOfType != -1)
 			{
-				if (windowPtr) // Even though the user shouldn't delete the UIWindow, just check anyways
-					delete windowPtr;
-				else
-					fprintf(stderr, "\"delete\" was used on a UIWindow pointer somewhere outside of the UIManager, this is not necessary.\n");
-				m_UIWindows.erase(m_UIWindows.begin() + i);
-				break;
+				delete m_UIWindows[windowOfType];
+				m_UIWindows.erase(m_UIWindows.begin() + windowOfType);
+				m_UIWindows.insert(m_UIWindows.begin() + windowOfType, windowPtr);
 			}
+			else
+			{
+				m_UIWindows.push_back(windowPtr);
+			}
+		}
+		else
+		{
+			m_UIWindows.push_back(windowPtr);
 		}
 	}
 
-	void UIManager::removeUIWindow(UIWindow* windowPtr)
+	bool UIManager::UIHasWindow(UIWindow* windowPtr)
 	{
-		// [?] This is slower than storing an map of the pointers to the location in the vector.
-		// [?] Though that does use a lot more ram and is really a waste of time
-
 		for (int i = 0; i < m_UIWindows.size(); i++)
 		{
-			if (m_UIWindows[i] = windowPtr)
+			if (m_UIWindows[i] == windowPtr)
 			{
-				m_UIWindows.erase(m_UIWindows.begin() + i);
-				break;
+				return true;
 			}
 		}
+		return false;
+	}
+
+	void UIManager::removeInventoryWindows()
+	{
+		for (UIWindow* window : m_UIWindows)
+		{
+			if (window->inventoryWindow)
+				window->toRemove = true;
+		}
+	}
+
+	int UIManager::FindWindowOfType(std::string& type)
+	{
+		for (int i = 0; i < m_UIWindows.size(); i++)
+		{
+			if (m_UIWindows[i]->windowType == type && !m_UIWindows[i]->toRemove)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	void UIManager::orderUI()
+	{
+		std::sort(m_UIWindows.begin(), m_UIWindows.end(), [](UIWindow* a, UIWindow* b) { return a->orderValue < b->orderValue; });
 	}
 
 	void UIManager::updateUI()
 	{
+		for (int i = m_UIWindows.size() - 1; i >= 0; i--)
+		{
+			if (m_UIWindows[i]->toRemove)
+			{
+				delete m_UIWindows[i];
+				m_UIWindows.erase(m_UIWindows.begin() + i);
+			}
+		}
+
 		if (!ImGui::IsAnyItemActive())
 		{
 			for (UIWindow* window : m_UIWindows)
@@ -101,16 +132,17 @@ namespace lost
 	void addUIWindow(UIWindow* windowPtr)
 	{
 		uiManager->addUIWindow(windowPtr);
+		uiManager->orderUI();
 	}
 
-	void destroyUIWindow(UIWindow* windowPtr)
+	bool UIHasWindow(UIWindow* windowPtr)
 	{
-		uiManager->destroyUIWindow(windowPtr);
+		return uiManager->UIHasWindow(windowPtr);
 	}
 
-	void removeUIWindow(UIWindow* windowPtr)
+	void removeInventoryWindows()
 	{
-		uiManager->removeUIWindow(windowPtr);
+		uiManager->removeInventoryWindows();
 	}
 
 	void updateUI()
