@@ -125,6 +125,12 @@ void Chunk::update()
 		}
 		fprintf(stdout, " [World::checkOutOfBoundEntities()] checked %i\n", timesLooped);
 	}
+
+	if (ready && generatedData)
+	{
+		for (TileEntity* tileEntity : m_TileEntities)
+			tileEntity->update();
+	}
 }
 
 void Chunk::renderTiles(lost::Bound2D renderBounds)

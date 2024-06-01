@@ -37,6 +37,10 @@ lost::Bound2D TileEntity::getHitbox()
 	return m_Hitbox;
 }
 
+void TileEntity::init()
+{
+}
+
 void TileEntity::update()
 {
 }

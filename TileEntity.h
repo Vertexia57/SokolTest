@@ -104,6 +104,8 @@ public:
 	void setPosition(lost::Vector2D position_);
 	lost::Bound2D getHitbox();
 
+	virtual void init();
+
 	virtual void update();
 
 	virtual void render();
@@ -122,6 +124,8 @@ public:
 
 	TileEntityStruct* tileEntityRef;
 	lost::Vector2D relativeVelocity = { 0.0f, 0.0f }; // Used for conveyer belts and pipes
+
+	std::string tileType = "base";
 protected:
 	lost::Bound2D m_Hitbox;
 	TextureID m_Variant;

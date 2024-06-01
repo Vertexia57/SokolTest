@@ -38,6 +38,7 @@ data:extend(
         buildingData = {
             powerUsage = 0.1,  
             cost = 5.0,    
+			rotationStates = 1,
             updateAction = "powerConduit",
             updateData = {
                 range = 10

@@ -160,6 +160,8 @@ void World::addTileEntity(TileEntity* tileEntity, float x, float y)
 				selectedTile->addTileEntityRef(tileEntity);
 		}
 	}
+
+	tileEntity->init();
 }
 
 void World::destroyTileEntity(TileEntity* tileEntity)

@@ -10,6 +10,7 @@ ChestTileEntity::ChestTileEntity(TileEntityStruct* tileEntityRef_)
 	m_Storage = new Container(tileEntityRef->slotCount);
 	m_Width = tileEntityRef->updateData->getInt("invWidth");
 	m_Height = tileEntityRef->updateData->getInt("invHeight");
+	tileType = "chest";
 }
 
 ChestTileEntity::~ChestTileEntity()

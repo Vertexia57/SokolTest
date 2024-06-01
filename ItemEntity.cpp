@@ -1,5 +1,7 @@
 #include "ItemEntity.h"
 #include "Player.h"
+#include "World.h"
+#include "ConveyerBeltTileEntity.h"
 
 ItemEntity::ItemEntity(lost::Vector2D position, Item& item)
 	: Entity(lost::Bound2D{ position.x, position.y, 20, 20 })
@@ -47,6 +49,21 @@ void ItemEntity::update()
 				killEntity = true;
 			else
 				itemCarried.StackSize = remaining;
+		}
+	}
+
+	Tile* tileBelow = g_World->getTileAt((int)((colliderData->bounds.x + colliderData->bounds.w / 2.0f) / 32.0f), (int)((colliderData->bounds.y + colliderData->bounds.h + 2.0f) / 32.0f));
+	for (TileEntity* entity : tileBelow->tileEntitiesWithin)
+	{
+		if (entity->tileType == "conveyerBelt")
+		{
+			ConveyerBeltTileEntity* belt = dynamic_cast<ConveyerBeltTileEntity*>(entity);
+			if (belt->getEmpty())
+			{
+				belt->addItem(itemCarried);
+				killEntity = true;
+			}
+			break;
 		}
 	}
 }

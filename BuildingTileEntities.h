@@ -1,12 +1,14 @@
 #pragma once
 #include "World.h"
 #include "ChestTileEntity.h"
+#include "ConveyerBeltTileEntity.h"
 
 static std::map<std::string, int> updateActionNames = {
 	{ "none", 0 },
 	{ "chest", 1 },
 	{ "miner", 2 },
 	{ "powerConduit", 3 },
+	{ "conveyerBelt", 4 },
 };
 
 static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D position)
@@ -29,6 +31,9 @@ static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D posit
 		break;
 	case 3: // powerConduit
 		g_World->addTileEntity(new TileEntity(tileEntityRef), buildX, buildY);
+		break;
+	case 4: // conveyerBelt
+		g_World->addTileEntity(new ConveyerBeltTileEntity(tileEntityRef), buildX, buildY);
 		break;
 	}
 }

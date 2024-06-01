@@ -23,22 +23,23 @@ data:extend(
 			randomVariant = false	
 		},
 		
-		width = 3.0,
-		height = 3.0,
+		width = 1.0,
+		height = 0.625,
 		
-		placementOffsetX = -1.0,
-		placementOffsetY = -2.0,
+		placementOffsetX = 0.0,
+		placementOffsetY = 0.0,
 		
 		stable = false,
-		collidable = false,
-		requiresSupport = true,
+		collidable = true,
+		requiresSupport = false,
 		fillsLayers = { true, false, false },
 
         building = true,
         buildingData = {
             powerUsage = 10.0,  
             cost = 5.0,    
-            updateAction = "converyerBelt",
+			rotationStates = 2,
+            updateAction = "conveyerBelt",
             updateData = {
                 xSpeed = 1.0
             }
