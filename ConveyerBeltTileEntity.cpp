@@ -32,8 +32,9 @@ void ConveyerBeltTileEntity::update()
 {
 	m_Moving = false;
 
-	// [!] TODO: Figure out if you should continue using this system, or should replace it.
-	// [!]       This has a problem where each item "trickles" down, making it staggered and less efficient
+	// [!] TODO: Figure out if a update system that applies when a chain is moved should be used
+	// [!]       Like factorio, but a more simplified version that instead just goes down the chain of conveyers
+	// [!]       and tells them to move their items
 
 	if (heldItem)
 	{
@@ -44,18 +45,18 @@ void ConveyerBeltTileEntity::update()
 		if (!m_Left && heldItem->x < 0.0f)
 			heldItem->x = 0.0f;
 
-		if (m_Right)
+		if (m_Right && relativeVelocity.x > 0)
 		{
 			if (!m_Right->getEmpty() && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
 				heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-			if (heldItem->x > m_Hitbox.w * 32.0f && m_Right->getEmpty())
+			if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty())
 				passItem(m_Right, { 1, 0 });
 		}
-		if (m_Left && heldItem)
+		if (m_Left && heldItem && relativeVelocity.x < 0)
 		{
 			if (!m_Left->getEmpty() && heldItem->x < 0.0f)
 				heldItem->x = 0.0f;
-			if (heldItem->x < -20 && m_Left->getEmpty())
+			if (heldItem->x < 0.0f && m_Left->getEmpty())
 				passItem(m_Left, { -1, 0});
 		}
 	}
