@@ -20,7 +20,8 @@ data:extend(
 			images = { "chest" },
 			frames = 1,
 			variants = 1,
-			randomVariant = false	
+			randomVariant = false,
+			animated = false
 		},
 		
 		width = 1.0,
@@ -38,6 +39,7 @@ data:extend(
 		buildingData = {
             powerUsage = 0.0,  
             cost = 10.0,    
+			rotationStates = 1,
             updateAction = "chest",
             updateData = {
                 invWidth = 5,

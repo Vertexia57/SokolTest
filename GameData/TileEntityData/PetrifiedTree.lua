@@ -20,7 +20,8 @@ data:extend(
 			images = { "petrifiedTree" },
 			frames = 1,
 			variants = 2,
-			randomVariant = true	
+			randomVariant = true,
+			animated = false
 		},
 		
 		width = 3.0,

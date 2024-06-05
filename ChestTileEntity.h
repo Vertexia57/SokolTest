@@ -6,7 +6,7 @@
 class ChestTileEntity : public TileEntity
 {
 public:
-	ChestTileEntity(TileEntityStruct* tileEntityRef_);
+	ChestTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation = 0);
 	virtual ~ChestTileEntity();
 
 	// Uses base tile entities updating

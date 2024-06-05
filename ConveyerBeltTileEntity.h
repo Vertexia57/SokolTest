@@ -7,12 +7,13 @@ struct ConveyerBeltItem
 {
 	Item item;
 	float x;
+	float y;
 };
 
 class ConveyerBeltTileEntity : public TileEntity
 {
 public:
-	ConveyerBeltTileEntity(TileEntityStruct* tileEntityRef_);
+	ConveyerBeltTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation = 0);
 	virtual ~ConveyerBeltTileEntity() override;
 
 	virtual void init() override;
@@ -30,6 +31,8 @@ public:
 protected:
 	ConveyerBeltTileEntity* m_Left = nullptr;
 	ConveyerBeltTileEntity* m_Right = nullptr;
+	ConveyerBeltTileEntity* m_Up = nullptr;
+	ConveyerBeltTileEntity* m_Down = nullptr;
 
 	bool m_Moving = false;
 	ConveyerBeltItem* heldItem = nullptr;

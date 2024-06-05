@@ -52,7 +52,7 @@ void ItemEntity::update()
 		}
 	}
 
-	Tile* tileBelow = g_World->getTileAt((int)((colliderData->bounds.x + colliderData->bounds.w / 2.0f) / 32.0f), (int)((colliderData->bounds.y + colliderData->bounds.h + 2.0f) / 32.0f));
+	Tile* tileBelow = g_World->getTileAt((int)((colliderData->bounds.x + colliderData->bounds.w / 2.0f) / 32.0f), (int)((colliderData->bounds.y + colliderData->bounds.h / 2.0f) / 32.0f));
 	for (TileEntity* entity : tileBelow->tileEntitiesWithin)
 	{
 		if (entity->tileType == "conveyerBelt")

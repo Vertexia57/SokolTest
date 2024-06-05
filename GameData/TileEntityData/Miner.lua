@@ -20,7 +20,8 @@ data:extend(
 			images = { "miner" },
 			frames = 1,
 			variants = 1,
-			randomVariant = false	
+			randomVariant = false,
+			animated = false
 		},
 		
 		width = 3.0,
@@ -38,6 +39,7 @@ data:extend(
         buildingData = {
             powerUsage = 10.0,  
             cost = 20.0,    
+			rotationStates = 1,
             updateAction = "miner",
             updateData = {
                 speed = 1.0

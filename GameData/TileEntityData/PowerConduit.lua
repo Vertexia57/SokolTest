@@ -20,7 +20,8 @@ data:extend(
 			images = { "powerConduit" },
 			frames = 1,
 			variants = 1,
-			randomVariant = false	
+			randomVariant = false,
+			animated = false
 		},
 		
 		width = 1.0,

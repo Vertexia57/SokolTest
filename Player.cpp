@@ -39,13 +39,13 @@ void Player::update()
 	if (!ImGui::IsAnyItemActive() && !lockInput && !lockMovement)
 	{
 		if (lost::keyDown(SAPP_KEYCODE_A))
-			colliderData->addVelocity(-5.0f, 0.0f);
+			colliderData->addVelocity(-10.0f, 0.0f);
 		if (lost::keyDown(SAPP_KEYCODE_D))
-			colliderData->addVelocity(5.0f, 0.0f);
+			colliderData->addVelocity(10.0f, 0.0f);
 		if (lost::keyDown(SAPP_KEYCODE_W))
-			colliderData->addVelocity(0.0f, -5.0f);
+			colliderData->addVelocity(0.0f, -10.0f);
 		if (lost::keyDown(SAPP_KEYCODE_S))
-			colliderData->addVelocity(0.0f, 5.0f);
+			colliderData->addVelocity(0.0f, 10.0f);
 	}
 	
 	float scaleAmount = fmaxf(fminf(transform.scale.x * (1 - (float)lost::mouseScroll() / 16.0f), 2.0f), 0.25f);

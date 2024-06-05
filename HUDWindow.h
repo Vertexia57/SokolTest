@@ -16,6 +16,7 @@ protected:
 	TextureID m_TopLeftUITexID;
 	bool m_Building = false;
 	int m_BuildingSlot = 0;
+	uint32_t m_Rotation = 0;
 	int m_HoveredBuildingSlot = -1;
 	int m_SelectedBuildingSlot = -1;
 	TileEntityStruct* m_SelectedBuilding = nullptr;

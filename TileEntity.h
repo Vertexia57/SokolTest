@@ -17,7 +17,12 @@ struct TileEntityStruct
 	TextureID texture = 0;
 	int totalFrames = 1;
 	int totalVariants = 1;
+	int totalRotations = 1;
 	bool randomVariant = false;
+	std::vector<int> rotationVariants = {};
+
+	bool animated = false;
+	float frameRate = 1.0f;
 
 	float width = 0.0f;
 	float height = 0.0f;
@@ -51,6 +56,13 @@ struct TileEntityStruct
 			totalVariants = imageData->getInt("variants");
 			if (imageData->getObjectList().count("randomVariant"))
 				randomVariant = imageData->getBool("randomVariant");
+
+			animated = imageData->getBool("animated");
+			if (animated)
+			{
+				JSONObject* animationData = imageData->getJSONObject("animationData");
+				frameRate = animationData->getFloat("frameRate");
+			}
 		}
 
 		width = tileEntityData->getFloat("width");
@@ -75,6 +87,20 @@ struct TileEntityStruct
 			cost = buildingData->getFloat("cost");
 			updateAction = buildingData->getString("updateAction");
 			updateData = buildingData->getJSONObject("updateData");
+			totalRotations = buildingData->getInt("rotationStates");
+			if (buildingData->getObjectList().count("rotationVariants") == 1)
+			{
+				JSONObject* rotationVariantList = buildingData->getJSONObject("rotationVariants");
+				for (int i = 0; rotationVariantList->getObjectList().count(std::to_string(i)) > 0; i++)
+				{
+					rotationVariants.push_back(rotationVariantList->getInt(std::to_string(i)));
+				}
+			}
+			else
+			{
+				for (int i = 0; i < totalRotations; i++)
+					rotationVariants.push_back(i);
+			}
 		}
 
 		container = tileEntityData->getObjectList().count("containerData") == 1;
@@ -97,7 +123,7 @@ struct TileEntityStruct
 class TileEntity
 {
 public:
-	TileEntity(TileEntityStruct* tileEntityRef_);
+	TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation = 0);
 	virtual ~TileEntity();
 
 	void setHitbox(lost::Bound2D hitbox);
@@ -129,5 +155,9 @@ public:
 protected:
 	lost::Bound2D m_Hitbox;
 	TextureID m_Variant;
+	uint32_t m_Rotation = 0;
+
+	uint32_t m_Frame = 0;
+	double m_TimeFromLastFrame = 0.0;
 };
 

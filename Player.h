@@ -20,7 +20,7 @@ public:
 	void openInventory(lost::Vector2D offset, bool toggle);
 
 	Item holdingItem;
-	int moneyCount = 100;
+	int moneyCount = 100000;
 	bool lockInput = false;
 	bool lockMovement = false;
 	bool lockActions = false;

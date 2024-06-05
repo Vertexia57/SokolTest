@@ -2,8 +2,8 @@
 #include "Lost/UIManager.h"
 #include "Player.h"
 
-ChestTileEntity::ChestTileEntity(TileEntityStruct* tileEntityRef_)
-	: TileEntity(tileEntityRef_)
+ChestTileEntity::ChestTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
+	: TileEntity(tileEntityRef_, rotation)
 {
 	updates = false;
 	interactable = true;

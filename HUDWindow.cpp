@@ -27,6 +27,8 @@ void HUDWindow::update()
 	if (lost::keyTapped(SAPP_KEYCODE_B))
 	{
 		m_Building = !m_Building;
+		if (m_Building)
+			m_Rotation = 0;
 		if (!g_PlayerPointer->lockActions && m_Building)
 			g_PlayerPointer->lockActions = true;
 		if (g_PlayerPointer->lockActions && !m_Building)
@@ -61,15 +63,19 @@ void HUDWindow::update()
 	{
 		int buildingCount = g_TileManager.buildingRefs.size();
 		m_HoveredBuildingSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingCount * 76.0f) / 2.0f) / 76.0f) : -1;
-		if (m_HoveredBuildingSlot >= 0)
+		if (m_HoveredBuildingSlot >= 0 && m_HoveredBuildingSlot < buildingCount)
 		{
 			selected = true;
 			if (lost::mouseTapped(0))
 			{
 				m_SelectedBuilding = g_TileManager.buildingRefs[m_HoveredBuildingSlot];
 				m_SelectedBuildingSlot = m_HoveredBuildingSlot;
+				m_Rotation = 0;
 			}
 		}
+
+		if (lost::keyTapped(SAPP_KEYCODE_R))
+			m_Rotation = (m_Rotation + 1) % m_SelectedBuilding->totalRotations;
 
 		lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
 		lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
@@ -97,15 +103,18 @@ void HUDWindow::update()
 			if (!lost::isUISelected() && m_SelectedBuilding)
 			{
 				lost::useImage(m_SelectedBuilding->texture);
-				float imageWidth = lost::getImage(m_SelectedBuilding->texture)->width;
-				float imageHeight = lost::getImage(m_SelectedBuilding->texture)->height;
+				float imageWidth = lost::getImage(m_SelectedBuilding->texture)->width / m_SelectedBuilding->totalFrames;
+				float imageHeight = lost::getImage(m_SelectedBuilding->texture)->height / m_SelectedBuilding->totalVariants;
 
 				if (m_CanPlaceBuilding)
 					sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
 				else
 					sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
 
-				sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, 0, imageWidth, imageHeight });
+				if (m_SelectedBuilding->rotationVariants.size() > 0)
+					sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_SelectedBuilding->rotationVariants[m_Rotation], imageWidth, imageHeight });
+				else
+					sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_Rotation, imageWidth, imageHeight });
 				lost::clearImage();
 
 				m_CanPlaceBuilding = (!m_SelectedBuilding->requiresSupport || g_World->checkStable(
@@ -115,7 +124,7 @@ void HUDWindow::update()
 				));
 				if (lost::mouseDown(0) && m_CanPlaceBuilding && g_PlayerPointer->moneyCount >= m_SelectedBuilding->cost)
 				{
-					createBuilding(m_SelectedBuilding, blockMouse);
+					createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
 					g_PlayerPointer->moneyCount -= m_SelectedBuilding->cost;
 				}
 			}
@@ -148,10 +157,10 @@ void HUDWindow::render()
 		{
 			TileEntityStruct* buildingRef = g_TileManager.buildingRefs[i];
 
-			int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width, lost::getImage(buildingRef->texture)->height);
+			int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
 			float scale = 1.0f / (float)maxImageLength;
-			float imageWidth = (float)lost::getImage(buildingRef->texture)->width * scale;
-			float imageHeight = (float)lost::getImage(buildingRef->texture)->height * scale;
+			float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
+			float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
 
 			lost::clearImage();
 			if (m_SelectedBuildingSlot == i)
@@ -166,8 +175,8 @@ void HUDWindow::render()
 			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 			lost::useImage(buildingRef->texture);
 			sgp_draw_textured_rect(0,
-				{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f, m_Bounds.h - 70.0f, imageWidth * 64.0f, imageHeight * 64.0f },
-				{ 0.0f, 0.0f, (float)lost::getImage(buildingRef->texture)->width, (float)lost::getImage(buildingRef->texture)->height }
+				{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f, m_Bounds.h - 70.0f, imageWidth * 64.0f * scale, imageHeight * 64.0f * scale },
+				{ 0.0f, 0.0f, imageWidth, imageHeight }
 			);
 
 			lost::clearImage();
