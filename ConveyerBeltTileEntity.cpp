@@ -21,6 +21,7 @@ ConveyerBeltTileEntity::ConveyerBeltTileEntity(TileEntityStruct* tileEntityRef_,
 		relativeVelocity = { 0.0f, -tileEntityRef->updateData->getFloat("ySpeed") };
 		break;
 	}
+	m_Speeds = { tileEntityRef->updateData->getFloat("xSpeed"), tileEntityRef->updateData->getFloat("ySpeed") };
 
 	tileType = "conveyerBelt";
 }
@@ -67,50 +68,57 @@ void ConveyerBeltTileEntity::update()
 
 	if (heldItem)
 	{
+
 		if (relativeVelocity.x != 0.0f)
 		{
-			heldItem->x += relativeVelocity.x * lost::deltaTime * 0.1f;
-			if (!m_Right && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
-				heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-			if (!m_Left && heldItem->x < 0.0f)
-				heldItem->x = 0.0f;
+			if (fabsf(heldItem->y - 6.0f) < 1.0f)
+			{
+				heldItem->x += relativeVelocity.x * lost::deltaTime * 0.1f;
+				if (!m_Right && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
+					heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
+				if (!m_Left && heldItem->x < 0.0f)
+					heldItem->x = 0.0f;
+			}
 		}
 		else
 		{
-			if (heldItem->x > 8)
-				heldItem->x -= 1.0 * lost::deltaTime * 0.1f;
-			if (heldItem->x < 8)
-				heldItem->x += 1.0 * lost::deltaTime * 0.1f;
+			if (heldItem->x > 6)
+				heldItem->x -= m_Speeds.x * lost::deltaTime * 0.1f;
+			if (heldItem->x < 6)
+				heldItem->x += m_Speeds.x * lost::deltaTime * 0.1f;
 		}
 
 		if (relativeVelocity.y != 0.0f)
 		{
-			heldItem->y += relativeVelocity.y * lost::deltaTime * 0.1f;
-			if (!m_Down && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
-				heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
-			if (!m_Up && heldItem->y < 0.0f)
-				heldItem->y = 0.0f;
+			if (fabsf(heldItem->x - 6.0f) < 1.0f)
+			{
+				heldItem->y += relativeVelocity.y * lost::deltaTime * 0.1f;
+				if (!m_Down && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
+					heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
+				if (!m_Up && heldItem->y < 0.0f)
+					heldItem->y = 0.0f;
+			}
 		}
 		else
 		{
-			if (heldItem->y > 8)
-				heldItem->y -= 1.0 * lost::deltaTime * 0.1f;
-			if (heldItem->y < 8)
-				heldItem->y += 1.0 * lost::deltaTime * 0.1f;
+			if (heldItem->y > 6)
+				heldItem->y -= m_Speeds.y * lost::deltaTime * 0.1f;
+			if (heldItem->y < 6)
+				heldItem->y += m_Speeds.y * lost::deltaTime * 0.1f;
 		}
 
 		if (m_Right && relativeVelocity.x > 0)
 		{
 			if (!m_Right->getEmpty() && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
 				heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-			if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty())
+			else if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
 				passItem(m_Right, { 1, 0 });
 		}
 		if (m_Left && heldItem && relativeVelocity.x < 0)
 		{
 			if (!m_Left->getEmpty() && heldItem->x < 0.0f)
 				heldItem->x = 0.0f;
-			if (heldItem->x < 0.0f && m_Left->getEmpty())
+			else if (heldItem->x < 0.0f && m_Left->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
 				passItem(m_Left, { -1, 0});
 		}
 
@@ -118,14 +126,14 @@ void ConveyerBeltTileEntity::update()
 		{
 			if (!m_Down->getEmpty() && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
 				heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
-			if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty())
+			else if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
 				passItem(m_Down, { 0, 1 });
 		}
 		if (m_Up && heldItem && relativeVelocity.y < 0)
 		{
 			if (!m_Up->getEmpty() && heldItem->y < 0.0f)
 				heldItem->y = 0.0f;
-			if (heldItem->y < 0.0f && m_Up->getEmpty())
+			else if (heldItem->y < 0.0f && m_Up->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
 				passItem(m_Up, { 0, -1 });
 		}
 	}
@@ -138,13 +146,6 @@ void ConveyerBeltTileEntity::render()
 	float imageHeight = lost::getImage(tileEntityRef->texture)->height / tileEntityRef->totalVariants;
 	sgp_draw_textured_rect(0, { (float)position.x * 32.0f, (float)position.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { imageWidth * m_Frame, imageHeight * m_Variant, imageWidth, imageHeight });
 
-	if (heldItem)
-	{
-		lost::useImage(heldItem->item.textureID);
-		imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
-		imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
-		sgp_draw_textured_rect(0, { (float)position.x * 32.0f + heldItem->x, (float)position.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
-	}
 }
 
 void ConveyerBeltTileEntity::renderAt(lost::Vector2D pos)
@@ -153,12 +154,26 @@ void ConveyerBeltTileEntity::renderAt(lost::Vector2D pos)
 	float imageWidth = lost::getImage(tileEntityRef->texture)->width / tileEntityRef->totalFrames;
 	float imageHeight = lost::getImage(tileEntityRef->texture)->height / tileEntityRef->totalVariants;
 	sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { imageWidth * m_Frame, imageHeight * m_Variant, imageWidth, imageHeight });
+}
 
+void ConveyerBeltTileEntity::renderForeground()
+{
 	if (heldItem)
 	{
 		lost::useImage(heldItem->item.textureID);
-		imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
-		imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
+		float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
+		float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
+		sgp_draw_textured_rect(0, { (float)position.x * 32.0f + heldItem->x, (float)position.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
+	}
+}
+
+void ConveyerBeltTileEntity::renderForegroundAt(lost::Vector2D pos)
+{
+	if (heldItem)
+	{
+		lost::useImage(heldItem->item.textureID);
+		float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
+		float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
 		sgp_draw_textured_rect(0, { (float)pos.x * 32.0f + heldItem->x, (float)pos.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
 	}
 }

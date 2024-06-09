@@ -22,6 +22,8 @@ public:
 
 	virtual void render() override;
 	virtual void renderAt(lost::Vector2D pos) override;
+	virtual void renderForeground() override;
+	virtual void renderForegroundAt(lost::Vector2D pos) override;
 
 	void checkNeighbors();
 	void addItem(Item item);
@@ -33,6 +35,9 @@ protected:
 	ConveyerBeltTileEntity* m_Right = nullptr;
 	ConveyerBeltTileEntity* m_Up = nullptr;
 	ConveyerBeltTileEntity* m_Down = nullptr;
+
+	lost::Vector2D m_Speeds = { 0.0f, 0.0f };
+	bool m_Diagonal = false;
 
 	bool m_Moving = false;
 	ConveyerBeltItem* heldItem = nullptr;
