@@ -26,6 +26,7 @@ struct TileEntityStruct
 
 	float width = 0.0f;
 	float height = 0.0f;
+	uint32_t renderLayer = 0;
 	float placementOffsetX = 0.0f;
 	float placementOffsetY = 0.0f;
 
@@ -67,6 +68,7 @@ struct TileEntityStruct
 
 		width = tileEntityData->getFloat("width");
 		height = tileEntityData->getFloat("height");
+		renderLayer = tileEntityData->getInt("renderLayer");
 		placementOffsetX = tileEntityData->getFloat("placementOffsetX");
 		placementOffsetY = tileEntityData->getFloat("placementOffsetY");
 
@@ -136,6 +138,8 @@ public:
 
 	virtual void render();
 	virtual void renderAt(lost::Vector2D pos);
+	virtual void renderForeground();
+	virtual void renderForegroundAt(lost::Vector2D pos);
 	virtual void renderHitbox();
 
 	bool fillsLayers[3] = { false, false, false };

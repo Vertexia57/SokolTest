@@ -25,9 +25,9 @@ public:
 	void update();
 
 	void renderTiles(lost::Bound2D renderBounds);
-	void renderTileEntities(lost::Bound2D renderBounds);
+	void renderTileEntities(lost::Bound2D renderBounds, int layer);
 	void renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
-	void renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos);
+	void renderTileEntitiesAt(lost::Bound2D renderBounds, int layer, int ChunkRenderPos);
 
 	std::vector<TileEntity*>& getTileEntities();
 

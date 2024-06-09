@@ -146,10 +146,19 @@ void Chunk::renderTiles(lost::Bound2D renderBounds)
 	}
 }
 
-void Chunk::renderTileEntities(lost::Bound2D renderBounds)
+void Chunk::renderTileEntities(lost::Bound2D renderBounds, int layer)
 {
 	for (TileEntity* tileEntity : m_TileEntities)
-		tileEntity->render();
+	{
+		if (layer == tileEntity->tileEntityRef->renderLayer)
+			tileEntity->render();
+	}
+
+	for (TileEntity* tileEntity : m_TileEntities)
+	{
+		if (layer == tileEntity->tileEntityRef->renderLayer)
+			tileEntity->renderForeground();
+	}
 }
 
 void Chunk::renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
@@ -168,13 +177,20 @@ void Chunk::renderTilesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
 	}
 }
 
-void Chunk::renderTileEntitiesAt(lost::Bound2D renderBounds, int ChunkRenderPos)
+void Chunk::renderTileEntitiesAt(lost::Bound2D renderBounds, int layer, int ChunkRenderPos)
 {
 	for (TileEntity* tileEntity : m_TileEntities)
 	{
 		lost::Vector2D tileEntityPos = tileEntity->position;
 		tileEntityPos.x -= m_Width * (chunkCoord.x - ChunkRenderPos);
 		tileEntity->renderAt(tileEntityPos);
+	}
+
+	for (TileEntity* tileEntity : m_TileEntities)
+	{
+		lost::Vector2D tileEntityPos = tileEntity->position;
+		tileEntityPos.x -= m_Width * (chunkCoord.x - ChunkRenderPos);
+		tileEntity->renderForegroundAt(tileEntityPos);
 	}
 }
 

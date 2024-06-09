@@ -47,6 +47,7 @@ void World::update(lost::Bound2D renderBounds)
 
 void World::render(lost::Bound2D renderBounds)
 {
+	// Render Tiles
 	for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
 	{
 		if (x >= 0 && x < worldWidth)
@@ -56,7 +57,6 @@ void World::render(lost::Bound2D renderBounds)
 				if (m_Chunks[x]->ready)
 				{
 					m_Chunks[x]->renderTiles(renderBounds);
-					m_Chunks[x]->renderTileEntities(renderBounds);
 				}
 			}
 			else
@@ -72,12 +72,40 @@ void World::render(lost::Bound2D renderBounds)
 				if (m_Chunks[loopedX]->ready)
 				{
 					m_Chunks[loopedX]->renderTilesAt(renderBounds, x);
-					m_Chunks[loopedX]->renderTileEntitiesAt(renderBounds, x);
 				}
 			}
 			else
 			{
 				createChunk(loopedX);
+			}
+		}
+	}
+
+	// Render Tile Entities
+	for (int layer = 0; layer < 3; layer++)
+	{
+		for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
+		{
+			if (x >= 0 && x < worldWidth)
+			{
+				if (m_Chunks.count(x))
+				{
+					if (m_Chunks[x]->ready)
+					{
+						m_Chunks[x]->renderTileEntities(renderBounds, layer);
+					}
+				}
+			}
+			else
+			{
+				int loopedX = (x + worldWidth) % worldWidth;
+				if (m_Chunks.count(loopedX))
+				{
+					if (m_Chunks[loopedX]->ready)
+					{
+						m_Chunks[loopedX]->renderTileEntitiesAt(renderBounds, layer, x);
+					}
+				}
 			}
 		}
 	}

@@ -79,6 +79,14 @@ void TileEntity::renderAt(lost::Vector2D pos)
 	sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, m_Hitbox.w * 32.0f, m_Hitbox.h * 32.0f }, { imageWidth * m_Frame, imageHeight * m_Variant, imageWidth, imageHeight });
 }
 
+void TileEntity::renderForeground()
+{
+}
+
+void TileEntity::renderForegroundAt(lost::Vector2D pos)
+{
+}
+
 void TileEntity::renderHitbox()
 {
 	sgp_point lines[5] = { {m_Hitbox.x * 32.0f, m_Hitbox.y * 32.0f},
