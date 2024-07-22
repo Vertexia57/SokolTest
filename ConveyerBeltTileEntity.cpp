@@ -24,6 +24,7 @@ ConveyerBeltTileEntity::ConveyerBeltTileEntity(TileEntityStruct* tileEntityRef_,
 	m_Speeds = { tileEntityRef->updateData->getFloat("xSpeed"), tileEntityRef->updateData->getFloat("ySpeed") };
 
 	tileType = "conveyerBelt";
+	m_HasInventory = true;
 }
 
 ConveyerBeltTileEntity::~ConveyerBeltTileEntity()
@@ -41,6 +42,8 @@ ConveyerBeltTileEntity::~ConveyerBeltTileEntity()
 
 void ConveyerBeltTileEntity::init()
 {
+	TileEntity::init();
+
 	// Update neighboring conveyer belts and get neighboring conveyer belts
 	checkNeighbors();
 	if (m_Left)
@@ -107,36 +110,72 @@ void ConveyerBeltTileEntity::update()
 				heldItem->y += m_Speeds.y * lost::deltaTime * 0.1f;
 		}
 
-		if (m_Right && relativeVelocity.x > 0)
-		{
-			if (!m_Right->getEmpty() && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
-				heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-			else if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
-				passItem(m_Right, { 1, 0 });
-		}
-		if (m_Left && heldItem && relativeVelocity.x < 0)
-		{
-			if (!m_Left->getEmpty() && heldItem->x < 0.0f)
-				heldItem->x = 0.0f;
-			else if (heldItem->x < 0.0f && m_Left->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
-				passItem(m_Left, { -1, 0});
-		}
+		checkPasses();
+	}
+}
 
-		if (m_Down && heldItem && relativeVelocity.y > 0)
+void ConveyerBeltTileEntity::checkPasses()
+{
+	if (m_Right && relativeVelocity.x > 0)
+	{
+		if (!m_Right->getEmpty() && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
+			heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
+		else if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
 		{
-			if (!m_Down->getEmpty() && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
-				heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
-			else if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
-				passItem(m_Down, { 0, 1 });
-		}
-		if (m_Up && heldItem && relativeVelocity.y < 0)
-		{
-			if (!m_Up->getEmpty() && heldItem->y < 0.0f)
-				heldItem->y = 0.0f;
-			else if (heldItem->y < 0.0f && m_Up->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
-				passItem(m_Up, { 0, -1 });
+			passItem(m_Right, { 1, 0 });
+			if (m_Left && m_Left->heldItem)
+				m_Left->update(); // Might be hella inefficient but honestly not sure, works well-ish with chains of items
 		}
 	}
+	if (m_Left && heldItem && relativeVelocity.x < 0)
+	{
+		if (!m_Left->getEmpty() && heldItem->x < 0.0f)
+			heldItem->x = 0.0f;
+		else if (heldItem->x < 0.0f && m_Left->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
+		{
+			passItem(m_Left, { -1, 0 });
+			if (m_Right && m_Right->heldItem)
+				m_Right->update();
+		}
+	}
+
+	if (m_Down && heldItem && relativeVelocity.y > 0)
+	{
+		if (!m_Down->getEmpty() && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
+			heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
+		else if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
+		{
+			passItem(m_Down, { 0, 1 });
+			if (m_Up && m_Up->heldItem)
+				m_Up->update();
+		}
+	}
+	if (m_Up && heldItem && relativeVelocity.y < 0)
+	{
+		if (!m_Up->getEmpty() && heldItem->y < 0.0f)
+			heldItem->y = 0.0f;
+		else if (heldItem->y < 0.0f && m_Up->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
+		{
+			passItem(m_Up, { 0, -1 });
+			if (m_Down && m_Down->heldItem)
+				m_Down->update();
+		}
+	}
+}
+
+void ConveyerBeltTileEntity::tileUpdate()
+{
+	TileEntity::tileUpdate();
+
+	checkNeighbors();
+	if (m_Left)
+		m_Left->checkNeighbors();
+	if (m_Right)
+		m_Right->checkNeighbors();
+	if (m_Up)
+		m_Up->checkNeighbors();
+	if (m_Down)
+		m_Down->checkNeighbors();
 }
 
 void ConveyerBeltTileEntity::render()
@@ -160,10 +199,13 @@ void ConveyerBeltTileEntity::renderForeground()
 {
 	if (heldItem)
 	{
-		lost::useImage(heldItem->item.textureID);
-		float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
-		float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
-		sgp_draw_textured_rect(0, { (float)position.x * 32.0f + heldItem->x, (float)position.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
+		if (!heldItem->item.empty)
+		{
+			lost::useImage(heldItem->item.textureID);
+			float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
+			float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
+			sgp_draw_textured_rect(0, { (float)position.x * 32.0f + heldItem->x, (float)position.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
+		}
 	}
 }
 
@@ -171,10 +213,13 @@ void ConveyerBeltTileEntity::renderForegroundAt(lost::Vector2D pos)
 {
 	if (heldItem)
 	{
-		lost::useImage(heldItem->item.textureID);
-		float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
-		float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
-		sgp_draw_textured_rect(0, { (float)pos.x * 32.0f + heldItem->x, (float)pos.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
+		if (!heldItem->item.empty)
+		{
+			lost::useImage(heldItem->item.textureID);
+			float imageWidth = lost::getImage(heldItem->item.textureID)->width / heldItem->item.refStruct->frames;
+			float imageHeight = lost::getImage(heldItem->item.textureID)->height / heldItem->item.refStruct->variants;
+			sgp_draw_textured_rect(0, { (float)pos.x * 32.0f + heldItem->x, (float)pos.y * 32.0f + heldItem->y, 20.0f, 20.0f }, { 0, imageHeight * heldItem->item.variant, imageWidth, imageHeight });
+		}
 	}
 }
 
@@ -290,9 +335,14 @@ void ConveyerBeltTileEntity::checkNeighbors()
 	}
 }
 
-void ConveyerBeltTileEntity::addItem(Item item)
+void ConveyerBeltTileEntity::insertItem(Item& item)
 {
-	heldItem = new ConveyerBeltItem{ item, 8 };
+	heldItem = new ConveyerBeltItem{ item, 8, 8 };
+}
+
+bool ConveyerBeltTileEntity::canInsert(Item& item) const
+{
+	return heldItem == nullptr && !item.empty;
 }
 
 void ConveyerBeltTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset)

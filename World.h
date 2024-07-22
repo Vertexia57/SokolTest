@@ -5,6 +5,7 @@
 #include <array>
 #include "Generator.h"
 #include "Entity.h"
+#include "Lost/Transform2D.h"
 
 struct OutOfBoundsTileEntityStruct
 {
@@ -47,6 +48,11 @@ public:
 	void updateTileConnections(int x, int y);
 	void updateTileNeighbors(int x, int y);
 
+	void tileUpdate(int x, int y);
+	void tileUpdate(lost::IntVector2D pos);
+	void tileUpdateArea(int x, int y, int w, int h);
+	void tileUpdateArea(lost::Bound2D area);
+
 	void addEntity(Entity* entity);
 
 	Tile* getTileAt(int x, int y);
@@ -63,6 +69,9 @@ public:
 	int worldMaxX = 0;
 	int worldMinX = 0;
 
+	int chunkWidth = 32;
+	int chunkHeight = 96;
+
 	int worldTileWidth;
 	int worldWidth = 20;
 private:
@@ -72,9 +81,6 @@ private:
 	std::vector<Entity*> m_Entities;
 
 	std::vector<OutOfBoundsTileEntityStruct> m_OutOfBoundsEntities;
-
-	int chunkWidth = 32;
-	int chunkHeight = 96;
 
 	Generator* worldGenerator;
 };

@@ -25,8 +25,8 @@ struct ItemRefStruct
 		placesTile = (objectList.count("placesTile") > 0);
 		if (placesTile)
 			placesTileID = itemData->getString("placesTile");
-		placesTileEntity = (objectList.count("placesTile") > 0);
-		if (placesTile)
+		placesTileEntity = (objectList.count("placesTileEntity") > 0);
+		if (placesTileEntity)
 			placesTileEntityID = itemData->getString("placesTileEntity");
 		
 		name = itemData->getString("name");

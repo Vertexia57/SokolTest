@@ -32,6 +32,15 @@ data:extend(
 			variants = 47
 		},
 
-		fillsLayers = { true, true, true }
+		fillsLayers = { true, true, true },
+
+		extraData = {
+			mineProduce = "ironOre",
+			exhaustTile = "stone"
+		},
+
+		extraLocalData = {
+			holdingOre = 100,
+		}
 	}
 )

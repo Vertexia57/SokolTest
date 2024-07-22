@@ -17,6 +17,7 @@ public:
 
 	bool isSlotTaken(int slot);
 	void setItem(Item item, int slot);
+	void removeItem(int slot);
 
 	inline Item* getItem(int slot) { return &m_Items[slot]; };
 

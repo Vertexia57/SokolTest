@@ -4,6 +4,22 @@
 namespace lost
 {
 
+	struct IntVector2D
+	{
+		int x;
+		int y;
+
+		IntVector2D operator+(IntVector2D vec) const
+		{
+			return IntVector2D{ x + vec.x, y + vec.y };
+		}
+
+		IntVector2D operator-(IntVector2D vec) const
+		{
+			return IntVector2D{ x - vec.x, y - vec.y };
+		}
+	};
+
 	struct Vector2D
 	{
 		float x;
@@ -69,21 +85,10 @@ namespace lost
 			x /= mag;
 			y /= mag;
 		}
-	};
 
-	struct IntVector2D
-	{
-		int x;
-		int y;
-
-		IntVector2D operator+(IntVector2D vec) const
+		IntVector2D toInt()
 		{
-			return IntVector2D{ x + vec.x, y + vec.y };
-		}
-
-		IntVector2D operator-(IntVector2D vec) const
-		{
-			return IntVector2D{ x - vec.x, y - vec.y };
+			return IntVector2D{ (int)x, (int)y };
 		}
 	};
 

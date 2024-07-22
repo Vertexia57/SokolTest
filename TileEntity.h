@@ -1,6 +1,7 @@
 #pragma once
 #include "JSON.h"
 #include "Lost.h"
+#include "Container.h"
 #include <array>
 #include <functional>
 
@@ -131,16 +132,22 @@ public:
 	void setHitbox(lost::Bound2D hitbox);
 	void setPosition(lost::Vector2D position_);
 	lost::Bound2D getHitbox();
+	inline bool hasInventory() const { return (m_Storage != nullptr) || m_HasInventory; };
+	inline bool beenTileUpdated() const { return m_TileUpdated; };
 
 	virtual void init();
 
 	virtual void update();
+	virtual void tileUpdate();
 
 	virtual void render();
 	virtual void renderAt(lost::Vector2D pos);
 	virtual void renderForeground();
 	virtual void renderForegroundAt(lost::Vector2D pos);
 	virtual void renderHitbox();
+
+	virtual void insertItem(Item& item);
+	virtual bool canInsert(Item& item) const;
 
 	bool fillsLayers[3] = { false, false, false };
 
@@ -157,11 +164,17 @@ public:
 
 	std::string tileType = "base";
 protected:
+	// Used for ducts and inventories
+	Container* m_Storage = nullptr;
+	bool m_HasInventory = false;
+
 	lost::Bound2D m_Hitbox;
 	TextureID m_Variant;
 	uint32_t m_Rotation = 0;
 
 	uint32_t m_Frame = 0;
 	double m_TimeFromLastFrame = 0.0;
+
+	bool m_TileUpdated = false;
 };
 

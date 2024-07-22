@@ -1,6 +1,5 @@
 #pragma once
 #include "TileEntity.h"
-#include "Container.h"
 #include "StorageWindow.h"
 
 class ChestTileEntity : public TileEntity
@@ -18,7 +17,6 @@ public:
 	
 	virtual void mouseInteractFunction() override;
 protected:
-	Container* m_Storage;
 	int m_Width = 0;
 	int m_Height = 0;
 	StorageWindow* m_StorageWindow = nullptr;

@@ -19,6 +19,7 @@ public:
 	virtual void init() override;
 
 	virtual void update() override;
+	virtual void tileUpdate() override;
 
 	virtual void render() override;
 	virtual void renderAt(lost::Vector2D pos) override;
@@ -26,7 +27,11 @@ public:
 	virtual void renderForegroundAt(lost::Vector2D pos) override;
 
 	void checkNeighbors();
-	void addItem(Item item);
+
+	virtual void insertItem(Item& item);
+	virtual bool canInsert(Item& item) const;
+
+	void checkPasses();
 	void passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset);
 
 	inline bool getEmpty() const { return (heldItem == nullptr || m_Moving); };

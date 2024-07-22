@@ -9,10 +9,15 @@ Tile::Tile(lost::IntVector2D position, TileRefStruct* referenceStruct_)
 		filledLayers[i] = referenceStruct->fillsLayers[i];
 
 	empty = referenceStruct->empty;
+
+	// REALLY unsure about this, adds a lot of extra memory usage and fucks with cold memory
+	if (referenceStruct->extraLocalData)
+		extraLocalData = referenceStruct->extraLocalData->createCopy();
 }
 
 Tile::~Tile()
 {
+	delete extraLocalData;
 }
 
 void Tile::addTileEntityRef(TileEntity* ref)
@@ -49,6 +54,15 @@ void Tile::removeTileEntityRef(TileEntity* ref)
 void Tile::setTextureVariant(uint32_t textureVariant)
 {
 	m_TileID = textureVariant;
+}
+
+void Tile::tileUpdate()
+{
+	for (TileEntity* entity : tileEntitiesWithin)
+	{
+		if (!entity->beenTileUpdated())
+			entity->tileUpdate();
+	}
 }
 
 void Tile::render()

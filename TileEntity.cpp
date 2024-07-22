@@ -1,5 +1,6 @@
 #include "TileEntity.h"
 #include "Random.h"
+#include "World.h"
 
 TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 {
@@ -26,6 +27,7 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 
 TileEntity::~TileEntity()
 {
+	g_World->tileUpdateArea(m_Hitbox);
 }
 
 void TileEntity::setHitbox(lost::Bound2D hitbox)
@@ -48,10 +50,14 @@ lost::Bound2D TileEntity::getHitbox()
 
 void TileEntity::init()
 {
+	tileUpdate();
+	g_World->tileUpdateArea(m_Hitbox);
 }
 
 void TileEntity::update()
 {
+	m_TileUpdated = false;
+
 	if (tileEntityRef->animated)
 	{
 		m_TimeFromLastFrame += lost::deltaTime / 1000.0;
@@ -61,6 +67,11 @@ void TileEntity::update()
 			m_Frame = (m_Frame + 1) % tileEntityRef->totalFrames;
 		}
 	}
+}
+
+void TileEntity::tileUpdate()
+{
+	m_TileUpdated = true;
 }
 
 void TileEntity::render()
@@ -96,6 +107,19 @@ void TileEntity::renderHitbox()
 						   {m_Hitbox.x * 32.0f, m_Hitbox.y * 32.0f} };
 
 	sgp_draw_lines_strip(lines, 5);
+}
+
+void TileEntity::insertItem(Item& item)
+{
+	if (hasInventory() && !item.empty)
+		m_Storage->addItem(item);
+}
+
+bool TileEntity::canInsert(Item& item) const
+{
+	if (hasInventory() && !item.empty)
+		return m_Storage->findAccessableSlot(item) >= 0;
+	return false;
 }
 
 void TileEntity::mouseInteractFunction()

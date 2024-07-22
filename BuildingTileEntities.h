@@ -2,6 +2,7 @@
 #include "World.h"
 #include "ChestTileEntity.h"
 #include "ConveyerBeltTileEntity.h"
+#include "OreDrill.h"
 
 static std::map<std::string, int> updateActionNames = {
 	{ "none", 0 },
@@ -29,7 +30,7 @@ static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D posit
 			g_World->addTileEntity(new ChestTileEntity(tileEntityRef, rotation), buildX, buildY);
 			break;
 		case 2: // miner
-			g_World->addTileEntity(new TileEntity(tileEntityRef, rotation), buildX, buildY);
+			g_World->addTileEntity(new OreDrillEntity(tileEntityRef, rotation), buildX, buildY);
 			break;
 		case 3: // powerConduit
 			g_World->addTileEntity(new TileEntity(tileEntityRef, rotation), buildX, buildY);

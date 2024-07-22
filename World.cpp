@@ -429,6 +429,38 @@ void World::updateTileNeighbors(int x, int y)
 	}
 }
 
+void World::tileUpdate(int x, int y)
+{
+	for (int xOff = -1; xOff <= 1; xOff++)
+	{
+		for (int yOff = -1; yOff <= 1; yOff++)
+		{
+			getTileAt(x + xOff, y + yOff)->tileUpdate();
+		}
+	}
+}
+
+void World::tileUpdate(lost::IntVector2D pos)
+{
+	tileUpdate(pos.x, pos.y);
+}
+
+void World::tileUpdateArea(int x_, int y_, int w_, int h_)
+{
+	for (int x = x_; x < x_ + w_; x++)
+	{
+		for (int y = y_; y < y_ + h_; y++)
+		{
+			getTileAt(x, y)->tileUpdate();
+		}
+	}
+}
+
+void World::tileUpdateArea(lost::Bound2D area)
+{
+	tileUpdateArea((int)(area.x - 1.0f), (int)(area.y - 1.0f), (int)(area.w + 2.0f), (int)(area.h + 2.0f));
+}
+
 void World::addEntity(Entity* entity)
 {
 	m_Entities.push_back(entity);

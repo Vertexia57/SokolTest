@@ -82,6 +82,11 @@ void Container::setItem(Item item, int slot)
 	m_Items[slot] = item;
 }
 
+void Container::removeItem(int slot)
+{
+	m_Items[slot] = Item();
+}
+
 int Container::findAccessableSlot(Item& item)
 {
 	int foundSlot = -1;

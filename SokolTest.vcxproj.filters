@@ -238,6 +238,9 @@
     <ClInclude Include="ConveyerBeltTileEntity.h">
       <Filter>Game\BuildingObjects</Filter>
     </ClInclude>
+    <ClInclude Include="OreDrill.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -358,6 +361,9 @@
       <Filter>Game\BuildingObjects</Filter>
     </ClCompile>
     <ClCompile Include="ConveyerBeltTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="OreDrill.cpp">
       <Filter>Game\BuildingObjects</Filter>
     </ClCompile>
   </ItemGroup>

@@ -60,7 +60,7 @@ void ItemEntity::update()
 			ConveyerBeltTileEntity* belt = dynamic_cast<ConveyerBeltTileEntity*>(entity);
 			if (belt->getEmpty())
 			{
-				belt->addItem(itemCarried);
+				belt->insertItem(itemCarried);
 				killEntity = true;
 			}
 			break;

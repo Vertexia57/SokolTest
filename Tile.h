@@ -32,6 +32,9 @@ struct TileRefStruct
 
 	std::array<bool, 3> fillsLayers = { false, false, false };
 
+	JSONObject* extraData = nullptr;
+	JSONObject* extraLocalData = nullptr;
+
 	TileRefStruct(JSONObject* tileData)
 	{
 		name = tileData->getString("name");
@@ -64,6 +67,11 @@ struct TileRefStruct
 		JSONObject* fillsLayersArray = tileData->getJSONObject("fillsLayers");
 		for (int i = 0; i < fillsLayersArray->getNamesList().size(); i++)
 			fillsLayers[i] = fillsLayersArray->getBool(fillsLayersArray->getNamesList()[i]);
+
+		if (tileData->getObjectList().count("extraData") > 0)
+			extraData = tileData->getJSONObject("extraData");
+		if (tileData->getObjectList().count("extraLocalData") > 0)
+			extraLocalData = tileData->getJSONObject("extraLocalData");
 	}
 };
 
@@ -71,12 +79,14 @@ class Tile
 {
 public:
 	Tile(lost::IntVector2D position, TileRefStruct* referenceStruct_);
-	~Tile();
+	virtual ~Tile();
 
 	void addTileEntityRef(TileEntity* ref);
 	void removeTileEntityRef(TileEntity* ref);
 
 	void setTextureVariant(uint32_t textureVariant);
+
+	virtual void tileUpdate();
 
 	void render();
 	void renderAt(lost::Vector2D position);
@@ -89,6 +99,7 @@ public:
 	bool empty = false;
 
 	TileRefStruct* referenceStruct;
+	JSONObject* extraLocalData = nullptr;
 private:
 	TextureID m_TileID = 0;
 };
