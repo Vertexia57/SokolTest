@@ -70,8 +70,8 @@ void JSONArray::removeObject(int id)
 	case JSON_TYPE_FLOAT:		m_FloatObjects.erase(m_FloatObjects.begin() + ID); break;
 	case JSON_TYPE_BOOL:		m_BoolObjects.erase(m_BoolObjects.begin() + ID); break;
 	case JSON_TYPE_STRING:		m_StringObjects.erase(m_StringObjects.begin() + ID); break;
-	case JSON_TYPE_JSON_OBJECT: m_JsonObjects.erase(m_JsonObjects.begin() + ID); break;
-	case JSON_TYPE_JSON_ARRAY:  m_JsonArrays.erase(m_JsonArrays.begin() + ID); break;
+	case JSON_TYPE_JSON_OBJECT: delete m_JsonObjects[ID]; m_JsonObjects.erase(m_JsonObjects.begin() + ID); break;
+	case JSON_TYPE_JSON_ARRAY:  delete m_JsonArrays[ID]; m_JsonArrays.erase(m_JsonArrays.begin() + ID); break;
 	}
 
 	for (int i = 0; i < m_IDSpecifiers->size(); i++)
@@ -179,27 +179,62 @@ void JSONArray::setJSONArray(int id, JSONArray* jsonArray)
 		m_IDSpecifiers->push_back(JSONIDSpecifier{ JSON_TYPE_JSON_ARRAY, (int)m_JsonArrays.size() - 1 });
 }
 
-int JSONArray::getInt(int id)
+JSONArray* JSONArray::createCopy() const
+{
+	JSONArray* copy = new JSONArray();
+
+	//(*copy) = (*this);
+	copy->m_BoolObjects = m_BoolObjects;
+	copy->m_FloatObjects = m_FloatObjects;
+	*copy->m_IDSpecifiers = *m_IDSpecifiers;
+	copy->m_IntObjects = m_IntObjects;
+	copy->m_JsonArrays = m_JsonArrays;
+	copy->m_JsonObjects = m_JsonObjects;
+	copy->m_StringObjects = m_StringObjects;
+
+	std::vector<JSONIDSpecifier>* specifiers = getSpecifiers();
+	std::vector<int> objectIDs = {};
+	std::vector<int> arrayIDs = {};
+
+	for (JSONIDSpecifier& specifier : *specifiers)
+	{
+		if (specifier.Type == JSON_TYPE_JSON_OBJECT)
+			objectIDs.push_back(specifier.ID);
+		else if (specifier.Type == JSON_TYPE_JSON_ARRAY)
+			arrayIDs.push_back(specifier.ID);
+	}
+
+	for (int id : objectIDs)
+	{
+		JSONObject* child = m_JsonObjects[id]->createCopy();
+		copy->m_JsonObjects[id] = child;
+	}
+
+	for (int id : arrayIDs)
+	{
+		JSONArray* child = m_JsonArrays[id]->createCopy();
+		copy->m_JsonArrays[id] = child;
+	}
+
+	return copy;
+}
+
+int& JSONArray::getInt(int id)
 {
 	if (m_IDSpecifiers->at(id).Type == JSON_TYPE_INT)
 		return m_IntObjects.at(m_IDSpecifiers->at(id).ID);
-	return NULL;
 }
 
-float JSONArray::getFloat(int id)
+float& JSONArray::getFloat(int id)
 {
 	if (m_IDSpecifiers->at(id).Type == JSON_TYPE_FLOAT)
 		return m_FloatObjects.at(m_IDSpecifiers->at(id).ID);
-	return NULL;
 }
 
-std::string JSONArray::getString(int id)
+std::string& JSONArray::getString(int id)
 {
-	if (id >= m_IDSpecifiers->size())
-		return std::string("");
 	if (m_IDSpecifiers->at(id).Type == JSON_TYPE_STRING)
 		return m_StringObjects.at(m_IDSpecifiers->at(id).ID);
-	return std::string("");
 }
 
 bool JSONArray::getBool(int id)
@@ -455,17 +490,17 @@ void JSONObject::setJSONArray(std::string name, JSONArray* jsonArray)
 	}
 }
 
-int JSONObject::getInt(std::string name)
+int& JSONObject::getInt(std::string name)
 {
 	return data->getInt(objectNames[name]);
 }
 
-float JSONObject::getFloat(std::string name)
+float& JSONObject::getFloat(std::string name)
 {
 	return data->getFloat(objectNames[name]);
 }
 
-std::string JSONObject::getString(std::string name)
+std::string& JSONObject::getString(std::string name)
 {	
 	return data->getString(objectNames[name]);
 }
@@ -483,6 +518,47 @@ JSONObject* JSONObject::getJSONObject(std::string name)
 JSONArray* JSONObject::getJSONArray(std::string name)
 {
 	return data->getJSONArray(objectNames[name]);
+}
+
+JSONObject* JSONObject::createCopy() const
+{
+	JSONObject* copy = new JSONObject();
+
+	copy->namesList = namesList;
+	copy->objectNames = objectNames;
+	copy->data->m_BoolObjects = data->m_BoolObjects;
+	copy->data->m_FloatObjects = data->m_FloatObjects;
+	*copy->data->m_IDSpecifiers = *data->m_IDSpecifiers;
+	copy->data->m_IntObjects = data->m_IntObjects;
+	copy->data->m_JsonArrays = data->m_JsonArrays;
+	copy->data->m_JsonObjects = data->m_JsonObjects;
+	copy->data->m_StringObjects = data->m_StringObjects;
+
+	std::vector<JSONIDSpecifier>* specifiers = data->getSpecifiers();
+	std::vector<int> objectIDs = {};
+	std::vector<int> arrayIDs = {};
+
+	for (JSONIDSpecifier& specifier : *specifiers)
+	{
+		if (specifier.Type == JSON_TYPE_JSON_OBJECT)
+			objectIDs.push_back(specifier.ID);
+		else if (specifier.Type == JSON_TYPE_JSON_ARRAY)
+			arrayIDs.push_back(specifier.ID);
+	}
+
+	for (int id : objectIDs)
+	{
+		JSONObject* child = data->m_JsonObjects[id]->createCopy();
+		copy->data->m_JsonObjects[id] = child;
+	}
+
+	for (int id : arrayIDs)
+	{
+		JSONArray* child = data->m_JsonArrays[id]->createCopy();
+		copy->data->m_JsonArrays[id] = child;
+	}
+
+	return copy;
 }
 
 std::string JSONObject::exportString(int indentAddition)

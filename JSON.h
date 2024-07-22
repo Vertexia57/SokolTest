@@ -54,12 +54,14 @@ public:
 	void setJSONObject(std::string name, JSONObject* jsonObject);
 	void setJSONArray(std::string name, JSONArray* jsonArray);
 
-	int getInt(std::string name);
-	float getFloat(std::string name);
-	std::string getString(std::string name);
+	int& getInt(std::string name);
+	float& getFloat(std::string name);
+	std::string& getString(std::string name);
 	bool getBool(std::string name);
 	JSONObject* getJSONObject(std::string name);
 	JSONArray* getJSONArray(std::string name);
+
+	JSONObject* createCopy() const;
 
 	std::string exportString(int indentAddition = 0);
 	void saveToFile(std::string loc);
@@ -75,7 +77,7 @@ public:
 
 class JSONArray
 {
-private:
+public:
 	std::vector<JSONIDSpecifier>* m_IDSpecifiers;
 
 	std::vector<int> m_IntObjects;
@@ -84,6 +86,7 @@ private:
 	std::vector<bool> m_BoolObjects;
 	std::vector<JSONObject*> m_JsonObjects;
 	std::vector<JSONArray*> m_JsonArrays;
+
 public:
 	JSONArray();
 	~JSONArray();
@@ -104,15 +107,18 @@ public:
 	void setJSONObject(int id, JSONObject* jsonObject);
 	void setJSONArray(int id, JSONArray* jsonArray);
 
-	int getInt(int id);
-	float getFloat(int id);
-	std::string getString(int id);
+	JSONArray* createCopy() const;
+
+	int& getInt(int id);
+	float& getFloat(int id);
+	std::string& getString(int id);
 	bool getBool(int id);
+
 	JSONObject* getJSONObject(int id);
 	JSONArray* getJSONArray(int id);
 
 	inline int size() { return m_IDSpecifiers->size(); };
-	inline std::vector<JSONIDSpecifier>* getSpecifiers() { return m_IDSpecifiers; };
+	inline std::vector<JSONIDSpecifier>* getSpecifiers() const { return m_IDSpecifiers; };
 
 	std::string exportString(int indentAddition = 0);
 	void saveToFile(std::string loc);
