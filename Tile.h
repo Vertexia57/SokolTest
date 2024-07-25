@@ -87,9 +87,15 @@ public:
 	void setTextureVariant(uint32_t textureVariant);
 
 	virtual void tileUpdate();
+	virtual void forceTileUpdate();
 
 	void render();
 	void renderAt(lost::Vector2D position);
+
+	void setPowerCircuit(uint32_t id);
+	void joinPowerCircuit(uint32_t id);
+	void leavePowerCircuit();
+	inline uint32_t getPowerCircuit() const { return m_PowerCircuit; };
 
 	bool filledLayers[3] = { false, false, false };
 
@@ -102,4 +108,6 @@ public:
 	JSONObject* extraLocalData = nullptr;
 private:
 	TextureID m_TileID = 0;
+	uint32_t m_PowerCircuit = 0xffffffff;
+	uint32_t m_ConnectedPowerSources = 0;
 };

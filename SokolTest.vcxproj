@@ -187,6 +187,7 @@
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="JSON.h" />
     <ClInclude Include="Lost\FontManager.h" />
+    <ClInclude Include="Lost\Graph.h" />
     <ClInclude Include="Lost\InputManager.h" />
     <ClInclude Include="Lost\Camera.h" />
     <ClInclude Include="Lost\DeltaTime.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Lost\UIWindow.h" />
     <ClInclude Include="OreDrill.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PowerConduit.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Lost\RenderExtras.h" />
     <ClInclude Include="SokolReference.h" />
@@ -255,6 +257,7 @@
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="JSON.cpp" />
     <ClCompile Include="Lost\FontManager.cpp" />
+    <ClCompile Include="Lost\Graph.cpp" />
     <ClCompile Include="Lost\InputManager.cpp" />
     <ClCompile Include="Lost\Camera.cpp" />
     <ClCompile Include="Lost.cpp" />
@@ -270,6 +273,7 @@
     <ClCompile Include="Lost\ShaderManager.cpp" />
     <ClCompile Include="OreDrill.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PowerConduit.cpp" />
     <ClCompile Include="sokol\imgui\imgui.cpp" />
     <ClCompile Include="sokol\imgui\imgui_demo.cpp" />
     <ClCompile Include="sokol\imgui\imgui_draw.cpp" />

@@ -65,6 +65,14 @@ void Tile::tileUpdate()
 	}
 }
 
+void Tile::forceTileUpdate()
+{
+	for (TileEntity* entity : tileEntitiesWithin)
+	{
+		entity->tileUpdate();
+	}
+}
+
 void Tile::render()
 {
 	if (!empty)
@@ -85,4 +93,22 @@ void Tile::renderAt(lost::Vector2D position)
 		float imageHeight = lost::getImage(referenceStruct->texture)->height / referenceStruct->totalVariants;
 		sgp_draw_textured_rect(0, { position.x * 32.0f, position.y * 32.0f, 32.0f, 32.0f }, { 0, imageHeight * m_TileID, imageWidth, imageHeight });
 	}
+}
+
+void Tile::setPowerCircuit(uint32_t id)
+{
+	m_PowerCircuit = id;
+}
+
+void Tile::joinPowerCircuit(uint32_t id)
+{
+	m_PowerCircuit = id;
+	m_ConnectedPowerSources++;
+}
+
+void Tile::leavePowerCircuit()
+{
+	m_ConnectedPowerSources--;
+	if (m_ConnectedPowerSources == 0)
+		m_PowerCircuit = 0xffffffff;
 }

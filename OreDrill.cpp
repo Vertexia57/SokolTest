@@ -5,7 +5,7 @@
 OreDrillEntity::OreDrillEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 	: TileEntity(tileEntityRef_, rotation)
 {
-	updates = false;
+	updates = true;
 	interactable = false;
 	m_Storage = new Container(1);
 
@@ -43,8 +43,10 @@ void OreDrillEntity::update()
 			m_Storage->removeItem(0);
 		}
 	}
+	
+	if (m_PowerCircuit != 0xffffffff)
+		m_TimeSinceLastMine += lost::deltaTime * g_World->getPowerCircuit(m_PowerCircuit).satisfaction;
 
-	m_TimeSinceLastMine += lost::deltaTime;
 	if (m_TimeSinceLastMine >= m_MiningTime && drillTile && m_Storage->getItem(0)->empty)
 	{
 		m_TimeSinceLastMine = 0.0f;

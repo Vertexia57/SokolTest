@@ -12,6 +12,7 @@
 #include "Lost/FontManager.h"
 #include "Lost/UIManager.h"
 #include "Lost/RenderExtras.h"
+#include "Lost/Graph.h"
 
 namespace lost
 {

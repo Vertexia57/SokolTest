@@ -36,6 +36,7 @@ struct TileEntityStruct
 	bool building = false;
 	float cost = 0.0f;
 	float powerUsage = 0.0f;
+	float powerProduce = 0.0f;
 	std::string updateAction = "none";
 	JSONObject* updateData = nullptr;
 
@@ -87,6 +88,7 @@ struct TileEntityStruct
 			JSONObject* buildingData = tileEntityData->getJSONObject("buildingData");
 
 			powerUsage = buildingData->getFloat("powerUsage");
+			powerProduce = buildingData->getFloat("powerProduce");
 			cost = buildingData->getFloat("cost");
 			updateAction = buildingData->getString("updateAction");
 			updateData = buildingData->getJSONObject("updateData");
@@ -134,11 +136,16 @@ public:
 	lost::Bound2D getHitbox();
 	inline bool hasInventory() const { return (m_Storage != nullptr) || m_HasInventory; };
 	inline bool beenTileUpdated() const { return m_TileUpdated; };
+	inline float getPowerConsumption() const { return m_BaseConsumption * m_ConsumptionMult; };
+	inline float getPowerProduce() const { return m_BaseProduce * m_ProduceMult; };
+	inline uint32_t getPowerCircuit() const { return m_PowerCircuit; };
+	inline void setPowerCircuit(uint32_t id) { m_PowerCircuit = id; };
 
 	virtual void init();
 
 	virtual void update();
 	virtual void tileUpdate();
+	virtual void checkPowerCircuit();
 
 	virtual void render();
 	virtual void renderAt(lost::Vector2D pos);
@@ -167,6 +174,13 @@ protected:
 	// Used for ducts and inventories
 	Container* m_Storage = nullptr;
 	bool m_HasInventory = false;
+
+	// Used for buildings that consume power
+	uint32_t m_PowerCircuit = 0xffffffff; // 32 bit integer limit = no circuit
+	float m_ConsumptionMult = 1.0f;
+	float m_BaseConsumption = 0.0f; 
+	float m_ProduceMult = 1.0f;
+	float m_BaseProduce = 0.0f;
 
 	lost::Bound2D m_Hitbox;
 	TextureID m_Variant;

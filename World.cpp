@@ -1,4 +1,5 @@
 #include "World.h"
+#include "PowerConduit.h"
 
 World::World()
 {
@@ -39,6 +40,23 @@ void World::update(lost::Bound2D renderBounds)
 		{
 			delete m_Entities[i];
 			m_Entities.erase(m_Entities.begin() + i);
+		}
+	}
+
+	std::vector<int> eraseList = {};
+
+	for (auto& [key, val] : m_PowerCircuits)
+	{
+		val.calcConsumption();
+		if (val.connectedEntities.size() == 0)
+			eraseList.push_back(key);
+	}
+
+	if (eraseList.size() > 0)
+	{
+		for (int& id : eraseList)
+		{
+			m_PowerCircuits.erase(id);
 		}
 	}
 	
@@ -508,17 +526,23 @@ std::vector<TileEntity*> World::getTileEntitiesInBoxArea(int x, int y, float ran
 {
 	std::vector<TileEntity*> inRange;
 
-	int minXChunk = (int)floor(loopX(x - range) / (float)chunkWidth);
-	int maxXChunk = (int)floor(loopX(x + range) / (float)chunkWidth);
+	int minXChunk = (int)floor((x - range) / (float)chunkWidth);
+	int maxXChunk = (int)floor((x + range) / (float)chunkWidth);
 
-	lost::Bound2D areaBounds = { x - range, y - range, range * 2.0f, range * 2.0f };
+	lost::Bound2D areaBounds = { x - range, y - range, range * 2.0f + 1, range * 2.0f + 1 };
 
 	for (int x = minXChunk; x <= maxXChunk; x++)
 	{
-		std::vector<TileEntity*>& chunkEntities = m_Chunks[x]->getTileEntities();
+		int chunkX = loopChunkX(x);
+
+		std::vector<TileEntity*>& chunkEntities = m_Chunks[chunkX]->getTileEntities();
 		for (TileEntity* entity : chunkEntities)
 		{
 			if (areaBounds.inBounds(entity->position))
+				inRange.push_back(entity);
+			else if (areaBounds.inBounds({ entity->position.x + worldTileWidth, entity->position.y }))
+				inRange.push_back(entity);
+			else if (areaBounds.inBounds({ entity->position.x - worldTileWidth, entity->position.y }))
 				inRange.push_back(entity);
 		}
 	}
@@ -546,4 +570,123 @@ float World::loopChunkX(float x)
 	return fmodf(x + worldWidth, worldWidth);
 }
 
+uint32_t World::createPowerCircuit()
+{
+	PowerCircuitStruct circuit;
+	
+	size_t freeIndex = 0;
+	while (freeIndex < SIZE_MAX)
+	{
+		if (m_PowerCircuits.count(freeIndex) == 0)
+			break;
+		freeIndex++;
+	}
+
+	circuit.circuitID = freeIndex;
+	m_PowerCircuits[circuit.circuitID] = circuit;
+	return circuit.circuitID;
+}
+
+PowerCircuitStruct& World::getPowerCircuit(uint32_t id)
+{
+	return m_PowerCircuits[id];
+}
+
+void World::mergePowerCircuits(uint32_t mergeOnto, uint32_t mergeFrom)
+{
+	PowerCircuitStruct& from = m_PowerCircuits[mergeFrom];
+	std::map<uint32_t, uint32_t> fromIntMap = {};
+
+	PowerCircuitStruct& onto = m_PowerCircuits[mergeOnto];
+
+	// Precalculate the nodeIDs that nodes in from will have
+	std::vector<uint32_t> nodeIDsToFill = onto.nextAvailableNodeIDs(from.nodeGraph.adjacencyMap.size());
+	int count = 0;
+	for (auto& [key, val] : from.nodeGraph.adjacencyMap)
+	{
+		fromIntMap[key] = nodeIDsToFill[count];
+		count++;
+	}
+
+	for (TileEntity* entity : from.connectedEntities)
+	{
+		entity->setPowerCircuit(onto.circuitID);
+		if (entity->tileType == "conduit")
+		{
+			PowerConduit* conduit = dynamic_cast<PowerConduit*>(entity);
+			conduit->setTileCircuitReferences();
+
+			// Set new node IDs to the nodes connected
+			std::vector<uint32_t>& connectedNodes = conduit->getNodeConnections();
+			conduit->setNode(fromIntMap[conduit->getNodeID()]);
+
+			for (int i = 0; i < connectedNodes.size(); i++)
+			{
+				if (fromIntMap.count(connectedNodes[i]))
+					connectedNodes[i] = fromIntMap[connectedNodes[i]];
+			}
+
+			onto.addNodeByConnections(conduit->getNodeID(), conduit);
+			// Node references inside the nodes must be done after all of them have been updated
+		}
+		else
+		{
+			onto.join(entity);
+		}
+	}
+
+	from.connectedEntities = {};
+}
+
 World* g_World = nullptr;
+
+void PowerCircuitStruct::removeNode(PowerConduit* conduit)
+{
+	std::vector<Graph> split = nodeGraph.removeNode(conduit->getNodeID());
+
+	// Remove the conduit that called this function
+	for (int i = 0; i < connectedEntities.size(); i++)
+	{
+		if (connectedEntities[i] == conduit) // Check if the locations in memory are the same
+		{
+			connectedEntities.erase(connectedEntities.begin() + i);
+			break;
+		}
+	}
+
+	if (split.size() > 0)
+	{
+		// Turn the splits into more circuits, and update the conduits references
+		for (int i = 0; i < split.size(); i++)
+		{
+			// Create a new circuit
+			uint32_t splitCircuitID = g_World->createPowerCircuit();
+			PowerCircuitStruct& splitCircuit = g_World->getPowerCircuit(splitCircuitID);
+
+			// Set the node graph of that split circuit to the given split graph
+			splitCircuit.nodeGraph = split[i];
+
+			// Loop over all connected entities in this graph and change their references to the other circuit
+			for (int j = connectedEntities.size() - 1; j >= 0; j--)
+			{
+				TileEntity* entity = connectedEntities[j];
+				if (entity->tileType == "conduit")
+				{
+					PowerConduit* selectedConduit = dynamic_cast<PowerConduit*>(entity);
+
+					// .hasNode() only works in this case since every ID is unique across every split graph returned
+					if (splitCircuit.nodeGraph.hasNode(selectedConduit->getNodeID()))
+					{
+						selectedConduit->setPowerCircuit(splitCircuitID);
+						selectedConduit->setTileCircuitReferences();
+						// nodeID doesn't need to be set since the graphs keep the original nodeIDs from the unsplit graph
+
+						// Move connected entity reference from this circuit to the split one
+						splitCircuit.connectedEntities.push_back(connectedEntities[j]);
+						connectedEntities.erase(connectedEntities.begin() + j);
+					}
+				}
+			}
+		}
+	}
+};

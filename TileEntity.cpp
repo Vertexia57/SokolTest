@@ -23,11 +23,18 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 		else
 			m_Variant = rotation;
 	}
+
+	if (tileEntityRef->building)
+	{
+		m_BaseConsumption = tileEntityRef->powerUsage;
+		m_BaseProduce = tileEntityRef->powerProduce;
+	}
 }
 
 TileEntity::~TileEntity()
 {
 	g_World->tileUpdateArea(m_Hitbox);
+	g_World->getPowerCircuit(m_PowerCircuit).leave(this);
 }
 
 void TileEntity::setHitbox(lost::Bound2D hitbox)
@@ -72,6 +79,38 @@ void TileEntity::update()
 void TileEntity::tileUpdate()
 {
 	m_TileUpdated = true;
+
+	// Check power sources
+	checkPowerCircuit();
+}
+
+void TileEntity::checkPowerCircuit()
+{
+	if (m_BaseConsumption > 0.0f)
+	{
+		uint32_t oldCircuit = m_PowerCircuit;
+		m_PowerCircuit = 0xffffffff;
+
+		for (int x = floor(m_Hitbox.x); x < ceil(m_Hitbox.x + m_Hitbox.w); x++)
+		{
+			for (int y = floor(m_Hitbox.y); y < ceil(m_Hitbox.y + m_Hitbox.h); y++)
+			{
+				Tile* tileAt = g_World->getTileAt(x, y);
+				if (tileAt->getPowerCircuit() != 0xffffffff)
+				{
+					m_PowerCircuit = tileAt->getPowerCircuit();
+				}
+			}
+		}
+
+		if (oldCircuit != m_PowerCircuit)
+		{
+			if (m_PowerCircuit == 0xffffffff)
+				g_World->getPowerCircuit(oldCircuit).leave(this);
+			else
+				g_World->getPowerCircuit(m_PowerCircuit).join(this);
+		}
+	}
 }
 
 void TileEntity::render()

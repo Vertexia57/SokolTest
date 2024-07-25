@@ -241,6 +241,12 @@
     <ClInclude Include="OreDrill.h">
       <Filter>Game\BuildingObjects</Filter>
     </ClInclude>
+    <ClInclude Include="PowerConduit.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\Graph.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -365,6 +371,12 @@
     </ClCompile>
     <ClCompile Include="OreDrill.cpp">
       <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerConduit.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\Graph.cpp">
+      <Filter>Lost</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
