@@ -1,8 +1,8 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/Miner.png",
-			ID = "miner",
+			file = "TileEntityData/CreativeGenerator.png",
+			ID = "creativeGenerator",
 			pass = "albedo"
         }
     }
@@ -12,40 +12,40 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "Miner",
-		ID = "miner",
+		name = "CreativeGenerator",
+		ID = "creativeGenerator",
 		description = "",
 		
 		imageData = {
-			images = { "miner" },
+			images = { "creativeGenerator" },
 			frames = 1,
 			variants = 1,
 			randomVariant = false,
 			animated = false
 		},
 		
-		width = 3.0,
-		height = 3.0,
+		width = 1.0,
+		height = 1.0,
 		renderLayer = 1,
 		
-		placementOffsetX = -1.0,
-		placementOffsetY = -2.0,
+		placementOffsetX = 0.0,
+		placementOffsetY = 0.0,
 		
 		stable = false,
 		collidable = false,
-		requiresSupport = true,
+		requiresSupport = false,
 		fillsLayers = { true, false, false },
 
         building = true,
         buildingData = {
-            powerIdleUsage = 1.0,  
-            powerActiveUsage = 10.0,  
-            powerProduce = 0.0,  
-            cost = 20.0,    
+            powerUsage = 0.0,  
+            powerProduce = 100000000.0,  
+            cost = 0.0,    
 			rotationStates = 1,
-            updateAction = "miner",
+            updateAction = "powerConduit",
             updateData = {
-                speed = 1.0
+				powerRange = 10,
+                range = 21
             }
         }
     }

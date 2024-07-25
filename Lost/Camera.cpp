@@ -30,7 +30,8 @@ void Camera::update(double deltaTime)
 	{
 		lost::Transform2D oldTransform = m_Transform;
 		m_Transform.lerp(*m_GoalTransform, fminf(deltaTime / 100.0f, 1.0f));
-		m_RotationOffset = lost::lerp(m_RotationOffset, -fmaxf(fminf((m_Transform - oldTransform).position.x / 300.0f, 0.7f), -0.7f), deltaTime / 50.0f);
+		//m_Transform = *m_GoalTransform;
+		m_RotationOffset = lost::lerp(m_RotationOffset, -fmaxf(fminf((m_Transform - oldTransform).position.x / 200.0f, 0.7f), -0.7f), fminf(deltaTime / 50.0f, 1.0f));
 	}
 	else
 	{
@@ -54,7 +55,7 @@ void Camera::setViewportTransforms()
 	lost::Bound2D viewBounds = m_Bounds * m_Transform.scale + m_Transform.position + lost::Vector2D{ 0.0f, 0.141412f };
 	viewBounds = viewBounds - lost::Vector2D{ viewBounds.w / 2.0f, viewBounds.h / 2.0f };
     sgp_project(viewBounds.left, viewBounds.right, viewBounds.top, viewBounds.bottom);
-	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x + m_Bounds.w / 2.0f, m_Transform.position.y + m_Bounds.h / 2.0f);
+	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x, m_Transform.position.y + m_Bounds.h / 2.0f);
 }
 
 void Camera::resetViewportTransforms()

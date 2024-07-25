@@ -66,9 +66,6 @@ void ConveyerBeltTileEntity::update()
 	// [!]       Like factorio, but a more simplified version that instead just goes down the chain of conveyers
 	// [!]       and tells them to move their items
 
-	// [!] TODO: remove the current conveyer belt texture and replace it with item pipe, using connecting textures
-	// [!]       using the m_Up, m_Down, m_Left, and m_Right values
-
 	if (heldItem)
 	{
 

@@ -47,16 +47,26 @@ void OreDrillEntity::update()
 	if (m_PowerCircuit != 0xffffffff)
 		m_TimeSinceLastMine += lost::deltaTime * g_World->getPowerCircuit(m_PowerCircuit).satisfaction;
 
-	if (m_TimeSinceLastMine >= m_MiningTime && drillTile && m_Storage->getItem(0)->empty)
+	if (m_TimeSinceLastMine >= m_MiningTime)
 	{
-		m_TimeSinceLastMine = 0.0f;
-		m_Storage->addItem(g_ItemManager.getItemData(drillTile->referenceStruct->extraData->getString("mineProduce")), 1);
-		(*drillTileCountRef)--;
-		if (*drillTileCountRef == 0)
+		if (drillTile && m_Storage->getItem(0)->empty)
 		{
-			g_World->setTile(g_TileManager.getTileRef(drillTile->referenceStruct->extraData->getString("exhaustTile")), drillLocation.x, drillLocation.y);
-			m_SearchForOres();
+			m_TimeSinceLastMine = 0.0f;
+			m_Storage->addItem(g_ItemManager.getItemData(drillTile->referenceStruct->extraData->getString("mineProduce")), 1);
+			(*drillTileCountRef)--;
+			if (*drillTileCountRef == 0)
+			{
+				g_World->setTile(g_TileManager.getTileRef(drillTile->referenceStruct->extraData->getString("exhaustTile")), drillLocation.x, drillLocation.y);
+				m_SearchForOres();
+			}
 		}
+	}
+	else
+	{
+		if (!drillTile || !m_Storage->getItem(0)->empty)
+			m_Active = false;
+		else
+			m_Active = true;
 	}
 }
 

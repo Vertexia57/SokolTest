@@ -35,7 +35,8 @@ struct TileEntityStruct
 
 	bool building = false;
 	float cost = 0.0f;
-	float powerUsage = 0.0f;
+	float powerIdleUsage = 0.0f;
+	float powerActiveUsage = 0.0f;
 	float powerProduce = 0.0f;
 	std::string updateAction = "none";
 	JSONObject* updateData = nullptr;
@@ -87,7 +88,8 @@ struct TileEntityStruct
 		{
 			JSONObject* buildingData = tileEntityData->getJSONObject("buildingData");
 
-			powerUsage = buildingData->getFloat("powerUsage");
+			powerIdleUsage = buildingData->getFloat("powerIdleUsage");
+			powerActiveUsage = buildingData->getFloat("powerActiveUsage");
 			powerProduce = buildingData->getFloat("powerProduce");
 			cost = buildingData->getFloat("cost");
 			updateAction = buildingData->getString("updateAction");
@@ -136,7 +138,7 @@ public:
 	lost::Bound2D getHitbox();
 	inline bool hasInventory() const { return (m_Storage != nullptr) || m_HasInventory; };
 	inline bool beenTileUpdated() const { return m_TileUpdated; };
-	inline float getPowerConsumption() const { return m_BaseConsumption * m_ConsumptionMult; };
+	inline float getPowerConsumption() const { return m_Active ? m_ActiveConsumption * m_ConsumptionMult : m_IdleConsumption * m_ConsumptionMult; };
 	inline float getPowerProduce() const { return m_BaseProduce * m_ProduceMult; };
 	inline uint32_t getPowerCircuit() const { return m_PowerCircuit; };
 	inline void setPowerCircuit(uint32_t id) { m_PowerCircuit = id; };
@@ -178,7 +180,9 @@ protected:
 	// Used for buildings that consume power
 	uint32_t m_PowerCircuit = 0xffffffff; // 32 bit integer limit = no circuit
 	float m_ConsumptionMult = 1.0f;
-	float m_BaseConsumption = 0.0f; 
+	float m_ActiveConsumption = 0.0f;
+	float m_IdleConsumption = 0.0f;
+	bool m_Active = true;
 	float m_ProduceMult = 1.0f;
 	float m_BaseProduce = 0.0f;
 

@@ -626,13 +626,16 @@ void World::mergePowerCircuits(uint32_t mergeOnto, uint32_t mergeFrom)
 					connectedNodes[i] = fromIntMap[connectedNodes[i]];
 			}
 
-			onto.addNodeByConnections(conduit->getNodeID(), conduit);
+			if (connectedNodes.size() > 0)
+				onto.addNodeByConnections(conduit->getNodeID(), conduit);
+			else
+				onto.addNode(conduit);
 			// Node references inside the nodes must be done after all of them have been updated
 		}
-		else
+		/*else
 		{
 			onto.join(entity);
-		}
+		}*/
 	}
 
 	from.connectedEntities = {};
@@ -665,6 +668,7 @@ void PowerCircuitStruct::removeNode(PowerConduit* conduit)
 
 			// Set the node graph of that split circuit to the given split graph
 			splitCircuit.nodeGraph = split[i];
+			std::vector<PowerConduit*> toUpdateConduits;
 
 			// Loop over all connected entities in this graph and change their references to the other circuit
 			for (int j = connectedEntities.size() - 1; j >= 0; j--)
@@ -678,14 +682,19 @@ void PowerCircuitStruct::removeNode(PowerConduit* conduit)
 					if (splitCircuit.nodeGraph.hasNode(selectedConduit->getNodeID()))
 					{
 						selectedConduit->setPowerCircuit(splitCircuitID);
-						selectedConduit->setTileCircuitReferences();
+						toUpdateConduits.push_back(selectedConduit);
 						// nodeID doesn't need to be set since the graphs keep the original nodeIDs from the unsplit graph
 
 						// Move connected entity reference from this circuit to the split one
-						splitCircuit.connectedEntities.push_back(connectedEntities[j]);
+						splitCircuit.connectedEntities.push_back(entity);
 						connectedEntities.erase(connectedEntities.begin() + j);
 					}
 				}
+			}
+
+			for (PowerConduit* selectedConduit : toUpdateConduits)
+			{
+				selectedConduit->setTileCircuitReferences();
 			}
 		}
 	}

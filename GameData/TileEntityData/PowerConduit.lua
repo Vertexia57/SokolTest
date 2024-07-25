@@ -38,14 +38,15 @@ data:extend(
 
         building = true,
         buildingData = {
-            powerUsage = 0.0,  
-            powerProduce = 1.0,  
+            powerIdleUsage = 0.0,  
+            powerActiveUsage = 0.0,  
+            powerProduce = 0.0,  
             cost = 5.0,    
 			rotationStates = 1,
             updateAction = "powerConduit",
             updateData = {
 				powerRange = 5,
-                range = 10
+                range = 16
             }
         }
     }

@@ -32,7 +32,7 @@ namespace lost
 			else
 				x = x + (other.x - x) * alpha;
 			if (fabsf(y - other.y) <= 0.00001)
-				x = other.y;
+				y = other.y;
 			else
 				y = y + (other.y - y) * alpha;
 

@@ -37,9 +37,9 @@ PowerConduit::~PowerConduit()
 
 	// Update Tile References
 	lost::IntVector2D worldPos = { (int)(m_Hitbox.x + m_Hitbox.w / 2.0f), (int)(m_Hitbox.y + m_Hitbox.h / 2.0f) };
-	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange); x++)
+	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange + 1); x++)
 	{
-		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange); y++)
+		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange + 1); y++)
 		{
 			Tile* tile = g_World->getTileAt(x, y);
 			tile->leavePowerCircuit();
@@ -113,9 +113,9 @@ void PowerConduit::init()
 	}
 
 	// Update Tile References
-	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange); x++)
+	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange + 1); x++)
 	{
-		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange); y++)
+		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange + 1); y++)
 		{
 			Tile* tile = g_World->getTileAt(x, y);
 			tile->joinPowerCircuit(m_PowerCircuit);
@@ -143,9 +143,9 @@ void PowerConduit::setTileCircuitReferences()
 {
 	// Update Tile References
 	lost::IntVector2D worldPos = { (int)(m_Hitbox.x + m_Hitbox.w / 2.0f), (int)(m_Hitbox.y + m_Hitbox.h / 2.0f) };
-	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange); x++)
+	for (int x = floor(worldPos.x - powerRange); x < ceil(worldPos.x + powerRange + 1); x++)
 	{
-		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange); y++)
+		for (int y = floor(worldPos.y - powerRange); y < ceil(worldPos.y + powerRange + 1); y++)
 		{
 			Tile* tile = g_World->getTileAt(x, y);
 			tile->setPowerCircuit(m_PowerCircuit);
@@ -167,6 +167,9 @@ void PowerConduit::renderForeground()
 			sgp_draw_line((float)position.x * 32.0f + 16.0f, (float)position.y * 32.0f + 16.0f, (float)(m_ConnectedConduits[i]->position.x + g_World->worldTileWidth) * 32.0f + 16.0f, (float)m_ConnectedConduits[i]->position.y * 32.0f + 16.0f);
 		else
 			sgp_draw_line((float)position.x * 32.0f + 16.0f, (float)position.y * 32.0f + 16.0f, (float)m_ConnectedConduits[i]->position.x * 32.0f + 16.0f, (float)m_ConnectedConduits[i]->position.y * 32.0f + 16.0f);
+
+		//lost::renderTextPro(std::to_string(m_PowerCircuit), { position.x * 32.0f + 16.0f, position.y * 32.0f + 16.0f }, 1.0, LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+		//lost::renderTextPro(std::to_string(m_ConnectedNodes[i]), {position.x * 32.0f + 16.0f, position.y * 32.0f - 7.0f * i}, 0.2, LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
 		lost::resetShader();
 	}
 }

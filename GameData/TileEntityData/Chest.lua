@@ -38,7 +38,9 @@ data:extend(
 
         building = true,
 		buildingData = {
-            powerUsage = 0.0,  
+            powerIdleUsage = 0.0,  
+            powerActiveUsage = 0.0,  
+            powerProduce = 0.0,  
             cost = 10.0,    
 			rotationStates = 1,
             updateAction = "chest",

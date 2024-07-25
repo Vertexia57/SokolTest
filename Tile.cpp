@@ -82,6 +82,14 @@ void Tile::render()
 		float imageHeight = lost::getImage(referenceStruct->texture)->height / referenceStruct->totalVariants;
 		sgp_draw_textured_rect(0, { (float)pos.x * 32.0f, (float)pos.y * 32.0f, 32.0f, 32.0f }, { 0, imageHeight * m_TileID, imageWidth, imageHeight });
 	}
+	else if (m_PowerCircuit != 0xffffffff)
+	{
+		lost::clearImage();
+		sgp_set_color(0.4f, 0.8f, 1.0f, 0.1f);
+		sgp_draw_filled_rect((float)pos.x * 32.0f, (float)pos.y * 32.0f, 32.0f, 32.0f);
+		sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+		//lost::renderTextPro(std::to_string(m_PowerCircuit), renPos, 0.2, LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_MIDDLE);
+	}
 }
 
 void Tile::renderAt(lost::Vector2D position)
@@ -92,6 +100,14 @@ void Tile::renderAt(lost::Vector2D position)
 		float imageWidth = lost::getImage(referenceStruct->texture)->width;
 		float imageHeight = lost::getImage(referenceStruct->texture)->height / referenceStruct->totalVariants;
 		sgp_draw_textured_rect(0, { position.x * 32.0f, position.y * 32.0f, 32.0f, 32.0f }, { 0, imageHeight * m_TileID, imageWidth, imageHeight });
+	}
+	else if (m_PowerCircuit != 0xffffffff)
+	{
+		lost::clearImage();
+		sgp_set_color(0.4f, 0.8f, 1.0f, 0.1f);
+		sgp_draw_filled_rect((float)position.x * 32.0f, (float)position.y * 32.0f, 32.0f, 32.0f);
+		sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+		//lost::renderTextPro(std::to_string(m_PowerCircuit), renPos, 0.2, LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_MIDDLE);
 	}
 }
 

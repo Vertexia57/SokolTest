@@ -26,7 +26,8 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 
 	if (tileEntityRef->building)
 	{
-		m_BaseConsumption = tileEntityRef->powerUsage;
+		m_IdleConsumption = tileEntityRef->powerIdleUsage;
+		m_ActiveConsumption = tileEntityRef->powerActiveUsage;
 		m_BaseProduce = tileEntityRef->powerProduce;
 	}
 }
@@ -86,7 +87,7 @@ void TileEntity::tileUpdate()
 
 void TileEntity::checkPowerCircuit()
 {
-	if (m_BaseConsumption > 0.0f)
+	if (m_ActiveConsumption > 0.0f)
 	{
 		uint32_t oldCircuit = m_PowerCircuit;
 		m_PowerCircuit = 0xffffffff;
@@ -108,7 +109,11 @@ void TileEntity::checkPowerCircuit()
 			if (m_PowerCircuit == 0xffffffff)
 				g_World->getPowerCircuit(oldCircuit).leave(this);
 			else
+			{
 				g_World->getPowerCircuit(m_PowerCircuit).join(this);
+				if (oldCircuit != 0xffffffff)
+					g_World->getPowerCircuit(oldCircuit).leave(this);
+			}
 		}
 	}
 }

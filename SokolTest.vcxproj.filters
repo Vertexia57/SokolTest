@@ -247,6 +247,9 @@
     <ClInclude Include="Lost\Graph.h">
       <Filter>Lost</Filter>
     </ClInclude>
+    <ClInclude Include="FactoryTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -377,6 +380,9 @@
     </ClCompile>
     <ClCompile Include="Lost\Graph.cpp">
       <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="FactoryTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
