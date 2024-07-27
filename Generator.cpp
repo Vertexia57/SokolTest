@@ -28,6 +28,7 @@ Generator::Generator(std::string generatorLocation_)
 	}
 
 	generatorPathStr = finalString;
+
 }
 
 Generator::~Generator()

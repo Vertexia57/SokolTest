@@ -37,6 +37,8 @@ void OreDrillEntity::update()
 			{
 				m_RightEntity->insertItem(*m_Storage->getItem(0));
 				m_Storage->getItem(0)->StackSize = 0;
+				m_Storage->getItem(0)->locked = false;
+				m_Storage->getItem(0)->output = false;
 			}
 		}
 
@@ -46,6 +48,8 @@ void OreDrillEntity::update()
 			{
 				m_LeftEntity->insertItem(*m_Storage->getItem(0));
 				m_Storage->getItem(0)->StackSize = 0;
+				m_Storage->getItem(0)->locked = false;
+				m_Storage->getItem(0)->output = false;
 			}
 		}
 	}
@@ -108,10 +112,11 @@ void OreDrillEntity::m_SearchForOres()
 	int minX = (int)floor(m_Hitbox.x - 1.0f);
 	int maxX = (int)ceil(m_Hitbox.x + m_Hitbox.w);
 	int maxDepth = min((int)ceil(m_Hitbox.y + m_Hitbox.h) + 20, g_World->chunkHeight - 1);
+	int minDepth = (int)ceil(m_Hitbox.y + m_Hitbox.h);
 
 	if (drillLocation.y <= position.y)
 	{
-		drillLocation = { maxX, maxDepth };
+		drillLocation = { maxX, minDepth };
 	}
 
 	drillTile = nullptr;
@@ -131,12 +136,16 @@ void OreDrillEntity::m_SearchForOres()
 				break;
 			}
 		}
+		else if (focussedTile->empty)
+		{
+			break;
+		}
 
 		drillLocation.x--;
 		if (drillLocation.x < minX)
 		{
 			drillLocation.x = maxX;
-			drillLocation.y--;
+			drillLocation.y++;
 		}
 	}
 

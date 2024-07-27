@@ -10,6 +10,7 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 	setHitbox({ 0, 0, (float)tileEntityRef_->width, (float)tileEntityRef_->height });
 	tileEntityRef = tileEntityRef_;
 	collidable = tileEntityRef->collidable;
+	stable = tileEntityRef->stableGround;
 
 	for (int i = 0; i < 3; i++)
 		fillsLayers[i] = tileEntityRef_->fillsLayers[i];
@@ -24,12 +25,9 @@ TileEntity::TileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 			m_Variant = rotation;
 	}
 
-	if (tileEntityRef->building)
-	{
-		m_IdleConsumption = tileEntityRef->powerIdleUsage;
-		m_ActiveConsumption = tileEntityRef->powerActiveUsage;
-		m_BaseProduce = tileEntityRef->powerProduce;
-	}
+	m_IdleConsumption = tileEntityRef->powerIdleUsage;
+	m_ActiveConsumption = tileEntityRef->powerActiveUsage;
+	m_BaseProduce = tileEntityRef->powerProduce;
 }
 
 TileEntity::~TileEntity()
@@ -87,7 +85,7 @@ void TileEntity::tileUpdate()
 
 void TileEntity::checkPowerCircuit()
 {
-	if (m_ActiveConsumption > 0.0f)
+	if (m_ActiveConsumption > 0.0f || m_BaseProduce > 0.0f)
 	{
 		uint32_t oldCircuit = m_PowerCircuit;
 		m_PowerCircuit = 0xffffffff;

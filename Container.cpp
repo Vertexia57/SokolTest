@@ -120,6 +120,9 @@ Item Container::extractItem(int count, bool output)
 			i.StackSize -= amountToRemove;
 
 			ret = i;
+			ret.StackSize = amountToRemove;
+			ret.locked = false;
+			ret.output = false;
 
 			if (!i.locked) // If the slot's stack size is zero, clear the slot
 				i = Item();

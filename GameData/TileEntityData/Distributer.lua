@@ -38,15 +38,17 @@ data:extend(
 
         building = true,
         buildingData = {
-            powerIdleUsage = 0.0,  
-            powerActiveUsage = 0.0,  
-            powerProduce = 0.0,  
             cost = 10.0,    
 			rotationStates = 0,
             updateAction = "distributor",
             updateData = {
                 speed = 160.0 -- How many units per second the item would move if it were a conveyerBelt
             }
-        }
+        },
+		powerData = {
+            powerIdleUsage = 0.0,  
+            powerActiveUsage = 0.0,  
+            powerProduce = 0.0
+		}
     }
 )

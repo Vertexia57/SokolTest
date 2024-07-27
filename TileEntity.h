@@ -87,10 +87,6 @@ struct TileEntityStruct
 		if (building)
 		{
 			JSONObject* buildingData = tileEntityData->getJSONObject("buildingData");
-
-			powerIdleUsage = buildingData->getFloat("powerIdleUsage");
-			powerActiveUsage = buildingData->getFloat("powerActiveUsage");
-			powerProduce = buildingData->getFloat("powerProduce");
 			cost = buildingData->getFloat("cost");
 			updateAction = buildingData->getString("updateAction");
 			updateData = buildingData->getJSONObject("updateData");
@@ -108,6 +104,14 @@ struct TileEntityStruct
 				for (int i = 0; i < totalRotations; i++)
 					rotationVariants.push_back(i);
 			}
+		}
+
+		if (tileEntityData->getObjectList().count("powerData"))
+		{
+			JSONObject* powerData = tileEntityData->getJSONObject("powerData");
+			powerIdleUsage = powerData->getFloat("powerIdleUsage");
+			powerActiveUsage = powerData->getFloat("powerActiveUsage");
+			powerProduce = powerData->getFloat("powerProduce");
 		}
 
 		container = tileEntityData->getObjectList().count("containerData") == 1;
@@ -169,6 +173,7 @@ public:
 
 	bool updates = false;
 	bool collidable = true;
+	bool stable = false;
 
 	bool interactable = false;
 	virtual void mouseInteractFunction();

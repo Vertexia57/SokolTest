@@ -32,7 +32,6 @@ public:
 	long seed = random(LONG_MIN, LONG_MAX);
 
 private:
-
 	std::string generatorLocation;
 	std::string generatorPathStr;
 	std::string generatorCode;

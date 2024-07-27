@@ -21,7 +21,7 @@ protected:
 	lost::IntVector2D m_HighlightedSlot = { -1, -1 };
 
 	// A reference to the crafting group that it's going to display the options of
-	const std::map<std::string, RecipieRefStruct*>* m_CraftingGroupRef = nullptr;
+	const std::unordered_map<std::string, RecipieRefStruct*>* m_CraftingGroupRef = nullptr;
 
 	FactoryTileEntity* m_FactoryRef = nullptr;
 	std::string m_CraftingGroup;

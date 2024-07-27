@@ -36,10 +36,13 @@ void RecipieSelectWindow::update()
 	if (slotX >= 0 && slotX < m_ContainerWidth && slotY >= 0 && slotY < m_ContainerHeight)
 	{
 		m_HighlightedSlot = { slotX, slotY };
-		if (lost::mouseTapped(0))
+		if (lost::mouseTapped(0) && slotIndex < m_CraftingGroupRef->size())
 		{
 			toRemove = true;
-			m_FactoryRef->setRecipie(g_ItemManager.getRecipieData("ferriteCrushRecipie"));
+			auto it = m_CraftingGroupRef->begin();
+			for (int i = 0; i < slotIndex; i++)
+				it++;
+			m_FactoryRef->setRecipie(it->second);
 		}
 	}
 	else
@@ -103,6 +106,46 @@ void RecipieSelectWindow::render()
 			sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
 			sgp_draw_filled_rect(m_HighlightedSlot.x * m_SlotSize + m_Bounds.x + 15.0f, m_HighlightedSlot.y * m_SlotSize + m_Bounds.y + 20.0f + m_ToastHeight, m_SlotSize, m_SlotSize);
 			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+	}
+	else
+	{
+		int xSlot = 0;
+		int ySlot = 0;
+		int index = 0;
+		for (auto& [key, val] : *m_CraftingGroupRef)
+		{
+			lost::NBoxData slotNBox = {};
+			slotNBox.bottomSize = 2;
+			slotNBox.topSize = 2;
+			slotNBox.rightSize = 2;
+			slotNBox.leftSize = 2;
+			slotNBox.imageSize = { 5, 5 };
+			slotNBox.scale = 4.0f;
+			slotNBox.bounds = { m_Bounds.x + 15.0f + xSlot * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + ySlot * m_SlotSize, m_SlotSize, m_SlotSize };
+			slotNBox.texture = lost::getImageID("SlotNBox");
+			lost::renderNBox(slotNBox);
+
+			TextureID icon = val->icon;
+			if (icon == -1)
+				icon = g_ItemManager.getItemData(val->results[0].id)->textureID;
+
+			lost::useImage(icon);
+			float imageWidth = lost::getImage(icon)->width;
+			float imageHeight = lost::getImage(icon)->height;
+
+			sgp_rect renderArea = { m_Bounds.x + 15.0f + xSlot * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + ySlot * m_SlotSize, m_SlotSize, m_SlotSize };
+
+			sgp_draw_textured_rect(0, renderArea, { 0, 0, imageWidth, imageHeight });
+
+			xSlot++;
+			if (xSlot >= 5)
+			{
+				xSlot = 0;
+				ySlot++;
+			}
+
+			index++;
 		}
 	}
 }

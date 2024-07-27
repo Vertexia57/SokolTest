@@ -128,3 +128,17 @@ void Tile::leavePowerCircuit()
 	if (m_ConnectedPowerSources == 0)
 		m_PowerCircuit = 0xffffffff;
 }
+
+bool Tile::getStable() const
+{
+	if (referenceStruct->stableGround)
+		return true;
+
+	for (TileEntity* entity : tileEntitiesWithin)
+	{
+		if (entity->stable)
+			return true;
+	}
+
+	return false;
+}

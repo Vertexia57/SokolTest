@@ -2,6 +2,7 @@
 #include "Item.h"
 #include "Lost.h"
 #include <vector>
+#include <unordered_map>
 
 // [!] TODO: Create this, this is just the bare bones of what is needed. Figure it out on pen and paper first
 
@@ -29,6 +30,8 @@ struct RecipieRefStruct
 			icon = ref->getInt("icon");
 		else
 			icon = (TextureID)(-1);
+
+		timeToCraft = ref->getFloat("timeToCraft");
 	}
 
 	struct IdCountPair 
@@ -39,6 +42,8 @@ struct RecipieRefStruct
 
 	std::string craftingGroup = "base";
 	TextureID icon;
+
+	float timeToCraft = 1.0f;
 
 	std::vector<IdCountPair> ingredients;
 	std::vector<IdCountPair> results;
@@ -57,13 +62,13 @@ public:
 
 	inline RecipieRefStruct* getRecipieData(std::string id) { return m_RecipieRefStructs[id]; };
 
-	inline const std::map<std::string, RecipieRefStruct*>& getCraftingGroupData(std::string id) { return m_RecipieCraftingGroups[id]; };
+	inline const std::unordered_map<std::string, RecipieRefStruct*>& getCraftingGroupData(std::string id) { return m_RecipieCraftingGroups[id]; };
 private:
-	std::map<std::string, ItemRefStruct*> m_ItemRefStructs;
-	std::map<std::string, JSONObject*> m_ItemJSONs;
+	std::unordered_map<std::string, ItemRefStruct*> m_ItemRefStructs;
+	std::unordered_map<std::string, JSONObject*> m_ItemJSONs;
 
-	std::map<std::string, std::map<std::string, RecipieRefStruct*>> m_RecipieCraftingGroups;
-	std::map<std::string, RecipieRefStruct*> m_RecipieRefStructs;
+	std::unordered_map<std::string, std::unordered_map<std::string, RecipieRefStruct*>> m_RecipieCraftingGroups;
+	std::unordered_map<std::string, RecipieRefStruct*> m_RecipieRefStructs;
 	std::map<std::string, JSONObject*> m_RecipieJSONs;
 };
 

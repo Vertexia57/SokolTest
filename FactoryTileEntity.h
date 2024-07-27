@@ -15,6 +15,9 @@ public:
 	virtual void tileUpdate() override;
 
 	void setRecipie(RecipieRefStruct* recipie);
+	void checkRecipie();
+
+	virtual void insertItem(Item& item);
 
 	virtual void mouseInteractFunction() override;
 protected:
@@ -22,5 +25,10 @@ protected:
 	std::string m_CraftingGroup = "base";
 
 	RecipieSelectWindow* m_RecipieWindow = nullptr;
+
+	float m_CraftingTime = 0.0f;
+	float m_TimeToCraft = 0.0f;
+
+	bool m_CanCraft = false;
 };
 

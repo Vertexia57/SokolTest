@@ -38,15 +38,17 @@ data:extend(
 
         building = true,
         buildingData = {
-            powerIdleUsage = 1.0,  
-            powerActiveUsage = 10.0,  
-            powerProduce = 0.0,  
             cost = 20.0,    
 			rotationStates = 1,
             updateAction = "miner",
             updateData = {
                 timePerMine = 3.0
             }
-        }
+        },
+		powerData = {
+            powerIdleUsage = 5.0,  
+            powerActiveUsage = 100.0,  
+            powerProduce = 0.0
+		}
     }
 )

@@ -97,6 +97,8 @@ public:
 	void leavePowerCircuit();
 	inline uint32_t getPowerCircuit() const { return m_PowerCircuit; };
 
+	bool getStable() const;
+
 	bool filledLayers[3] = { false, false, false };
 
 	lost::IntVector2D pos;

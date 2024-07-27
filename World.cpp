@@ -339,7 +339,7 @@ bool World::checkStable(lost::Bound2D bounds)
 			Tile* tile = getTileAt(x, y);
 			if (tile != m_BorderAir)
 			{
-				if (!tile->referenceStruct->stableGround)
+				if (!tile->getStable())
 				{
 					// If they do, break out, and don't check any further
 					notStable = true;

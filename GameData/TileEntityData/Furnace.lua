@@ -1,8 +1,8 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/PowerConduit.png",
-			ID = "powerConduit",
+			file = "Placeholder.png",
+			ID = "placeholder",
 			pass = "albedo"
         }
     }
@@ -12,43 +12,43 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "PowerConduit",
-		ID = "powerConduit",
+		name = "Furnace",
+		ID = "furnace",
 		description = "",
 		
 		imageData = {
-			images = { "powerConduit" },
+			images = { "placeholder" },
 			frames = 1,
 			variants = 1,
 			randomVariant = false,
 			animated = false
 		},
 		
-		width = 1.0,
-		height = 1.0,
+		width = 2.0,
+		height = 4.0,
 		renderLayer = 1,
 		
-		placementOffsetX = 0.0,
-		placementOffsetY = 0.0,
+		placementOffsetX = -0.0,
+		placementOffsetY = -3.0,
 		
 		stable = false,
 		collidable = false,
-		requiresSupport = false,
+		requiresSupport = true,
 		fillsLayers = { true, false, false },
 
         building = true,
-        buildingData = {
-            cost = 5.0,    
+		buildingData = {
+            cost = 50.0,    
 			rotationStates = 1,
-            updateAction = "powerConduit",
+            updateAction = "factory",
             updateData = {
-				powerRange = 5,
-                range = 16
+				craftingGroup = "furnace",
+				speed = 0.5
             }
-        },
+		},
 		powerData = {
-            powerIdleUsage = 0.0,  
-            powerActiveUsage = 0.0,  
+            powerIdleUsage = 5.0,  
+            powerActiveUsage = 40.0,  
             powerProduce = 0.0
 		}
     }
