@@ -153,6 +153,20 @@ void TileEntity::renderHitbox()
 	sgp_draw_lines_strip(lines, 5);
 }
 
+void TileEntity::removeItem(Item& item, int count, bool output)
+{
+	if (hasInventory() && !item.empty)
+		m_Storage->removeItem(item, count, output);
+}
+
+Item TileEntity::extractItem(int count, bool output)
+{
+	if (hasInventory())
+		return m_Storage->extractItem(count, output);
+
+	return Item();
+}
+
 void TileEntity::insertItem(Item& item)
 {
 	if (hasInventory() && !item.empty)

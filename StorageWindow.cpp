@@ -34,10 +34,38 @@ void StorageWindow::update()
 		if (lost::mouseTapped(0))
 		{
 			Item* itemHovered = refContainer->getItem(slotIndex);
-			if (itemHovered->empty || g_PlayerPointer->holdingItem.empty || !refContainer->isSlotSameType(slotIndex, g_PlayerPointer->holdingItem))
+			if ((itemHovered->empty || g_PlayerPointer->holdingItem.empty || !refContainer->isSlotSameType(slotIndex, g_PlayerPointer->holdingItem)) && !itemHovered->locked)
 			{
 				// Slot wasn't accessable, swap
 				SwapItems(itemHovered, &g_PlayerPointer->holdingItem);
+			}
+			else if ((g_PlayerPointer->holdingItem.empty || g_PlayerPointer->holdingItem.itemID == itemHovered->itemID) && itemHovered->locked && itemHovered->StackSize > 0)
+			{
+				// Player hand is empty or contains the item that matches the locked slot
+
+				if (g_PlayerPointer->holdingItem.empty) // Any
+				{
+					// Fill the player hand with the locked slot's item and set the stack size of the slot to 0
+					g_PlayerPointer->holdingItem = *itemHovered;
+					g_PlayerPointer->holdingItem.locked = false;
+					itemHovered->StackSize = 0;
+				}
+				else if (!itemHovered->output) // Input & Locked
+				{
+					// Same as if it wasn't locked, fill slot with as much as it can, from the player hand
+					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->refStruct->maxStack) ? itemHovered->refStruct->maxStack - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
+					itemHovered->StackSize += amountToFill;
+					g_PlayerPointer->holdingItem.StackSize -= amountToFill;
+					if (g_PlayerPointer->holdingItem.StackSize <= 0)
+						g_PlayerPointer->holdingItem = Item();
+				}
+				else // Output & Locked
+				{
+					// Fill player hand with an much as it can from the output
+					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->refStruct->maxStack) ? g_PlayerPointer->holdingItem.refStruct->maxStack - g_PlayerPointer->holdingItem.StackSize : itemHovered->StackSize;
+					itemHovered->StackSize -= amountToFill;
+					g_PlayerPointer->holdingItem.StackSize += amountToFill;
+				}
 			}
 			else
 			{
@@ -65,14 +93,24 @@ void StorageWindow::update()
 				{
 					int total = itemHovered->StackSize;
 					g_PlayerPointer->holdingItem = *itemHovered;
+					g_PlayerPointer->holdingItem.locked = false; // In case the item that was hovered was locked
 					g_PlayerPointer->holdingItem.StackSize = (int)ceil((float)total / 2.0f);
 					total -= (int)ceil((float)total / 2.0f);
 					itemHovered->StackSize = total;
 				}
-				else
+				else if (itemHovered->StackSize > 0)
 				{
 					// Slot was just a stack of one, swap the empty hand and the slot
-					SwapItems(itemHovered, &g_PlayerPointer->holdingItem);
+					if (!itemHovered->locked)
+					{
+						SwapItems(itemHovered, &g_PlayerPointer->holdingItem);
+					}
+					else // Locked
+					{
+						g_PlayerPointer->holdingItem = *itemHovered;
+						g_PlayerPointer->holdingItem.locked = false;
+						itemHovered->StackSize = 0;
+					}
 				}
 			}
 			else if (refContainer->isSlotAccessable(slotIndex, g_PlayerPointer->holdingItem))
@@ -88,7 +126,7 @@ void StorageWindow::update()
 				else
 				{
 					// The slot wasn't empty but was accessable
-					itemHovered->StackSize++;
+					itemHovered->StackSize++; 
 				}
 
 				g_PlayerPointer->holdingItem.StackSize--;

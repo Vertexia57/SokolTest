@@ -8,6 +8,7 @@ struct ConveyerBeltItem
 	Item item;
 	float x;
 	float y;
+	int directionFrom;
 };
 
 class ConveyerBeltTileEntity : public TileEntity
@@ -26,20 +27,28 @@ public:
 	virtual void renderForeground() override;
 	virtual void renderForegroundAt(lost::Vector2D pos) override;
 
-	void checkNeighbors();
+	virtual void checkNeighbors();
 
 	virtual void insertItem(Item& item);
 	virtual bool canInsert(Item& item) const;
 
 	void checkPasses();
-	void passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset);
+	virtual void passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom);
+	virtual void recieveItem(ConveyerBeltItem* item, lost::IntVector2D tileOffset, int directionFrom);
 
-	inline bool getEmpty() const { return (heldItem == nullptr || m_Moving); };
+	virtual bool getEmpty(int direction) const;
+	inline uint32_t getRotation() const { return m_Rotation; };
+	inline ConveyerBeltItem*& getHeldItem() { return heldItem; };
 protected:
 	ConveyerBeltTileEntity* m_Left = nullptr;
 	ConveyerBeltTileEntity* m_Right = nullptr;
 	ConveyerBeltTileEntity* m_Up = nullptr;
 	ConveyerBeltTileEntity* m_Down = nullptr;
+
+	TileEntity* m_LeftEntity = nullptr;
+	TileEntity* m_RightEntity = nullptr;
+	TileEntity* m_UpEntity = nullptr;
+	TileEntity* m_DownEntity = nullptr;
 
 	lost::Vector2D m_Speeds = { 0.0f, 0.0f };
 	bool m_Diagonal = false;

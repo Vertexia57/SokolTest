@@ -178,6 +178,7 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="ConveyerBeltTileEntity.h" />
+    <ClInclude Include="DistributorTileEntity.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FactoryTileEntity.h" />
     <ClInclude Include="fontstash.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="ItemEntity.h" />
     <ClInclude Include="ItemManager.h" />
     <ClInclude Include="JSON.h" />
+    <ClInclude Include="JunctionTileEntity.h" />
     <ClInclude Include="Lost\FontManager.h" />
     <ClInclude Include="Lost\Graph.h" />
     <ClInclude Include="Lost\InputManager.h" />
@@ -206,9 +208,11 @@
     <ClInclude Include="PowerConduit.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Lost\RenderExtras.h" />
+    <ClInclude Include="RecipieSelectWindow.h" />
     <ClInclude Include="SokolReference.h" />
     <ClInclude Include="sokol\imgui\imconfig.h" />
     <ClInclude Include="sokol\imgui\imgui.h" />
+    <ClInclude Include="sokol\imgui\imgui_custom_widgets.h" />
     <ClInclude Include="sokol\imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="sokol\imgui\imgui_impl_win32.h" />
     <ClInclude Include="sokol\imgui\imgui_internal.h" />
@@ -250,6 +254,7 @@
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="ConveyerBeltTileEntity.cpp" />
+    <ClCompile Include="DistributorTileEntity.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FactoryTileEntity.cpp" />
     <ClCompile Include="Generator.cpp" />
@@ -258,6 +263,7 @@
     <ClCompile Include="ItemEntity.cpp" />
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="JSON.cpp" />
+    <ClCompile Include="JunctionTileEntity.cpp" />
     <ClCompile Include="Lost\FontManager.cpp" />
     <ClCompile Include="Lost\Graph.cpp" />
     <ClCompile Include="Lost\InputManager.cpp" />
@@ -276,6 +282,7 @@
     <ClCompile Include="OreDrill.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerConduit.cpp" />
+    <ClCompile Include="RecipieSelectWindow.cpp" />
     <ClCompile Include="sokol\imgui\imgui.cpp" />
     <ClCompile Include="sokol\imgui\imgui_demo.cpp" />
     <ClCompile Include="sokol\imgui\imgui_draw.cpp" />

@@ -1,4 +1,5 @@
 #include "ChestTileEntity.h"
+#include "ItemManager.h"
 #include "Lost/UIManager.h"
 #include "Player.h"
 
@@ -15,6 +16,7 @@ ChestTileEntity::ChestTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rota
 
 ChestTileEntity::~ChestTileEntity()
 {
+	delete m_Storage;
 }
 
 void ChestTileEntity::mouseInteractFunction()

@@ -40,6 +40,7 @@ int Container::addItem(Item item)
 			{
 				m_Items[slot] = item;
 				count = 0;
+				break;
 			}
 
 			slot = findAccessableSlot(item);
@@ -50,6 +51,82 @@ int Container::addItem(Item item)
 	}
 
 	return count;
+}
+
+int Container::countItem(ItemRefStruct* refStruct, bool output)
+{
+	int count = 0;
+	for (Item& i : m_Items)
+	{
+		if (i.itemID == refStruct->itemID && i.output == output)
+			count += i.StackSize;
+	}
+	return count;
+}
+
+int Container::countItem(Item item, bool output)
+{
+	int count = 0;
+	for (Item& i : m_Items)
+	{
+		if (i.itemID == item.itemID && i.output == output)
+			count += i.StackSize;
+	}
+	return count;
+}
+
+void Container::removeItem(ItemRefStruct* refStruct, int count, bool output)
+{
+	for (Item& i : m_Items)
+	{
+		if (i.itemID == refStruct->itemID && i.output == output && i.StackSize > 0)
+		{
+			int amountToRemove = (i.StackSize > count) ? count : i.StackSize;
+			count -= amountToRemove;
+			i.StackSize -= amountToRemove;
+
+			if (!i.locked && i.StackSize <= 0) // If the slot's stack size is zero, clear the slot
+				i = Item();
+		}
+	}
+}
+
+void Container::removeItem(Item item, int count, bool output)
+{
+	for (Item& i : m_Items)
+	{
+		if (i.itemID == item.itemID && i.output == output && i.StackSize > 0)
+		{
+			int amountToRemove = (i.StackSize > count) ? count : i.StackSize;
+			count -= amountToRemove;
+			i.StackSize -= amountToRemove;
+
+			if (!i.locked) // If the slot's stack size is zero, clear the slot
+				i = Item();
+		}
+	}
+}
+
+Item Container::extractItem(int count, bool output)
+{
+	Item ret = Item();
+
+	for (Item& i : m_Items)
+	{
+		if (i.output == output && i.StackSize > 0)
+		{
+			int amountToRemove = (i.StackSize > count) ? count : i.StackSize;
+			count -= amountToRemove;
+			i.StackSize -= amountToRemove;
+
+			ret = i;
+
+			if (!i.locked) // If the slot's stack size is zero, clear the slot
+				i = Item();
+		}
+	}
+
+	return ret;
 }
 
 int Container::addItemToSlot(Item& item, int slot)
@@ -85,6 +162,13 @@ void Container::setItem(Item item, int slot)
 void Container::removeItem(int slot)
 {
 	m_Items[slot] = Item();
+}
+
+void Container::lockSlot(Item lockedItem, int slot)
+{
+	lockedItem.StackSize = 0;
+	lockedItem.locked = true;
+	m_Items[slot] = lockedItem;
 }
 
 int Container::findAccessableSlot(Item& item)

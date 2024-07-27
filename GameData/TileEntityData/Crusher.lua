@@ -1,8 +1,8 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/Miner.png",
-			ID = "miner",
+			file = "Placeholder.png",
+			ID = "placeholder",
 			pass = "albedo"
         }
     }
@@ -12,12 +12,12 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "Miner",
-		ID = "miner",
+		name = "Crusher",
+		ID = "crusher",
 		description = "",
 		
 		imageData = {
-			images = { "miner" },
+			images = { "placeholder" },
 			frames = 1,
 			variants = 1,
 			randomVariant = false,
@@ -32,21 +32,22 @@ data:extend(
 		placementOffsetY = -2.0,
 		
 		stable = false,
-		collidable = false,
+		collidable = true,
 		requiresSupport = true,
 		fillsLayers = { true, false, false },
 
         building = true,
-        buildingData = {
-            powerIdleUsage = 1.0,  
-            powerActiveUsage = 10.0,  
+		buildingData = {
+            powerIdleUsage = 0.0,  
+            powerActiveUsage = 0.0,  
             powerProduce = 0.0,  
-            cost = 20.0,    
+            cost = 10.0,    
 			rotationStates = 1,
-            updateAction = "miner",
+            updateAction = "factory",
             updateData = {
-                timePerMine = 3.0
+				craftingGroup = "crusher",
+				speed = 1.0
             }
-        }
+		}
     }
 )

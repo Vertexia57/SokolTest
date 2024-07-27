@@ -12,7 +12,6 @@ public:
 
 	virtual void init();
 
-	// Uses base tile entities updating
 	virtual void update() override;
 	virtual void tileUpdate() override;
 

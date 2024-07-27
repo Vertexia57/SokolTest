@@ -49,8 +49,8 @@ data:extend(
 			rotationVariants = { 24, 0, 16, 8 },
             updateAction = "conveyerBelt",
             updateData = {
-                xSpeed = 1.0,
-                ySpeed = 1.0
+                xSpeed = 160.0,
+                ySpeed = 160.0
             }
         }
     }

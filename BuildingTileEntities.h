@@ -4,13 +4,19 @@
 #include "ConveyerBeltTileEntity.h"
 #include "OreDrill.h"
 #include "PowerConduit.h"
+#include "DistributorTileEntity.h"
+#include "JunctionTileEntity.h"
+#include "FactoryTileEntity.h"
 
 static std::map<std::string, int> updateActionNames = {
 	{ "none", 0 },
 	{ "chest", 1 },
 	{ "miner", 2 },
 	{ "powerConduit", 3 },
-	{ "conveyerBelt", 4 }
+	{ "conveyerBelt", 4 },
+	{ "distributor", 5 },
+	{ "junction", 6 },
+	{ "factory", 7 }
 };
 
 static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D position, uint32_t rotation)
@@ -38,6 +44,15 @@ static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D posit
 			break;
 		case 4: // conveyerBelt
 			g_World->addTileEntity(new ConveyerBeltTileEntity(tileEntityRef, rotation), buildX, buildY);
+			break;
+		case 5: // distributor
+			g_World->addTileEntity(new DistributorTileEntity(tileEntityRef, rotation), buildX, buildY);
+			break;
+		case 6: // junction
+			g_World->addTileEntity(new JunctionTileEntity(tileEntityRef, rotation), buildX, buildY);
+			break;
+		case 7: // factory
+			g_World->addTileEntity(new FactoryTileEntity(tileEntityRef, rotation), buildX, buildY);
 			break;
 		default:
 			g_World->addTileEntity(new TileEntity(tileEntityRef, rotation), buildX, buildY);

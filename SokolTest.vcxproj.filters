@@ -250,6 +250,18 @@
     <ClInclude Include="FactoryTileEntity.h">
       <Filter>Game\BuildingObjects</Filter>
     </ClInclude>
+    <ClInclude Include="sokol\imgui\imgui_custom_widgets.h">
+      <Filter>Lost\Sokol\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DistributorTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="JunctionTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="RecipieSelectWindow.h">
+      <Filter>Game\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -383,6 +395,15 @@
     </ClCompile>
     <ClCompile Include="FactoryTileEntity.cpp">
       <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="DistributorTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="JunctionTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="RecipieSelectWindow.cpp">
+      <Filter>Game\UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

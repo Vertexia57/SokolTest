@@ -38,6 +38,9 @@ ConveyerBeltTileEntity::~ConveyerBeltTileEntity()
 		m_Up->checkNeighbors();
 	if (m_Down)
 		m_Down->checkNeighbors();
+
+	if (heldItem)
+		delete heldItem;
 }
 
 void ConveyerBeltTileEntity::init()
@@ -73,89 +76,163 @@ void ConveyerBeltTileEntity::update()
 		{
 			if (fabsf(heldItem->y - 6.0f) < 1.0f)
 			{
-				heldItem->x += relativeVelocity.x * lost::deltaTime * 0.1f;
-				if (!m_Right && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
+				heldItem->x += relativeVelocity.x * lost::deltaTime * 0.001f;
+				if (!m_Right && !m_RightEntity && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
 					heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-				if (!m_Left && heldItem->x < 0.0f)
+				if (!m_Left && !m_LeftEntity && heldItem->x < 0.0f)
 					heldItem->x = 0.0f;
 			}
 		}
 		else
 		{
 			if (heldItem->x > 6)
-				heldItem->x -= m_Speeds.x * lost::deltaTime * 0.1f;
+				heldItem->x -= m_Speeds.x * lost::deltaTime * 0.001f;
 			if (heldItem->x < 6)
-				heldItem->x += m_Speeds.x * lost::deltaTime * 0.1f;
+				heldItem->x += m_Speeds.x * lost::deltaTime * 0.001f;
 		}
 
 		if (relativeVelocity.y != 0.0f)
 		{
 			if (fabsf(heldItem->x - 6.0f) < 1.0f)
 			{
-				heldItem->y += relativeVelocity.y * lost::deltaTime * 0.1f;
-				if (!m_Down && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
+				heldItem->y += relativeVelocity.y * lost::deltaTime * 0.001f;
+				if (!m_Down && !m_DownEntity && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
 					heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
-				if (!m_Up && heldItem->y < 0.0f)
+				if (!m_Up && !m_UpEntity && heldItem->y < 0.0f)
 					heldItem->y = 0.0f;
 			}
 		}
 		else
 		{
 			if (heldItem->y > 6)
-				heldItem->y -= m_Speeds.y * lost::deltaTime * 0.1f;
+				heldItem->y -= m_Speeds.y * lost::deltaTime * 0.001f;
 			if (heldItem->y < 6)
-				heldItem->y += m_Speeds.y * lost::deltaTime * 0.1f;
+				heldItem->y += m_Speeds.y * lost::deltaTime * 0.001f;
 		}
 
 		checkPasses();
+	}
+	else
+	{
+		// Extract Items
+		if (m_Rotation == 0 && m_LeftEntity)
+		{
+			Item extracted = m_LeftEntity->extractItem(1);
+			if (!extracted.empty)
+				insertItem(extracted);
+		}
+		else if (m_Rotation == 1 && m_UpEntity)
+		{
+			Item extracted = m_UpEntity->extractItem(1);
+			if (!extracted.empty)
+				insertItem(extracted);
+		}
+		else if (m_Rotation == 2 && m_RightEntity)
+		{
+			Item extracted = m_RightEntity->extractItem(1);
+			if (!extracted.empty)
+				insertItem(extracted);
+		}
+		else if (m_Rotation == 3 && m_DownEntity)
+		{
+			Item extracted = m_DownEntity->extractItem(1);
+			if (!extracted.empty)
+				insertItem(extracted);
+		}
 	}
 }
 
 void ConveyerBeltTileEntity::checkPasses()
 {
-	if (m_Right && relativeVelocity.x > 0)
+	if (m_Right && relativeVelocity.x > 0) // Pass to other conveyer
 	{
-		if (!m_Right->getEmpty() && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
+		if (!m_Right->getEmpty(0) && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
 			heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
-		else if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
+		else if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_Right->getEmpty(0) && fabsf(heldItem->y - 6.0f) < 1)
 		{
-			passItem(m_Right, { 1, 0 });
+			passItem(m_Right, { 1, 0 }, 0);
 			if (m_Left && m_Left->heldItem)
 				m_Left->update(); // Might be hella inefficient but honestly not sure, works well-ish with chains of items
 		}
 	}
-	if (m_Left && heldItem && relativeVelocity.x < 0)
+	else if (m_RightEntity && relativeVelocity.x > 0) // Insert into entity
 	{
-		if (!m_Left->getEmpty() && heldItem->x < 0.0f)
-			heldItem->x = 0.0f;
-		else if (heldItem->x < 0.0f && m_Left->getEmpty() && fabsf(heldItem->y - 6.0f) < 1)
+		if (!m_RightEntity->canInsert(heldItem->item) && heldItem->x > m_Hitbox.w * 32.0f - 20.0f)
+			heldItem->x = m_Hitbox.w * 32.0f - 20.0f;
+		if (heldItem->x > m_Hitbox.w * 32.0f - 20.0f && m_RightEntity->canInsert(heldItem->item) && fabsf(heldItem->y - 6.0f) < 1)
 		{
-			passItem(m_Left, { -1, 0 });
+			m_RightEntity->insertItem(heldItem->item);
+			delete heldItem;
+			heldItem = nullptr;
+		}
+	}
+
+	if (m_Left && heldItem && relativeVelocity.x < 0) // Pass to other conveyer
+	{
+		if (!m_Left->getEmpty(2) && heldItem->x < 0.0f)
+			heldItem->x = 0.0f;
+		else if (heldItem->x < 0.0f && m_Left->getEmpty(2) && fabsf(heldItem->y - 6.0f) < 1)
+		{
+			passItem(m_Left, { -1, 0 }, 2);
 			if (m_Right && m_Right->heldItem)
 				m_Right->update();
 		}
 	}
-
-	if (m_Down && heldItem && relativeVelocity.y > 0)
+	else if (m_LeftEntity && heldItem && relativeVelocity.x < 0) // Insert into entity
 	{
-		if (!m_Down->getEmpty() && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
-			heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
-		else if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
+		if (!m_LeftEntity->canInsert(heldItem->item) && heldItem->x < 0.0f)
+			heldItem->x = 0.0f;
+		if (heldItem->x < 0.0f && m_LeftEntity->canInsert(heldItem->item) && fabsf(heldItem->y - 6.0f) < 1)
 		{
-			passItem(m_Down, { 0, 1 });
+			m_LeftEntity->insertItem(heldItem->item);
+			delete heldItem;
+			heldItem = nullptr;
+		}
+	}
+
+	if (m_Down && heldItem && relativeVelocity.y > 0) // Pass to other conveyer
+	{
+		if (!m_Down->getEmpty(1) && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
+			heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
+		else if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_Down->getEmpty(1) && fabsf(heldItem->x - 6.0f) < 1)
+		{
+			passItem(m_Down, { 0, 1 }, 1);
 			if (m_Up && m_Up->heldItem)
 				m_Up->update();
 		}
 	}
-	if (m_Up && heldItem && relativeVelocity.y < 0)
+	else if (m_DownEntity && heldItem && relativeVelocity.y > 0) // Insert into entity
 	{
-		if (!m_Up->getEmpty() && heldItem->y < 0.0f)
-			heldItem->y = 0.0f;
-		else if (heldItem->y < 0.0f && m_Up->getEmpty() && fabsf(heldItem->x - 6.0f) < 1)
+		if (!m_DownEntity->canInsert(heldItem->item) && heldItem->y > m_Hitbox.h * 32.0f - 20.0f)
+			heldItem->y = m_Hitbox.h * 32.0f - 20.0f;
+		if (heldItem->y > m_Hitbox.h * 32.0f - 20.0f && m_DownEntity->canInsert(heldItem->item) && fabsf(heldItem->x - 6.0f) < 1)
 		{
-			passItem(m_Up, { 0, -1 });
+			m_DownEntity->insertItem(heldItem->item);
+			delete heldItem;
+			heldItem = nullptr;
+		}
+	}
+
+	if (m_Up && heldItem && relativeVelocity.y < 0) // Pass to other conveyer
+	{
+		if (!m_Up->getEmpty(3) && heldItem->y < 0.0f)
+			heldItem->y = 0.0f;
+		else if (heldItem->y < 0.0f && m_Up->getEmpty(3) && fabsf(heldItem->x - 6.0f) < 1)
+		{
+			passItem(m_Up, { 0, -1 }, 3);
 			if (m_Down && m_Down->heldItem)
 				m_Down->update();
+		}
+	}
+	else if (m_UpEntity && heldItem && relativeVelocity.y < 0) // Insert into entity
+	{
+		if (!m_UpEntity->canInsert(heldItem->item) && heldItem->y < 0.0f)
+			heldItem->y = 0.0f;
+		if (heldItem->y < 0.0f && m_UpEntity->canInsert(heldItem->item) && fabsf(heldItem->x - 6.0f) < 1)
+		{
+			m_UpEntity->insertItem(heldItem->item);
+			delete heldItem;
+			heldItem = nullptr;
 		}
 	}
 }
@@ -227,50 +304,70 @@ void ConveyerBeltTileEntity::checkNeighbors()
 		lost::IntVector2D worldPos = { (int)(m_Hitbox.x + m_Hitbox.w / 2.0f), (int)(m_Hitbox.y + m_Hitbox.h / 2.0f) };
 
 		m_Left = nullptr;
+		m_LeftEntity = nullptr;
 		for (TileEntity* entity : g_World->getTileAt(worldPos.x - 1, worldPos.y)->tileEntitiesWithin)
 		{
 			if (entity->tileType == tileType)
 			{
 				ConveyerBeltTileEntity* cast = dynamic_cast<ConveyerBeltTileEntity*>(entity);
-				if ((cast->m_Rotation == 0 || m_Rotation == 2) && !(cast->m_Rotation == 0 && m_Rotation == 2))
+				if ((cast->m_Rotation == 0 || m_Rotation == 2) && !(cast->m_Rotation == 0 && m_Rotation == 2) || (cast->m_Rotation == 4))
 					m_Left = cast;
 				break;
+			}
+			else if (entity->hasInventory())
+			{
+				m_LeftEntity = entity;
 			}
 		}
 
 		m_Right = nullptr;
+		m_RightEntity = nullptr;
 		for (TileEntity* entity : g_World->getTileAt(worldPos.x + 1, worldPos.y)->tileEntitiesWithin)
 		{
 			if (entity->tileType == tileType)
 			{
 				ConveyerBeltTileEntity* cast = dynamic_cast<ConveyerBeltTileEntity*>(entity);
-				if ((cast->m_Rotation == 2 || m_Rotation == 0) && !(cast->m_Rotation == 2 && m_Rotation == 0))
+				if ((cast->m_Rotation == 2 || m_Rotation == 0) && !(cast->m_Rotation == 2 && m_Rotation == 0) || (cast->m_Rotation == 4))
 					m_Right = cast;
 				break;
+			}
+			else if (entity->hasInventory())
+			{
+				m_RightEntity = entity;
 			}
 		}
 
 		m_Up = nullptr;
+		m_UpEntity = nullptr;
 		for (TileEntity* entity : g_World->getTileAt(worldPos.x, worldPos.y - 1)->tileEntitiesWithin)
 		{
 			if (entity->tileType == tileType)
 			{
 				ConveyerBeltTileEntity* cast = dynamic_cast<ConveyerBeltTileEntity*>(entity);
-				if ((cast->m_Rotation == 1 || m_Rotation == 3) && !(cast->m_Rotation == 1 && m_Rotation == 3))
+				if ((cast->m_Rotation == 1 || m_Rotation == 3) && !(cast->m_Rotation == 1 && m_Rotation == 3) || (cast->m_Rotation == 4))
 					m_Up = cast;
 				break;
+			}
+			else if (entity->hasInventory())
+			{
+				m_UpEntity = entity;
 			}
 		}
 
 		m_Down = nullptr;
+		m_DownEntity = nullptr;
 		for (TileEntity* entity : g_World->getTileAt(worldPos.x, worldPos.y + 1)->tileEntitiesWithin)
 		{
 			if (entity->tileType == tileType)
 			{
 				ConveyerBeltTileEntity* cast = dynamic_cast<ConveyerBeltTileEntity*>(entity);
-				if ((cast->m_Rotation == 3 || m_Rotation == 1) && !(cast->m_Rotation == 3 && m_Rotation == 1))
+				if ((cast->m_Rotation == 3 || m_Rotation == 1) && !(cast->m_Rotation == 3 && m_Rotation == 1) || (cast->m_Rotation == 4))
 					m_Down = cast;
 				break;
+			}
+			else if (entity->hasInventory())
+			{
+				m_DownEntity = entity;
 			}
 		}
 
@@ -342,11 +439,22 @@ bool ConveyerBeltTileEntity::canInsert(Item& item) const
 	return heldItem == nullptr && !item.empty;
 }
 
-void ConveyerBeltTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset)
+void ConveyerBeltTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom)
 {
-	other->heldItem = heldItem;
+	other->recieveItem(heldItem, tileOffset, directionFrom);
+	heldItem = nullptr;
+}
+
+void ConveyerBeltTileEntity::recieveItem(ConveyerBeltItem* item, lost::IntVector2D tileOffset, int directionFrom)
+{
+	heldItem = item;
 	lost::IntVector2D posDiff = { tileOffset.x * 32, tileOffset.y * 32 };
 	heldItem->x -= posDiff.x;
 	heldItem->y -= posDiff.y;
-	heldItem = nullptr;
+	heldItem->directionFrom = directionFrom;
+}
+
+bool ConveyerBeltTileEntity::getEmpty(int direction) const
+{
+	return (heldItem == nullptr || m_Moving);
 }

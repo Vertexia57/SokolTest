@@ -37,6 +37,11 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 // [?] So I guess:
 // [!] TODO: Add building costs, add player money and create a UI for it. Add a building menu and figure that out
 // [!]       FOLLOW THE STUFF YOU WROTE!!!! Also make demo art.
+// [!] TODO: Stop using std::string for tileID's itemID's and other things
+// [!]       Create your own string that precalculates the value of each string
+// [!]       Maybe use a hash function on it, since it generates a unique value for each
+// [!]       Input into it
+
 
 static void frame()     
 {

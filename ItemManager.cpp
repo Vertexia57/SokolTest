@@ -8,6 +8,8 @@ ItemManager::~ItemManager()
 {
 	for (const auto& [name, object] : m_ItemRefStructs)
 		delete object;
+	for (const auto& [name, object] : m_RecipieRefStructs)
+		delete object;
 }
 
 void ItemManager::loadItemData(lua_State* loaderState, const char* location)
@@ -36,6 +38,22 @@ void ItemManager::createItemData(lua_State* loaderState)
 		}
 
 		m_ItemRefStructs[itemData->getString("ID")] = new ItemRefStruct(itemData);
+	}
+
+	checkLua(loaderState, luaL_dostring(loaderState, "return data.itemRecipies"));
+	JSONObject* recipieDatas = LuaStackToJSONObject(loaderState);
+
+	for (int i = 0; i < recipieDatas->getNamesList().size(); i++)
+	{
+		JSONObject* recipieData = recipieDatas->getJSONObject(recipieDatas->getNamesList()[i]);
+
+		m_RecipieJSONs[recipieData->getString("ID")] = recipieData;
+
+		fprintf(stdout, (" [ItemManager::createRecipieData] Loaded Recipie: " + recipieData->getString("ID") + "\n").c_str());
+
+		RecipieRefStruct* recipieRef = new RecipieRefStruct(recipieData);
+		m_RecipieRefStructs[recipieData->getString("ID")] = recipieRef;
+		m_RecipieCraftingGroups[recipieData->getString("craftingGroup")][recipieData->getString("ID")] = recipieRef;
 	}
 }
 

@@ -48,6 +48,8 @@ struct Item
 	~Item();
 
 	bool empty = false;
+	bool locked = false;
+	bool output = false;
 	ItemRefStruct* refStruct = nullptr;
 
 	std::string itemName = "";

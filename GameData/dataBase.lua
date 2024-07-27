@@ -3,6 +3,7 @@ data.tileEntityData = {}
 data.tileData = {}
 data.imageData = {}
 data.itemData = {}
+data.itemRecipies = {}
 
 function printTable(table, indent)
 	for k, v in pairs(table) do
@@ -34,6 +35,8 @@ function data:extend(object)
 		self.tileEntityData[object["ID"]] = object
 	elseif (object["dataType"] == "tile") then
 		self.tileData[object["ID"]] = object
+	elseif (object["dataType"] == "recipie") then
+		self.itemRecipies[object["ID"]] = object
 	elseif (object["dataType"] == "item") then
 		self.itemData[object["ID"]] = object
 	end

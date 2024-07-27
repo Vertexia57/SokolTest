@@ -136,7 +136,10 @@ public:
 	void setHitbox(lost::Bound2D hitbox);
 	void setPosition(lost::Vector2D position_);
 	lost::Bound2D getHitbox();
+	
 	inline bool hasInventory() const { return (m_Storage != nullptr) || m_HasInventory; };
+	inline Container* getInventory() const { return m_Storage; };
+
 	inline bool beenTileUpdated() const { return m_TileUpdated; };
 	inline float getPowerConsumption() const { return m_Active ? m_ActiveConsumption * m_ConsumptionMult : m_IdleConsumption * m_ConsumptionMult; };
 	inline float getPowerProduce() const { return m_BaseProduce * m_ProduceMult; };
@@ -155,6 +158,8 @@ public:
 	virtual void renderForegroundAt(lost::Vector2D pos);
 	virtual void renderHitbox();
 
+	virtual void removeItem(Item& item, int count, bool output = true);
+	virtual Item extractItem(int count, bool output = true);
 	virtual void insertItem(Item& item);
 	virtual bool canInsert(Item& item) const;
 

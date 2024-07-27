@@ -9,11 +9,14 @@ OreDrillEntity::OreDrillEntity(TileEntityStruct* tileEntityRef_, uint32_t rotati
 	interactable = false;
 	m_Storage = new Container(1);
 
+	m_MiningTime = tileEntityRef->updateData->getFloat("timePerMine") * 1000.0f;
+
 	tileType = "miner";
 }
 
 OreDrillEntity::~OreDrillEntity()
 {
+	delete m_Storage;
 }
 
 void OreDrillEntity::init()
@@ -26,21 +29,24 @@ void OreDrillEntity::update()
 {
 	TileEntity::update();
 
-	if (m_RightEntity)
+	if (m_Storage->getItem(0)->StackSize > 0)
 	{
-		if (m_RightEntity->canInsert(*m_Storage->getItem(0)))
+		if (m_RightEntity)
 		{
-			m_RightEntity->insertItem(*m_Storage->getItem(0));
-			m_Storage->removeItem(0);
+			if (m_RightEntity->canInsert(*m_Storage->getItem(0)))
+			{
+				m_RightEntity->insertItem(*m_Storage->getItem(0));
+				m_Storage->getItem(0)->StackSize = 0;
+			}
 		}
-	}
 
-	if (m_LeftEntity)
-	{
-		if (m_LeftEntity->canInsert(*m_Storage->getItem(0)))
+		if (m_LeftEntity)
 		{
-			m_LeftEntity->insertItem(*m_Storage->getItem(0));
-			m_Storage->removeItem(0);
+			if (m_LeftEntity->canInsert(*m_Storage->getItem(0)))
+			{
+				m_LeftEntity->insertItem(*m_Storage->getItem(0));
+				m_Storage->getItem(0)->StackSize = 0;
+			}
 		}
 	}
 	
@@ -49,7 +55,7 @@ void OreDrillEntity::update()
 
 	if (m_TimeSinceLastMine >= m_MiningTime)
 	{
-		if (drillTile && m_Storage->getItem(0)->empty)
+		if (drillTile && !drillTile->empty && m_Storage->getItem(0)->StackSize == 0)
 		{
 			m_TimeSinceLastMine = 0.0f;
 			m_Storage->addItem(g_ItemManager.getItemData(drillTile->referenceStruct->extraData->getString("mineProduce")), 1);
@@ -120,6 +126,8 @@ void OreDrillEntity::m_SearchForOres()
 			{
 				// Has Mining data
 				drillTile = focussedTile;
+				m_Storage->lockSlot(g_ItemManager.getItemData(focussedTile->referenceStruct->extraData->getString("mineProduce")), 0);
+				m_Storage->getItem(0)->output = true;
 				break;
 			}
 		}

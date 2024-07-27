@@ -1,8 +1,8 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/CreativeGenerator.png",
-			ID = "creativeGenerator",
+			file = "TileEntityData/Junction.png",
+			ID = "junction",
 			pass = "albedo"
         }
     }
@@ -12,12 +12,12 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "CreativeGenerator",
-		ID = "creativeGenerator",
+		name = "Junction",
+		ID = "junction",
 		description = "",
 		
 		imageData = {
-			images = { "creativeGenerator" },
+			images = { "junction" },
 			frames = 1,
 			variants = 1,
 			randomVariant = false,
@@ -32,7 +32,7 @@ data:extend(
 		placementOffsetY = 0.0,
 		
 		stable = false,
-		collidable = false,
+		collidable = true,
 		requiresSupport = false,
 		fillsLayers = { true, false, false },
 
@@ -40,13 +40,12 @@ data:extend(
         buildingData = {
             powerIdleUsage = 0.0,  
             powerActiveUsage = 0.0,  
-            powerProduce = 100000000.0,  
-            cost = 0.0,    
-			rotationStates = 1,
-            updateAction = "powerConduit",
+            powerProduce = 0.0,  
+            cost = 10.0,    
+			rotationStates = 0,
+            updateAction = "junction",
             updateData = {
-				powerRange = 10,
-                range = 21
+                speed = 160.0 -- How many units per second the item would move if it were a conveyerBelt
             }
         }
     }
