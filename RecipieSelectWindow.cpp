@@ -77,6 +77,11 @@ void RecipieSelectWindow::render()
 					slotNBox.texture = lost::getImageID("SlotNBox");
 					lost::renderNBox(slotNBox);
 
+					lost::clearImage();
+					sgp_set_color(0.0f, 1.0f, 0.0f, 1.0f);
+					sgp_draw_filled_rect(m_Bounds.x + 15.0f, m_Bounds.y + 30.0f + m_ToastHeight + m_ContainerHeight * m_SlotSize, m_FactoryRef->getCompletionPercentage() * (m_Bounds.w - 30.0f), 10.0f);
+					sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+
 					if (!item->empty)
 					{
 
@@ -113,6 +118,7 @@ void RecipieSelectWindow::render()
 		int xSlot = 0;
 		int ySlot = 0;
 		int index = 0;
+		std::string hoveredKey = "";
 		for (auto& [key, val] : *m_CraftingGroupRef)
 		{
 			lost::NBoxData slotNBox = {};
@@ -138,6 +144,9 @@ void RecipieSelectWindow::render()
 
 			sgp_draw_textured_rect(0, renderArea, { 0, 0, imageWidth, imageHeight });
 
+			if (xSlot == m_HighlightedSlot.x && ySlot == m_HighlightedSlot.y)
+				hoveredKey = key;
+
 			xSlot++;
 			if (xSlot >= 5)
 			{
@@ -146,6 +155,137 @@ void RecipieSelectWindow::render()
 			}
 
 			index++;
+		}
+
+		if (m_HighlightedSlot.x != -1 && m_HighlightedSlot.x + m_HighlightedSlot.y * m_ContainerWidth <= m_CraftingGroupRef->size() - 1)
+		{
+			lost::clearImage();
+			sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
+			sgp_draw_filled_rect(m_HighlightedSlot.x * m_SlotSize + m_Bounds.x + 15.0f, m_HighlightedSlot.y * m_SlotSize + m_Bounds.y + 20.0f + m_ToastHeight, m_SlotSize, m_SlotSize);
+			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			lost::Bound2D precalcTextBounds = { lost::mousePos().x, lost::mousePos().y, 0.0f, 0.0f };
+
+			lost::Vector2D preTextPos = { 0.0f, 0.0f };
+			precalcTextBounds.w = fmaxf(precalcTextBounds.w, lost::textWidth((*m_CraftingGroupRef).at(hoveredKey)->name, 0.5, -1) + 20);
+			preTextPos.y += lost::textHeight((*m_CraftingGroupRef).at(hoveredKey)->name, 0.5, -1) + 10;
+
+			std::string timeText = std::to_string((*m_CraftingGroupRef).at(hoveredKey)->timeToCraft);
+			timeText.erase(timeText.find_last_not_of('0') + 1, std::string::npos);
+			timeText.erase(timeText.find_last_not_of('.') + 1, std::string::npos);
+			std::string timeLocalText = std::to_string((*m_CraftingGroupRef).at(hoveredKey)->timeToCraft / m_FactoryRef->getFactorySpeed());
+			timeLocalText.erase(timeLocalText.find_last_not_of('0') + 1, std::string::npos);
+			timeLocalText.erase(timeLocalText.find_last_not_of('.') + 1, std::string::npos);
+
+			precalcTextBounds.w = fmaxf(precalcTextBounds.w, lost::textWidth("Time to Craft: " + timeText + " seconds", 0.35, -1) + 20);
+			preTextPos.y += lost::textHeight("Time to Craft: " + timeText + " seconds", 0.35, -1) + 8;
+			precalcTextBounds.w = fmaxf(precalcTextBounds.w, lost::textWidth("In this machine: " + timeLocalText + " seconds", 0.35, -1) + 20);
+			preTextPos.y += lost::textHeight("In this machine: " + timeLocalText + " seconds", 0.35, -1) + 8;
+			preTextPos.y += lost::textHeight("Ingredients:", 0.5, -1) + 10;
+			preTextPos.y += m_SlotSize;
+			preTextPos.y += lost::textHeight("Results:", 0.5, -1) + 10;
+			preTextPos.y += m_SlotSize;
+
+			precalcTextBounds.h = preTextPos.y + 20.0f;
+
+			lost::NBoxData hoverNBox = {};
+			hoverNBox.bottomSize = 2;
+			hoverNBox.topSize = 2;
+			hoverNBox.rightSize = 2;
+			hoverNBox.leftSize = 2;
+			hoverNBox.imageSize = { 5, 5 };
+			hoverNBox.scale = 4.0f;
+			hoverNBox.bounds = precalcTextBounds;
+			hoverNBox.texture = lost::getImageID("HoverNBox");
+			lost::renderNBox(hoverNBox);
+
+			lost::Vector2D textPos = { lost::mousePos().x + 10, lost::mousePos().y + 5 };
+			lost::renderTextPro((*m_CraftingGroupRef).at(hoveredKey)->name, textPos, 0.5, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
+
+			textPos.y += lost::textHeight((*m_CraftingGroupRef).at(hoveredKey)->name, 0.5, -1) + 10;
+			sgp_set_color(0.8f, 0.8f, 0.8f, 1.0f);
+			lost::renderTextPro("Time to Craft: " + timeText + " seconds", textPos, 0.35, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
+			textPos.y += lost::textHeight("Time to Craft: " + timeText + " seconds", 0.35, -1) + 8;
+
+			lost::renderTextPro("In this machine: " + timeLocalText + " seconds", textPos, 0.35, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
+			textPos.y += lost::textHeight("In this machine: " + timeLocalText + " seconds", 0.35, -1) + 8;
+
+			sgp_set_color(0.9f, 0.9f, 0.9f, 0.9f);
+			lost::renderTextPro("Ingredients:", textPos, 0.4, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
+			textPos.y += lost::textHeight("Ingredients:", 0.4, -1) + 10;
+
+			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			int ingredientIndex = 0;
+			for (RecipieRefStruct::IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->ingredients)
+			{
+				lost::NBoxData slotNBox = {};
+				slotNBox.bottomSize = 2;
+				slotNBox.topSize = 2;
+				slotNBox.rightSize = 2;
+				slotNBox.leftSize = 2;
+				slotNBox.imageSize = { 5, 5 };
+				slotNBox.scale = 4.0f;
+				slotNBox.bounds = { textPos.x + m_SlotSize * ingredientIndex, textPos.y, m_SlotSize, m_SlotSize };
+				slotNBox.texture = lost::getImageID("HoverNBox");
+				lost::renderNBox(slotNBox);
+
+				ItemRefStruct* itemRef = g_ItemManager.getItemData(pair.id);
+
+				lost::useImage(itemRef->textureID);
+				float imageWidth = lost::getImage(itemRef->textureID)->width / itemRef->frames;
+				float imageHeight = lost::getImage(itemRef->textureID)->height / itemRef->variants;
+
+				sgp_rect renderArea = { textPos.x + m_SlotSize * ingredientIndex, textPos.y, m_SlotSize, m_SlotSize };
+
+				sgp_draw_textured_rect(0, renderArea, { 0, 0, imageWidth, imageHeight });
+				lost::renderTextPro(
+					std::to_string(pair.count),
+					{ textPos.x + m_SlotSize * (ingredientIndex + 1) - 10, textPos.y + m_SlotSize - 10 },
+					0.5,
+					LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_BOTTOM
+				);
+
+				ingredientIndex++;
+			}
+
+			textPos.y += m_SlotSize + 5;
+			sgp_set_color(0.9f, 0.9f, 0.9f, 0.9f);
+			lost::renderTextPro("Results:", textPos, 0.4, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
+			textPos.y += lost::textHeight("Results:", 0.4, -1) + 10;
+
+			int resultsIndex = 0;
+			for (RecipieRefStruct::IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->results)
+			{
+				lost::NBoxData slotNBox = {};
+				slotNBox.bottomSize = 2;
+				slotNBox.topSize = 2;
+				slotNBox.rightSize = 2;
+				slotNBox.leftSize = 2;
+				slotNBox.imageSize = { 5, 5 };
+				slotNBox.scale = 4.0f;
+				slotNBox.bounds = { textPos.x + m_SlotSize * resultsIndex, textPos.y, m_SlotSize, m_SlotSize };
+				slotNBox.texture = lost::getImageID("HoverNBox");
+				lost::renderNBox(slotNBox);
+
+				ItemRefStruct* itemRef = g_ItemManager.getItemData(pair.id);
+
+				lost::useImage(itemRef->textureID);
+				float imageWidth = lost::getImage(itemRef->textureID)->width / itemRef->frames;
+				float imageHeight = lost::getImage(itemRef->textureID)->height / itemRef->variants;
+
+				sgp_rect renderArea = { textPos.x + m_SlotSize * resultsIndex, textPos.y, m_SlotSize, m_SlotSize };
+
+				sgp_draw_textured_rect(0, renderArea, { 0, 0, imageWidth, imageHeight });
+				lost::renderTextPro(
+					std::to_string(pair.count),
+					{ textPos.x + m_SlotSize * (resultsIndex + 1) - 10, textPos.y + m_SlotSize - 10 },
+					0.5,
+					LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_BOTTOM
+				);
+
+				resultsIndex++;
+			}
 		}
 	}
 }

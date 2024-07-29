@@ -158,7 +158,8 @@ void HUDWindow::render()
 			TileEntityStruct* buildingRef = g_TileManager.buildingRefs[i];
 
 			int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
-			float scale = 1.0f / (float)maxImageLength;
+			int maxTileLength = std::max(buildingRef->width, buildingRef->height);
+			float scale = 1.0f / ((float)maxTileLength);
 			float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
 			float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
 
@@ -175,7 +176,7 @@ void HUDWindow::render()
 			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 			lost::useImage(buildingRef->texture);
 			sgp_draw_textured_rect(0,
-				{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f, m_Bounds.h - 70.0f, imageWidth * 64.0f * scale, imageHeight * 64.0f * scale },
+				{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f), m_Bounds.h - 70.0f, buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale},
 				{ 0.0f, 0.0f, imageWidth, imageHeight }
 			);
 

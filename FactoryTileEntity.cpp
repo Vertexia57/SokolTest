@@ -6,6 +6,7 @@ FactoryTileEntity::FactoryTileEntity(TileEntityStruct* tileEntityRef_, uint32_t 
 	: TileEntity(tileEntityRef_, rotation)
 {
 	m_CraftingGroup = tileEntityRef->updateData->getString("craftingGroup");
+	m_Speed = tileEntityRef->updateData->getFloat("speed");
 }
 
 FactoryTileEntity::~FactoryTileEntity()
@@ -20,7 +21,7 @@ void FactoryTileEntity::update()
 
 	if (m_PowerCircuit != 0xffffffff && m_CanCraft)
 	{
-		m_CraftingTime += lost::deltaTime * 0.001f * g_World->getPowerCircuit(m_PowerCircuit).satisfaction;
+		m_CraftingTime += lost::deltaTime * 0.001f * g_World->getPowerCircuit(m_PowerCircuit).satisfaction * m_Speed;
 		m_Active = true;
 	}
 	else
@@ -32,14 +33,17 @@ void FactoryTileEntity::update()
 	{
 		m_CraftingTime = 0.0f;
 
+		m_CanCraft = true;
+
 		// Add items to results
 		for (int i = 0; i < m_SetRecipie->results.size(); i++)
 		{
 			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->results[i];
 			m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->StackSize += pair.count;
-		}
 
-		m_CanCraft = true;
+			if (m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->StackSize + pair.count > m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->refStruct->maxStack)
+				m_CanCraft = false;
+		}
 
 		// Remove Items and check if can craft again
 		for (int i = 0; i < m_SetRecipie->ingredients.size(); i++)
@@ -104,7 +108,25 @@ void FactoryTileEntity::checkRecipie()
 			if (m_Storage->getItem(i)->StackSize < pair.count)
 				m_CanCraft = false;
 		}
+		for (int i = 0; i < m_SetRecipie->results.size(); i++)
+		{
+			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->results[i];
+			if (m_Storage->getItem(i + m_SetRecipie->ingredients.size())->StackSize + pair.count > m_Storage->getItem(i + m_SetRecipie->ingredients.size())->refStruct->maxStack)
+				m_CanCraft = false;
+		}
 	}
+}
+
+Item FactoryTileEntity::extractItem(int count, bool output)
+{
+	Item ret = Item();
+
+	if (hasInventory())
+		ret = m_Storage->extractItem(count, output);
+
+	checkRecipie();
+
+	return ret;
 }
 
 void FactoryTileEntity::insertItem(Item& item)
@@ -123,8 +145,8 @@ void FactoryTileEntity::mouseInteractFunction()
 		{
 			g_PlayerPointer->openInventory({ 0.0f, 0.0f }, false);
 			m_RecipieWindow = new RecipieSelectWindow({ floor(sapp_width() / 2.0f), floor(sapp_height() / 2.0f), 500, 300 }, this, m_CraftingGroup);
-			m_RecipieWindow->setName("Chest");
-			m_RecipieWindow->setType("chest", true);
+			m_RecipieWindow->setName("Select Recipie");
+			m_RecipieWindow->setType("recipie", true);
 			m_RecipieWindow->setPosition({ floor(m_RecipieWindow->getBounds().x - m_RecipieWindow->getBounds().w - 20.0f), floor(sapp_height() / 2.0f) });
 			lost::addUIWindow(m_RecipieWindow);
 		}

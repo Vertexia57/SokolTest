@@ -1,8 +1,18 @@
 data:addImages(
     {
         {  
-            file = "ItemData/IronIngot.png",
+            file = "ItemData/Images/IronIngot.png",
             ID = "ironIngotItem",
+            pass = "albedo"
+        },
+        {
+            file = "ItemData/Images/FerriteSmeltCraftIcon.png",
+            ID = "ferritePowderSmeltIcon",
+            pass = "albedo"
+        },
+        {
+            file = "ItemData/Images/IronSmeltCraftIcon.png",
+            ID = "ironOreSmeltIcon",
             pass = "albedo"
         }
     }
@@ -11,12 +21,35 @@ data:addImages(
 data:extend(
     {
         dataType = "recipie",
+        name = "Ferrite Powder Smelting",
+
         craftingGroup = "furnace",
-        ID = "ironSmeltRecipie",
-        timeToCraft = 4.0,
+        ID = "ironFerriteSmeltRecipie",
+        icon = "ferritePowderSmeltIcon",
+        timeToCraft = 2.0,
 
         ingredients = {
             { item = "ferritePowder", count = 3 }
+        },
+
+        results = {
+            { item = "ironIngot", count = 2 }   
+        }
+    }
+)
+
+data:extend(
+    {
+        dataType = "recipie",
+        name = "Iron Ore Smelting",
+
+        craftingGroup = "furnace",
+        ID = "ironOreSmeltRecipie",
+        icon = "ironOreSmeltIcon",
+        timeToCraft = 2.0,
+
+        ingredients = {
+            { item = "ironOre", count = 2 }
         },
 
         results = {

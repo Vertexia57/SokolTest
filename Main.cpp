@@ -192,6 +192,7 @@ static void init(void) {
 
 	lost::loadImage("GameData/NBoxBase.png", "NBoxBase");
 	lost::loadImage("GameData/SlotNBox.png", "SlotNBox");
+	lost::loadImage("GameData/HoverNBox.png", "HoverNBox");
 	lost::loadImage("GameData/HUDTopLeft.png", "HUDTopLeft");
 	lost::loadImage("GameData/Credit.png", "Credit");
 	lost::loadImageQueue();

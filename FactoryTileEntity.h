@@ -17,7 +17,11 @@ public:
 	void setRecipie(RecipieRefStruct* recipie);
 	void checkRecipie();
 
+	virtual Item extractItem(int count, bool output = true);
 	virtual void insertItem(Item& item);
+
+	inline float getCompletionPercentage() const { return m_CraftingTime / m_TimeToCraft; };
+	inline float getFactorySpeed() const { return m_Speed; };
 
 	virtual void mouseInteractFunction() override;
 protected:
@@ -26,6 +30,7 @@ protected:
 
 	RecipieSelectWindow* m_RecipieWindow = nullptr;
 
+	float m_Speed = 0.0f;
 	float m_CraftingTime = 0.0f;
 	float m_TimeToCraft = 0.0f;
 

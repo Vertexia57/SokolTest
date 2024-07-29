@@ -1,8 +1,8 @@
 data:addImages(
     {
         {  
-            file = "ItemData/Images/FerritePowder.png",
-            ID = "ferritePowderItem",
+            file = "ItemData/Images/CopperPowder.png",
+            ID = "copperPowderItem",
             pass = "albedo"
         }
     }
@@ -11,18 +11,18 @@ data:addImages(
 data:extend(
     {
         dataType = "recipie",
-        name = "Ferrite Powder Crushing",
-
+        name = "Copper Powder Crushing",
+        
         craftingGroup = "crusher",
-        ID = "ferriteCrushRecipie",
+        ID = "copperCrushRecipie",
         timeToCraft = 4.0,
 
         ingredients = {
-            { item = "ironOre", count = 1 }
+            { item = "copperOre", count = 1 }
         },
 
         results = {
-            { item = "ferritePowder", count = 2 }   
+            { item = "copperPowder", count = 2 }   
         }
     }
 )
@@ -31,12 +31,12 @@ data:extend(
     {
         dataType = "item",
 
-        name = "Ferrite Powder",
-        ID = "ferritePowder",
+        name = "Copper Powder",
+        ID = "copperPowder",
 
         imageData = {
             randomVariant = false,
-            imageID = "ferritePowderItem",
+            imageID = "copperPowderItem",
             variants = 1,
             frames = 1
         },

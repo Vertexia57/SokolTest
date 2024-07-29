@@ -1,8 +1,8 @@
 data:addImages(
 	{
 		{
-			file = "TileData/IronOre.png",
-			ID = "ironOre",
+			file = "TileData/CopperOre.png",
+			ID = "copperOre",
 			pass = "albedo"
 		}
 	}
@@ -12,8 +12,8 @@ data:extend(
 	{         
 		dataType = "tile",
 		
-		name = "Iron Ore",
-		ID = "ironOre",
+		name = "Copper Ore",
+		ID = "copperOre",
 		description = "",
 		
         empty = false,
@@ -27,7 +27,7 @@ data:extend(
         },
 
 		imageData = {
-			images = { "ironOre" },
+			images = { "copperOre" },
 			frames = 1,
 			variants = 47
 		},
@@ -35,7 +35,7 @@ data:extend(
 		fillsLayers = { true, true, true },
 
 		extraData = {
-			mineProduce = "ironOre",
+			mineProduce = "copperOre",
 			exhaustTile = "stone"
 		},
 

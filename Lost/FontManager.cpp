@@ -213,7 +213,7 @@ namespace lost
 			switch (vAlign)
 			{
 			case LOST_TEXT_ALIGN_TOP:
-				origin.y -= (float)font->fontHeight * size;
+				origin.y += (float)font->fontHeight * size;
 				break;
 			case LOST_TEXT_ALIGN_MIDDLE:
 				origin.y -= (float)textHeight(text, size, fontID) / 2.0f - font->fontHeight * size / 2.0f;

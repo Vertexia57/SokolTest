@@ -10,57 +10,54 @@ JunctionTileEntity::JunctionTileEntity(TileEntityStruct* tileEntityRef_, uint32_
 
 JunctionTileEntity::~JunctionTileEntity()
 {
-	if (m_HorizontalHeldItem)
-		delete m_HorizontalHeldItem;
-	if (m_VerticalHeldItem)
-		delete m_VerticalHeldItem;
+	for (ConveyerBeltItem* item : m_DirectionHeldItems)
+	{
+		if (item)
+			delete item;
+	}
 }
 
 void JunctionTileEntity::update()
 {
 	TileEntity::update();
-	if (m_HorizontalHeldItem)
-		m_HTransferTime += lost::deltaTime;
-	if (m_VerticalHeldItem)
-		m_VTransferTime += lost::deltaTime;
-
-	if (m_HorizontalHeldItem && m_HTransferTime >= m_Cooldown)
+	
+	for (int i = 0; i < 4; i++)
 	{
-
-		if (m_Left && m_HorizontalHeldItem->directionFrom == 2)
+		if (m_DirectionHeldItems[i])
+			m_TransferTime[i] += lost::deltaTime;
+		if (m_DirectionHeldItems[i] && m_TransferTime[i] >= m_Cooldown)
 		{
-			if (m_Left->getEmpty(2))
+			if (m_Left && m_DirectionHeldItems[i]->directionFrom == 2)
 			{
-				passItem(m_Left, { -1, 0 }, 2);
-				return;
+				if (m_Left->getEmpty(2))
+				{
+					passItem(m_Left, { -1, 0 }, 2, m_DirectionHeldItems[i]);
+					return;
+				}
 			}
-		}
-		if (m_Right && m_HorizontalHeldItem->directionFrom == 0)
-		{
-			if (m_Right->getEmpty(0))
+			if (m_Right && m_DirectionHeldItems[i]->directionFrom == 0)
 			{
-				passItem(m_Right, { 1, 0 }, 0);
-				return;
+				if (m_Right->getEmpty(0))
+				{
+					passItem(m_Right, { 1, 0 }, 0, m_DirectionHeldItems[i]);
+					return;
+				}
 			}
-		}
-	}
-
-	if (m_VerticalHeldItem && m_VTransferTime >= m_Cooldown)
-	{
-		if (m_Up && m_VerticalHeldItem->directionFrom == 3)
-		{
-			if (m_Up->getEmpty(3))
+			if (m_Up && m_DirectionHeldItems[i]->directionFrom == 3)
 			{
-				passItem(m_Up, { 0, -1 }, 3);
-				return;
+				if (m_Up->getEmpty(3))
+				{
+					passItem(m_Up, { 0, -1 }, 3, m_DirectionHeldItems[i]);
+					return;
+				}
 			}
-		}
-		if (m_Down && m_VerticalHeldItem->directionFrom == 1)
-		{
-			if (m_Down->getEmpty(1))
+			if (m_Down && m_DirectionHeldItems[i]->directionFrom == 1)
 			{
-				passItem(m_Down, { 0, 1 }, 1);
-				return;
+				if (m_Down->getEmpty(1))
+				{
+					passItem(m_Down, { 0, 1 }, 1, m_DirectionHeldItems[i]);
+					return;
+				}
 			}
 		}
 	}
@@ -89,17 +86,9 @@ void JunctionTileEntity::renderForegroundAt(lost::Vector2D pos)
 {
 }
 
-inline bool JunctionTileEntity::getEmpty(int direction) const
+bool JunctionTileEntity::getEmpty(int direction) const
 {
-	if (direction == 0 || direction == 2)
-	{
-		return m_HorizontalHeldItem == nullptr || m_Moving;
-	}
-	if (direction == 1 || direction == 3)
-	{
-		return m_VerticalHeldItem == nullptr || m_Moving;
-	}
-	return false;
+	return m_DirectionHeldItems[direction] == nullptr || m_Moving;
 }
 
 void JunctionTileEntity::checkNeighbors()
@@ -155,32 +144,18 @@ void JunctionTileEntity::checkNeighbors()
 	}
 }
 
-void JunctionTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom)
+void JunctionTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom, ConveyerBeltItem*& item)
 {
-	if (directionFrom == 0 || directionFrom == 2)
-	{
-		other->recieveItem(m_HorizontalHeldItem, tileOffset, directionFrom);
-		m_HorizontalHeldItem->x = 8;
-		m_HorizontalHeldItem->y = 8;
-		m_HorizontalHeldItem = nullptr;
-		m_HTransferTime = 0.0f;
-	}
-	if (directionFrom == 1 || directionFrom == 3)
-	{
-		other->recieveItem(m_VerticalHeldItem, tileOffset, directionFrom);
-		m_VerticalHeldItem->x = 8;
-		m_VerticalHeldItem->y = 8;
-		m_VerticalHeldItem = nullptr;
-		m_VTransferTime = 0.0f;
-	}
+	m_TransferTime[item->directionFrom] = 0.0f;
+	other->recieveItem(item, tileOffset, directionFrom);
+	item->x = 8;
+	item->y = 8;
+	item = nullptr;
 }
 
 void JunctionTileEntity::recieveItem(ConveyerBeltItem* item, lost::IntVector2D tileOffset, int directionFrom)
 {
-	if (directionFrom == 0 || directionFrom == 2)
-		m_HorizontalHeldItem = item;
-	if (directionFrom == 1 || directionFrom == 3)
-		m_VerticalHeldItem = item;
+	m_DirectionHeldItems[directionFrom] = item;
 
 	lost::IntVector2D posDiff = { tileOffset.x * 32, tileOffset.y * 32 };
 	item->x -= posDiff.x;

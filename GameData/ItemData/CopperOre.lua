@@ -1,8 +1,8 @@
 data:addImages(
     {
         {  
-            file = "ItemData/Images/IronOre.png",
-            ID = "ironOreItem",
+            file = "ItemData/Images/CopperOre.png",
+            ID = "copperOreItem",
             pass = "albedo"
         }
     }
@@ -12,12 +12,12 @@ data:extend(
     {
         dataType = "item",
 
-        name = "Iron Ore",
-        ID = "ironOre",
+        name = "Copper Ore",
+        ID = "copperOre",
 
         imageData = {
             randomVariant = true,
-            imageID = "ironOreItem",
+            imageID = "copperOreItem",
             variants = 2,
             frames = 1
         },

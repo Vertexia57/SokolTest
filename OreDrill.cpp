@@ -73,7 +73,7 @@ void OreDrillEntity::update()
 	}
 	else
 	{
-		if (!drillTile || !m_Storage->getItem(0)->empty)
+		if (!drillTile || m_Storage->getItem(0)->StackSize != 0)
 			m_Active = false;
 		else
 			m_Active = true;

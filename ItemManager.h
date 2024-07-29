@@ -27,11 +27,12 @@ struct RecipieRefStruct
 		}
 
 		if (ref->getObjectList().count("icon"))
-			icon = ref->getInt("icon");
+			icon = lost::getImageID(ref->getString("icon"));
 		else
 			icon = (TextureID)(-1);
 
 		timeToCraft = ref->getFloat("timeToCraft");
+		name = ref->getString("name");
 	}
 
 	struct IdCountPair 
@@ -39,6 +40,8 @@ struct RecipieRefStruct
 		std::string id;
 		int count;
 	};
+
+	std::string name = "null";
 
 	std::string craftingGroup = "base";
 	TextureID icon;

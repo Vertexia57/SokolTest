@@ -10,72 +10,80 @@ DistributorTileEntity::DistributorTileEntity(TileEntityStruct* tileEntityRef_, u
 
 DistributorTileEntity::~DistributorTileEntity()
 {
+	for (ConveyerBeltItem* item : m_DirectionHeldItems)
+	{
+		if (item)
+			delete item;
+	}
 }
 
 void DistributorTileEntity::update()
 {
 	TileEntity::update();
-	if (heldItem)
-		m_TransferTime += lost::deltaTime;
 
-	if (heldItem && m_TransferTime >= m_Cooldown)
+	for (int i = 0; i < 4; i++)
 	{
-		if (!(m_Left && !m_Output[2] && heldItem->directionFrom != 0) && !(m_Right && !m_Output[0] && heldItem->directionFrom != 2) && !(m_Up && !m_Output[3] && heldItem->directionFrom != 1) && !(m_Down && !m_Output[1] && heldItem->directionFrom != 3))
+		if (m_DirectionHeldItems[i])
+			m_TransferTime[i] += lost::deltaTime;
+		if (m_DirectionHeldItems[i] && m_TransferTime[i] >= m_Cooldown)
 		{
-			for (bool& v : m_Output)
-				v = false;
-		}
+			if (!(m_Left && !m_Output[2] && m_DirectionHeldItems[i]->directionFrom != 0) && !(m_Right && !m_Output[0] && m_DirectionHeldItems[i]->directionFrom != 2) && !(m_Up && !m_Output[3] && m_DirectionHeldItems[i]->directionFrom != 1) && !(m_Down && !m_Output[1] && m_DirectionHeldItems[i]->directionFrom != 3))
+			{
+				for (bool& v : m_Output)
+					v = false;
+			}
 
-		if (m_Left && !m_Output[2] && heldItem->directionFrom != 0)
-		{
-			if (m_Left->getEmpty(2))
+			if (m_Left && !m_Output[2] && m_DirectionHeldItems[i]->directionFrom != 0)
 			{
-				passItem(m_Left, { -1, 0 }, 2);
-				m_Output[2] = true;
-				return;
+				if (m_Left->getEmpty(2))
+				{
+					passItem(m_Left, { -1, 0 }, 2, m_DirectionHeldItems[i]);
+					m_Output[2] = true;
+					return;
+				}
+				else
+				{
+					m_Output[2] = true;
+				}
 			}
-			else
+			if (m_Right && !m_Output[0] && m_DirectionHeldItems[i]->directionFrom != 2)
 			{
-				m_Output[2] = true;
+				if (m_Right->getEmpty(0))
+				{
+					passItem(m_Right, { 1, 0 }, 0, m_DirectionHeldItems[i]);
+					m_Output[0] = true;
+					return;
+				}
+				else
+				{
+					m_Output[0] = true;
+				}
 			}
-		}
-		if (m_Right && !m_Output[0] && heldItem->directionFrom != 2)
-		{
-			if (m_Right->getEmpty(0))
+			if (m_Up && !m_Output[3] && m_DirectionHeldItems[i]->directionFrom != 1)
 			{
-				passItem(m_Right, { 1, 0 }, 0);
-				m_Output[0] = true;
-				return;
+				if (m_Up->getEmpty(3))
+				{
+					passItem(m_Up, { 0, -1 }, 3, m_DirectionHeldItems[i]);
+					m_Output[3] = true;
+					return;
+				}
+				else
+				{
+					m_Output[3] = true;
+				}
 			}
-			else
+			if (m_Down && !m_Output[1] && m_DirectionHeldItems[i]->directionFrom != 3)
 			{
-				m_Output[0] = true;
-			}
-		}
-		if (m_Up && !m_Output[3] && heldItem->directionFrom != 1)
-		{
-			if (m_Up->getEmpty(3))
-			{
-				passItem(m_Up, { 0, -1 }, 3);
-				m_Output[3] = true;
-				return;
-			}
-			else
-			{
-				m_Output[3] = true;
-			}
-		}
-		if (m_Down && !m_Output[1] && heldItem->directionFrom != 3)
-		{
-			if (m_Down->getEmpty(1))
-			{
-				passItem(m_Down, { 0, 1 }, 1);
-				m_Output[1] = true;
-				return;
-			}
-			else
-			{
-				m_Output[1] = true;
+				if (m_Down->getEmpty(1))
+				{
+					passItem(m_Down, { 0, 1 }, 1, m_DirectionHeldItems[i]);
+					m_Output[1] = true;
+					return;
+				}
+				else
+				{
+					m_Output[1] = true;
+				}
 			}
 		}
 	}
@@ -102,6 +110,11 @@ void DistributorTileEntity::renderForeground()
 
 void DistributorTileEntity::renderForegroundAt(lost::Vector2D pos)
 {
+}
+
+bool DistributorTileEntity::getEmpty(int direction) const
+{
+	return m_DirectionHeldItems[direction] == nullptr || m_Moving;
 }
 
 void DistributorTileEntity::checkNeighbors()
@@ -157,11 +170,21 @@ void DistributorTileEntity::checkNeighbors()
 	}
 }
 
-void DistributorTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom)
+void DistributorTileEntity::passItem(ConveyerBeltTileEntity* other, lost::IntVector2D tileOffset, int directionFrom, ConveyerBeltItem*& item)
 {
-	other->recieveItem(heldItem, tileOffset, directionFrom);
-	heldItem->x = 8;
-	heldItem->y = 8;
-	heldItem = nullptr;
-	m_TransferTime = 0.0f;
+	m_TransferTime[item->directionFrom] = 0.0f;
+	other->recieveItem(item, tileOffset, directionFrom);
+	item->x = 8;
+	item->y = 8;
+	item = nullptr;
+}
+
+void DistributorTileEntity::recieveItem(ConveyerBeltItem* item, lost::IntVector2D tileOffset, int directionFrom)
+{
+	m_DirectionHeldItems[directionFrom] = item;
+
+	lost::IntVector2D posDiff = { tileOffset.x * 32, tileOffset.y * 32 };
+	item->x -= posDiff.x;
+	item->y -= posDiff.y;
+	item->directionFrom = directionFrom;
 }
