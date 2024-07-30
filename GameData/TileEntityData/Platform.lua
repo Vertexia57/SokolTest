@@ -1,7 +1,7 @@
 data:addImages(
 	{
 		{
-			file = "TileEntityData/Platform.png",
+			file = "TileEntityData/Images/Platform.png",
 			ID = "platform",
 			pass = "albedo"
 		}
@@ -26,7 +26,7 @@ data:extend(
 		
 		width = 1.0,
 		height = 1.0,
-		renderLayer = 0,
+		renderLayer = 1,
 		
 		placementOffsetX = 0.0,
 		placementOffsetY = 0.0,
@@ -39,6 +39,7 @@ data:extend(
         building = true,
 		buildingData = {
             cost = 10.0,    
+			buildingGroup = "logistics",  
 			rotationStates = 1,
             updateAction = "none",
             updateData = {

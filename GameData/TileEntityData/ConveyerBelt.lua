@@ -1,7 +1,7 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/ConveyerBelt.png",
+			file = "TileEntityData/Images/ConveyerBelt.png",
 			ID = "coneyerBelt",
 			pass = "albedo"
         }
@@ -41,10 +41,8 @@ data:extend(
 
         building = true,
         buildingData = {
-            powerIdleUsage = 0.0,  
-            powerActiveUsage = 0.0,  
-            powerProduce = 0.0,  
-            cost = 5.0,    
+            cost = 5.0, 
+			buildingGroup = "logistics",   
 			rotationStates = 4,
 			rotationVariants = { 24, 0, 16, 8 },
             updateAction = "conveyerBelt",

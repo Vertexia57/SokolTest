@@ -2,7 +2,6 @@
 #include "TileEntity.h"
 #include "Item.h"
 
-// [!] TODO: Figure this out, maybe use a pen and paper
 struct ConveyerBeltItem
 {
 	Item item;

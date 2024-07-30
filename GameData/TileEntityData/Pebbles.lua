@@ -1,8 +1,8 @@
 data:addImages(
 	{
 		{
-			file = "TileEntityData/Images/PetrifiedTree.png",
-			ID = "petrifiedTree",
+			file = "TileEntityData/Images/Pebbles.png",
+			ID = "pebbles",
 			pass = "albedo"
 		}
 	}
@@ -12,24 +12,24 @@ data:extend(
 	{
 		dataType = "tileEntity",
 		
-		name = "Petrified Tree",
-		ID = "petrifiedTree",
+		name = "Pebbles",
+		ID = "pebbles",
 		description = "",
 		
 		imageData = {
-			images = { "petrifiedTree" },
+			images = { "pebbles" },
 			frames = 1,
-			variants = 2,
+			variants = 4,
 			randomVariant = true,
 			animated = false
 		},
 		
-		width = 3.0,
-		height = 8.0,
+		width = 1.0,
+		height = 1.0,
 		renderLayer = 0,
 		
-		placementOffsetX = -1.0,
-		placementOffsetY = -7.0,
+		placementOffsetX = 0.0,
+		placementOffsetY = 0.0,
 
 		stable = false,
 		collidable = false,

@@ -29,6 +29,11 @@ void TileManager::loadTileEntityData(lua_State* loaderState,  const char* locati
 	checkLua(loaderState, luaL_dostring(loaderState, read_text_file(location).c_str()));
 }
 
+void TileManager::loadExtraData(lua_State* loaderState, const char* location)
+{
+	checkLua(loaderState, luaL_dostring(loaderState, read_text_file(location).c_str()));
+}
+
 void TileManager::createImageData(lua_State* loaderState)
 {
 	checkLua(loaderState, luaL_dostring(loaderState, "return data.imageData"));
@@ -38,6 +43,25 @@ void TileManager::createImageData(lua_State* loaderState)
 	{
 		JSONObject* imageData = imageDatas->getJSONObject(imageDatas->getNamesList()[i]);
 		lost::loadImage("GameData/" + imageData->getString("imageFile"), imageDatas->getNamesList()[i]);
+	}
+}
+
+void TileManager::createBuildingGroups(lua_State* loaderState)
+{
+	checkLua(loaderState, luaL_dostring(loaderState, "return data.buildingGroups"));
+	JSONObject* groupDatas = LuaStackToJSONObject(loaderState);
+
+	for (int i = 0; i < groupDatas->getNamesList().size(); i++)
+	{
+		JSONObject* groupData = groupDatas->getJSONObject(groupDatas->getNamesList()[i]);
+		fprintf(stdout, (" [TileManager::createBuildingGroups] Loaded Building Group: " + groupData->getString("ID") + "\n").c_str());
+
+		BuildingGroup group = BuildingGroup();
+		group.groupIcon = lost::getImageID(groupData->getString("iconName"));
+		group.groupName = groupData->getString("groupName");
+
+		buildingGroupNameRef[groupData->getString("ID")] = buildingGroups.size();
+		buildingGroups.push_back(group);
 	}
 }
 
@@ -98,7 +122,18 @@ void TileManager::createTileEntityData(lua_State* loaderState)
 		tileEntityRefs[tileData->getString("ID")] = new TileEntityStruct(tileData);
 
 		if (tileData->getBool("building"))
+		{
 			buildingRefs.push_back(tileEntityRefs[tileData->getString("ID")]);
+			JSONObject* buildingData = tileData->getJSONObject("buildingData");
+			if (buildingGroupNameRef.count(buildingData->getString("buildingGroup")))
+			{
+				buildingGroups[buildingGroupNameRef[buildingData->getString("buildingGroup")]].buildingRefs.push_back(tileEntityRefs[tileData->getString("ID")]);
+			}
+			else
+			{
+				lost::lassert("Tile uses building group: " + buildingData->getString("buildingGroup") + ". But building group was never intialized!\nMaybe missing data:createBuildingGroup()?");
+			}
+		}
 	}
 }
 

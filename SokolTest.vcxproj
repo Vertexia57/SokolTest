@@ -171,6 +171,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Lost\Animator.h" />
+    <ClInclude Include="Lost\Assert.h" />
     <ClInclude Include="BoxWindow.h" />
     <ClInclude Include="BuildingTileEntities.h" />
     <ClInclude Include="ChestTileEntity.h" />
@@ -248,6 +250,7 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Lost\Animator.cpp" />
     <ClCompile Include="BoxWindow.cpp" />
     <ClCompile Include="ChestTileEntity.cpp" />
     <ClCompile Include="Chunk.cpp" />
@@ -264,6 +267,7 @@
     <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="JSON.cpp" />
     <ClCompile Include="JunctionTileEntity.cpp" />
+    <ClCompile Include="Lost\Assert.cpp" />
     <ClCompile Include="Lost\FontManager.cpp" />
     <ClCompile Include="Lost\Graph.cpp" />
     <ClCompile Include="Lost\InputManager.cpp" />

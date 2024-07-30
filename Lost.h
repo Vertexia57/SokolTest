@@ -13,6 +13,8 @@
 #include "Lost/UIManager.h"
 #include "Lost/RenderExtras.h"
 #include "Lost/Graph.h"
+#include "Lost/Assert.h"
+#include "Lost/Animator.h"
 
 namespace lost
 {

@@ -8,9 +8,9 @@ ChestTileEntity::ChestTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rota
 {
 	updates = false;
 	interactable = true;
-	m_Storage = new Container(tileEntityRef->slotCount);
 	m_Width = tileEntityRef->updateData->getInt("invWidth");
 	m_Height = tileEntityRef->updateData->getInt("invHeight");
+	m_Storage = new Container(m_Width * m_Height);
 	tileType = "chest";
 }
 

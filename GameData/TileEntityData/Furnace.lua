@@ -32,13 +32,14 @@ data:extend(
 		placementOffsetY = -3.0,
 		
 		stable = false,
-		collidable = false,
+		collidable = true,
 		requiresSupport = true,
 		fillsLayers = { true, false, false },
 
         building = true,
 		buildingData = {
             cost = 50.0,    
+			buildingGroup = "production",  
 			rotationStates = 1,
             updateAction = "factory",
             updateData = {

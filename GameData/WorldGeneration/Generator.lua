@@ -1,7 +1,7 @@
 local perlin = assert(loadfile(localDir .. "\\Perlin.lua"))()
 
 tileAtlas = { "air", "stone", "ironOre", "copperOre" }
-tileEntityAtlas = { "petrifiedTree", "passiveGenerator" }
+tileEntityAtlas = { "petrifiedTree", "passiveGenerator", "pebbles" }
 
 tileArray = { }
 tileEntities = { }
@@ -86,6 +86,14 @@ for y = 1, chunkHeight, 1 do
                 tileEntities[tileEntityCount] = {}
                 tileEntities[tileEntityCount][0] = actualY
                 tileEntities[tileEntityCount][1] = 0
+                tileEntities[tileEntityCount][2] = actualX
+                tileEntityCount = tileEntityCount + 1
+            end
+        elseif (math.random() <= 0.3) then
+            if (tileArray[y][x] == 0 and tileArray[y + 1][x] == 1) then
+                tileEntities[tileEntityCount] = {}
+                tileEntities[tileEntityCount][0] = actualY
+                tileEntities[tileEntityCount][1] = 2
                 tileEntities[tileEntityCount][2] = actualX
                 tileEntityCount = tileEntityCount + 1
             end

@@ -4,6 +4,7 @@ data.tileData = {}
 data.imageData = {}
 data.itemData = {}
 data.itemRecipies = {}
+data.buildingGroups = {}
 
 function printTable(table, indent)
 	for k, v in pairs(table) do
@@ -14,10 +15,14 @@ function printTable(table, indent)
 		if (type(v) == "table") then
 			cPrint(tostring(k) .. " :\n")
 			printTable(v, indent + 1)
-		else	
+		else
 			cPrint(tostring(k) .. " : " .. tostring(v) .. "\n")
 		end
 	end
+end
+
+function data:createBuildingGroup(iconData)
+	self.buildingGroups[iconData["ID"]] = iconData
 end
 
 function data:addImages(images)

@@ -1,7 +1,7 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/Chest.png",
+			file = "TileEntityData/Images/Chest.png",
 			ID = "chest",
 			pass = "albedo"
         }
@@ -39,6 +39,7 @@ data:extend(
         building = true,
 		buildingData = {
             cost = 10.0,    
+			buildingGroup = "logistics",  
 			rotationStates = 1,
             updateAction = "chest",
             updateData = {
@@ -50,12 +51,6 @@ data:extend(
             powerIdleUsage = 0.0,  
             powerActiveUsage = 0.0,  
             powerProduce = 0.0
-		},
-
-        containerData = {
-            slots = {
-                { "storage", 10 } -- First is the type of the slot, second is the amount of slot of that type
-            }
-        }
+		}
     }
 )

@@ -4,8 +4,6 @@
 #include <vector>
 #include <unordered_map>
 
-// [!] TODO: Create this, this is just the bare bones of what is needed. Figure it out on pen and paper first
-
 struct RecipieRefStruct
 {
 	RecipieRefStruct(JSONObject* ref)

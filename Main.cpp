@@ -32,11 +32,6 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 	lost::feedInputEvent(user_event);
 }
 
-// [?] I don't feel like there should be an inventory in all honesty
-// [?] I think buildings should just cost money, which you get at the start of the game
-// [?] So I guess:
-// [!] TODO: Add building costs, add player money and create a UI for it. Add a building menu and figure that out
-// [!]       FOLLOW THE STUFF YOU WROTE!!!! Also make demo art.
 // [!] TODO: Stop using std::string for tileID's itemID's and other things
 // [!]       Create your own string that precalculates the value of each string
 // [!]       Maybe use a hash function on it, since it generates a unique value for each
@@ -183,7 +178,17 @@ static void init(void) {
 			g_ItemManager.loadItemData(loaderState, pathToString.c_str());
 	}
 
+	// Reads the files within the ExtraData folder and loads them if they end in .lua
+	tileDataPath = "GameData/ExtraData/";
+	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
+	{
+		std::string pathToString = entry.path().string();
+		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
+			g_TileManager.loadExtraData(loaderState, pathToString.c_str());
+	}
+
 	g_TileManager.createImageData(loaderState);
+	g_TileManager.createBuildingGroups(loaderState);
 	g_TileManager.createTileData(loaderState);
 	g_TileManager.createTileEntityData(loaderState);
 	g_ItemManager.createItemData(loaderState);

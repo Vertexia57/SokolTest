@@ -28,6 +28,13 @@ public:
 	inline std::vector<ConnectionMatrix>* getMatricies() { return &connectionMatricies; };
 };
 
+struct BuildingGroup
+{
+	std::string groupName = "none";
+	TextureID groupIcon = -1;
+	std::vector<TileEntityStruct*> buildingRefs;
+};
+
 class TileManager
 {
 public:
@@ -36,8 +43,10 @@ public:
 
 	void loadTileData(lua_State* loaderState, const char* location);
 	void loadTileEntityData(lua_State* loaderState, const char* location);
+	void loadExtraData(lua_State* loaderState, const char* location);
 	
 	void createImageData(lua_State* loaderState);
+	void createBuildingGroups(lua_State* loaderState);
 	void createTileData(lua_State* loaderState);
 	void createTileEntityData(lua_State* loaderState);
 
@@ -50,6 +59,9 @@ public:
 	ConnectionData* getConnectionData(std::string connectionName);
 
 	std::vector<TileEntityStruct*> buildingRefs;
+
+	std::vector<BuildingGroup> buildingGroups;
+	std::map<std::string, int> buildingGroupNameRef;
 private:
 	std::map<std::string, JSONObject*> tileJSONs;
 	std::map<std::string, TileRefStruct*> tileRefs;

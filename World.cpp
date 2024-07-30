@@ -183,9 +183,6 @@ void World::createTileEntity(TileEntityStruct* tileEntity, float x, float y)
 
 void World::addTileEntity(TileEntity* tileEntity, float x, float y)
 {
-	// [!] TODO: make this work when a new chunk is added on a border, making that chunk get the references to the tile entity 
-	// [!]       in the other chunk aswell
-
 	float loopedX = loopX(x);
 
 	int chunkX = (int)floor(loopedX / (float)chunkWidth);
@@ -212,9 +209,6 @@ void World::addTileEntity(TileEntity* tileEntity, float x, float y)
 
 void World::destroyTileEntity(TileEntity* tileEntity)
 {
-	// [!] TODO: make this work when a new chunk is added on a border, making that chunk get the references to the tile entity 
-	// [!]       in the other chunk aswell
-
 	int chunkX = (int)floor(loopX(tileEntity->position.x) / (float)chunkWidth);
 
 	// Adds the tile entity to the chunk's data

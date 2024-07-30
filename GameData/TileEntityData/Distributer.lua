@@ -1,7 +1,7 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/Distributor.png",
+			file = "TileEntityData/Images/Distributor.png",
 			ID = "distributor",
 			pass = "albedo"
         }
@@ -39,6 +39,7 @@ data:extend(
         building = true,
         buildingData = {
             cost = 10.0,    
+			buildingGroup = "logistics",  
 			rotationStates = 0,
             updateAction = "distributor",
             updateData = {

@@ -1,6 +1,10 @@
 #include "JSON.h"
 #include <iostream>
 
+#ifdef _DEBUG
+#include "Lost/Assert.h"
+#endif
+
 template <typename Out>
 void split(const std::string& s, char delim, Out result) {
 	std::istringstream iss(s);
@@ -490,6 +494,9 @@ void JSONObject::setJSONArray(std::string name, JSONArray* jsonArray)
 	}
 }
 
+#ifdef NDEBUG
+// Release mode
+
 int& JSONObject::getInt(std::string name)
 {
 	return data->getInt(objectNames[name]);
@@ -519,6 +526,53 @@ JSONArray* JSONObject::getJSONArray(std::string name)
 {
 	return data->getJSONArray(objectNames[name]);
 }
+
+#else 
+// Debug mode
+
+int& JSONObject::getInt(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access int value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getInt(objectNames[name]);
+}
+
+float& JSONObject::getFloat(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access float value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getFloat(objectNames[name]);
+}
+
+std::string& JSONObject::getString(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access string value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getString(objectNames[name]);
+}
+
+bool JSONObject::getBool(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access bool value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getBool(objectNames[name]);
+}
+
+JSONObject* JSONObject::getJSONObject(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access JSONObject value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getJSONObject(objectNames[name]);
+}
+
+JSONArray* JSONObject::getJSONArray(std::string name)
+{
+	if (objectNames.count(name) == 0)
+		lost::lassert("Tried to access JSONArray value in JSONObject at: " + name + "\nBut no value was found");
+	return data->getJSONArray(objectNames[name]);
+}
+
+#endif // NDEBUG
 
 JSONObject* JSONObject::createCopy() const
 {

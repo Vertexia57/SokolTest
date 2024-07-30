@@ -1,7 +1,7 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/PowerConduit.png",
+			file = "TileEntityData/Images/PowerConduit.png",
 			ID = "powerConduit",
 			pass = "albedo"
         }
@@ -39,6 +39,7 @@ data:extend(
         building = true,
         buildingData = {
             cost = 5.0,    
+			buildingGroup = "electric",  
 			rotationStates = 1,
             updateAction = "powerConduit",
             updateData = {

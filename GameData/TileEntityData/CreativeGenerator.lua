@@ -1,7 +1,7 @@
 data:addImages(
     {
         {
-			file = "TileEntityData/CreativeGenerator.png",
+			file = "TileEntityData/Images/CreativeGenerator.png",
 			ID = "creativeGenerator",
 			pass = "albedo"
         }
@@ -39,6 +39,7 @@ data:extend(
         building = true,
         buildingData = {
             cost = 0.0,    
+			buildingGroup = "electric",  
 			rotationStates = 1,
             updateAction = "powerConduit",
             updateData = {

@@ -262,6 +262,12 @@
     <ClInclude Include="RecipieSelectWindow.h">
       <Filter>Game\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Lost\Assert.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
+    <ClInclude Include="Lost\Animator.h">
+      <Filter>Lost</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -404,6 +410,12 @@
     </ClCompile>
     <ClCompile Include="RecipieSelectWindow.cpp">
       <Filter>Game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\Assert.cpp">
+      <Filter>Lost</Filter>
+    </ClCompile>
+    <ClCompile Include="Lost\Animator.cpp">
+      <Filter>Lost</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

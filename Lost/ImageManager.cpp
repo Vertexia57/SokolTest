@@ -1,5 +1,9 @@
 #include "ImageManager.h"
 
+#ifdef _DEBUG
+#include "Assert.h"
+#endif
+
 ImageManager::ImageManager()
 {
 	sg_sampler_desc sampler_desc = {};
@@ -61,19 +65,39 @@ Image* ImageManager::getImage(TextureID id)
 	return m_Images[id];
 }
 
+#ifdef NDEBUG
+
 Image* ImageManager::getImage(std::string id)
 {
 	return m_Images[m_ImageMap[id]];
 }
 
-bool ImageManager::imageAdded(std::string id)
+TextureID ImageManager::getImageID(std::string id)
 {
-	return m_ImageMap.count(id);
+	return m_ImageMap[id];
+}
+
+#else
+
+Image* ImageManager::getImage(std::string id)
+{
+	if (m_ImageMap.count(id) == 0)
+		lost::lassert("Tried to access image with id: " + id + "\n But no image with that id was found");
+	return m_Images[m_ImageMap[id]];
 }
 
 TextureID ImageManager::getImageID(std::string id)
 {
+	if (m_ImageMap.count(id) == 0)
+		lost::lassert("Tried to access image with id: " + id + "\n But no image with that id was found");
 	return m_ImageMap[id];
+}
+
+#endif
+
+bool ImageManager::imageAdded(std::string id)
+{
+	return m_ImageMap.count(id);
 }
 
 sg_sampler& ImageManager::getSampler(int id)

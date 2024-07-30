@@ -26,7 +26,7 @@ data:extend(
 		
 		width = 3.0,
 		height = 4.0,
-		renderLayer = 0,
+		renderLayer = 1,
 		
 		placementOffsetX = -1.0,
 		placementOffsetY = -3.0,
