@@ -29,7 +29,7 @@ protected:
 	lost::Animator m_Animator;
 	lost::Animation* m_BuildMenuAnim;
 	bool m_BuildSubMenuOpen = false;
-	lost::Animation* m_BuildSubMenuAnins[4] = { nullptr, nullptr, nullptr, nullptr };
+	lost::Animation* m_BuildSubMenuAnims[4] = { nullptr, nullptr, nullptr, nullptr };
 	lost::AnimationChain* m_SubMenuIconAnim;
 };
 

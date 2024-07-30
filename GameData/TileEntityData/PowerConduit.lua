@@ -12,7 +12,7 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "PowerConduit",
+		name = "Power Conduit",
 		ID = "powerConduit",
 		description = "",
 		

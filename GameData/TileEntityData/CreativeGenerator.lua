@@ -12,7 +12,7 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "CreativeGenerator",
+		name = "Creative Generator",
 		ID = "creativeGenerator",
 		description = "",
 		

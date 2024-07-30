@@ -12,7 +12,7 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "ConveyerBelt",
+		name = "Conveyer Belt",
 		ID = "coneyerBelt",
 		description = "",
 		

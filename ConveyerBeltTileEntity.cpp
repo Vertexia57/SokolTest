@@ -6,22 +6,44 @@ ConveyerBeltTileEntity::ConveyerBeltTileEntity(TileEntityStruct* tileEntityRef_,
 {
 	updates = true;
 
-	switch (rotation)
+	if (!tileEntityRef->updateData->getObjectList().count("speed"))
 	{
-	case 0:
-		relativeVelocity = { tileEntityRef->updateData->getFloat("xSpeed"), 0.0f };
-		break;
-	case 1:
-		relativeVelocity = { 0.0f, tileEntityRef->updateData->getFloat("ySpeed") };
-		break;
-	case 2:
-		relativeVelocity = { -tileEntityRef->updateData->getFloat("xSpeed"), 0.0f };
-		break;
-	case 3:
-		relativeVelocity = { 0.0f, -tileEntityRef->updateData->getFloat("ySpeed") };
-		break;
+		switch (rotation)
+		{
+		case 0:
+			relativeVelocity = { tileEntityRef->updateData->getFloat("xSpeed"), 0.0f };
+			break;
+		case 1:
+			relativeVelocity = { 0.0f, tileEntityRef->updateData->getFloat("ySpeed") };
+			break;
+		case 2:
+			relativeVelocity = { -tileEntityRef->updateData->getFloat("xSpeed"), 0.0f };
+			break;
+		case 3:
+			relativeVelocity = { 0.0f, -tileEntityRef->updateData->getFloat("ySpeed") };
+			break;
+		}
+		m_Speeds = { tileEntityRef->updateData->getFloat("xSpeed"), tileEntityRef->updateData->getFloat("ySpeed") };
 	}
-	m_Speeds = { tileEntityRef->updateData->getFloat("xSpeed"), tileEntityRef->updateData->getFloat("ySpeed") };
+	else
+	{
+		switch (rotation)
+		{
+		case 0:
+			relativeVelocity = { tileEntityRef->updateData->getFloat("speed"), 0.0f };
+			break;
+		case 1:
+			relativeVelocity = { 0.0f, tileEntityRef->updateData->getFloat("speed") };
+			break;
+		case 2:
+			relativeVelocity = { -tileEntityRef->updateData->getFloat("speed"), 0.0f };
+			break;
+		case 3:
+			relativeVelocity = { 0.0f, -tileEntityRef->updateData->getFloat("speed") };
+			break;
+		}
+		m_Speeds = { tileEntityRef->updateData->getFloat("speed"), tileEntityRef->updateData->getFloat("speed") };
+	}
 
 	tileType = "conveyerBelt";
 	m_HasInventory = true;
