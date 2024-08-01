@@ -38,7 +38,8 @@ data:extend(
 
         building = true,
         buildingData = {
-            cost = 0.0,    
+            cost = {
+			},  
 			buildingGroup = "electric",  
 			rotationStates = 1,
             updateAction = "powerConduit",

@@ -38,7 +38,12 @@ data:extend(
 
         building = true,
         buildingData = {
-            cost = 20.0,    
+            cost = {
+				{
+					item = "ironIngot",
+					count = 15
+				}
+			},
 			buildingGroup = "production",  
 			rotationStates = 1,
             updateAction = "miner",

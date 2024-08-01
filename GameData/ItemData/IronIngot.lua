@@ -49,7 +49,7 @@ data:extend(
         timeToCraft = 2.0,
 
         ingredients = {
-            { item = "ironOre", count = 2 }
+            { item = "ironOre", count = 1 }
         },
 
         results = {

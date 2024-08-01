@@ -217,7 +217,7 @@ void RecipieSelectWindow::render()
 			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
 			int ingredientIndex = 0;
-			for (RecipieRefStruct::IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->ingredients)
+			for (IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->ingredients)
 			{
 				lost::NBoxData slotNBox = {};
 				slotNBox.bottomSize = 2;
@@ -255,7 +255,7 @@ void RecipieSelectWindow::render()
 			textPos.y += lost::textHeight("Results:", 0.4, -1) + 10;
 
 			int resultsIndex = 0;
-			for (RecipieRefStruct::IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->results)
+			for (IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->results)
 			{
 				lost::NBoxData slotNBox = {};
 				slotNBox.bottomSize = 2;

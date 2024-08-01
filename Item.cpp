@@ -14,6 +14,7 @@ Item::Item(ItemRefStruct* refStruct_)
 		variant = random(0, refStruct->variants - 1);
 	itemName = refStruct->name;
 	itemID = refStruct->itemID;
+	maxStackSize = refStruct->maxStack;
 }
 
 Item::~Item()

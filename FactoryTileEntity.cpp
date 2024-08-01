@@ -38,17 +38,17 @@ void FactoryTileEntity::update()
 		// Add items to results
 		for (int i = 0; i < m_SetRecipie->results.size(); i++)
 		{
-			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->results[i];
+			IdCountPair& pair = m_SetRecipie->results[i];
 			m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->StackSize += pair.count;
 
-			if (m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->StackSize + pair.count > m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->refStruct->maxStack)
+			if (m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->StackSize + pair.count > m_Storage->getItem(m_SetRecipie->ingredients.size() + i)->maxStackSize)
 				m_CanCraft = false;
 		}
 
 		// Remove Items and check if can craft again
 		for (int i = 0; i < m_SetRecipie->ingredients.size(); i++)
 		{
-			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->ingredients[i];
+			IdCountPair& pair = m_SetRecipie->ingredients[i];
 			m_Storage->getItem(i)->StackSize -= pair.count;
 
 			if (m_Storage->getItem(i)->StackSize < pair.count)
@@ -71,13 +71,13 @@ void FactoryTileEntity::setRecipie(RecipieRefStruct* recipie)
 	m_Storage = new Container(slotReq);
 
 	int slotIndex = 0;
-	for (RecipieRefStruct::IdCountPair& pair : recipie->ingredients)
+	for (IdCountPair& pair : recipie->ingredients)
 	{
 		m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
 		slotIndex++;
 	}
 
-	for (RecipieRefStruct::IdCountPair& pair : recipie->results)
+	for (IdCountPair& pair : recipie->results)
 	{
 		m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
 		m_Storage->getItem(slotIndex)->output = true;
@@ -104,14 +104,14 @@ void FactoryTileEntity::checkRecipie()
 		m_CanCraft = true;
 		for (int i = 0; i < m_SetRecipie->ingredients.size(); i++)
 		{
-			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->ingredients[i];
+			IdCountPair& pair = m_SetRecipie->ingredients[i];
 			if (m_Storage->getItem(i)->StackSize < pair.count)
 				m_CanCraft = false;
 		}
 		for (int i = 0; i < m_SetRecipie->results.size(); i++)
 		{
-			RecipieRefStruct::IdCountPair& pair = m_SetRecipie->results[i];
-			if (m_Storage->getItem(i + m_SetRecipie->ingredients.size())->StackSize + pair.count > m_Storage->getItem(i + m_SetRecipie->ingredients.size())->refStruct->maxStack)
+			IdCountPair& pair = m_SetRecipie->results[i];
+			if (m_Storage->getItem(i + m_SetRecipie->ingredients.size())->StackSize + pair.count > m_Storage->getItem(i + m_SetRecipie->ingredients.size())->maxStackSize)
 				m_CanCraft = false;
 		}
 	}

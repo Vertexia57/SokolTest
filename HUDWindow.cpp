@@ -160,7 +160,8 @@ void HUDWindow::update()
 				tileHovered->tileEntitiesWithin[i]->renderHitbox();
 				if (!lost::isUISelected() && lost::mouseDown(1))
 				{
-					g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+					// [!] TODO: Refund items on deconstruct
+					//g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
 					g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
 				}
 
@@ -189,10 +190,25 @@ void HUDWindow::update()
 				)) && (g_World->checkCanPlace(
 					{blockMouse.x + m_SelectedBuilding->placementOffsetX, blockMouse.y + m_SelectedBuilding->placementOffsetY, m_SelectedBuilding->width, m_SelectedBuilding->height }, m_SelectedBuilding->fillsLayers
 				));
-				if (lost::mouseDown(0) && m_CanPlaceBuilding && g_PlayerPointer->moneyCount >= m_SelectedBuilding->cost)
+				if (lost::mouseDown(0) && m_CanPlaceBuilding)
 				{
-					createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
-					g_PlayerPointer->moneyCount -= m_SelectedBuilding->cost;
+					std::vector<IdCountPair>& cost = m_SelectedBuilding->cost;
+					bool hasResources = true;
+					for (IdCountPair& pair : cost)
+					{
+						if (g_PlayerPointer->getConnectedHub()->getInventory()->countItem(g_ItemManager.getItemData(pair.id)) < pair.count)
+							hasResources = false;
+					}
+
+					if (hasResources)
+					{
+						createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
+						for (IdCountPair& pair : cost)
+						{
+							g_PlayerPointer->getConnectedHub()->getInventory()->removeItem(g_ItemManager.getItemData(pair.id), pair.count);
+						}
+					}
+
 				}
 			}
 			
@@ -218,6 +234,35 @@ void HUDWindow::render()
 		sgp_draw_textured_rect(0, { 0.0f, 0.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0.0f, 0.0f, imageWidth, imageHeight });
 		// Money Count
 		lost::renderTextPro(std::to_string(g_PlayerPointer->moneyCount), { 12.0f * 4.0f, 29.0f * 4.0f }, 1.0f, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_MIDDLE);
+
+		if (g_PlayerPointer->getConnectedHub())
+		{
+			Container* hubInventory = g_PlayerPointer->getConnectedHub()->getInventory();
+
+			int index = 0;
+			for (Item& item : hubInventory->getItemVector())
+			{
+				if (!item.empty)
+				{
+
+					lost::useImage(item.textureID);
+					float imageWidth = lost::getImage(item.textureID)->width / item.refStruct->frames;
+					float imageHeight = lost::getImage(item.textureID)->height / item.refStruct->variants;
+
+					sgp_rect renderArea = { 400.0f + index * 64.0f, 0.0f, 64.0f, 64.0f };
+
+					sgp_draw_textured_rect(0, renderArea, { 0, imageHeight * item.variant, imageWidth, imageHeight });
+					lost::renderTextPro(
+						std::to_string(item.StackSize),
+						{ 400.0f + index * 64.0f + 64.0f, 64.0f },
+						0.5,
+						LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_MIDDLE
+					);
+
+					index++;
+				}
+			}
+		}
 
 		if (m_Building || !m_BuildMenuAnim->getComplete())
 		{

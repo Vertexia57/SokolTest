@@ -283,6 +283,9 @@
     <ClInclude Include="PhaseCollider.h">
       <Filter>Game\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="HubTileEntity.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -446,6 +449,9 @@
     </ClCompile>
     <ClCompile Include="PhaseCollider.cpp">
       <Filter>Game\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="HubTileEntity.cpp">
+      <Filter>Game\BuildingObjects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

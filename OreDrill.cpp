@@ -120,6 +120,7 @@ void OreDrillEntity::m_SearchForOres()
 	}
 
 	drillTile = nullptr;
+	int yLayerEmpty = 0;
 
 	while (drillLocation.y > position.y)
 	{
@@ -138,7 +139,9 @@ void OreDrillEntity::m_SearchForOres()
 		}
 		else if (focussedTile->empty)
 		{
-			break;
+			yLayerEmpty++;
+			if (yLayerEmpty > 2)
+				break;
 		}
 
 		drillLocation.x--;
@@ -146,6 +149,7 @@ void OreDrillEntity::m_SearchForOres()
 		{
 			drillLocation.x = maxX;
 			drillLocation.y++;
+			yLayerEmpty = 0;
 		}
 	}
 

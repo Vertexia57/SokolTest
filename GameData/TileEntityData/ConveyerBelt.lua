@@ -41,7 +41,12 @@ data:extend(
 
         building = true,
         buildingData = {
-            cost = 5.0, 
+            cost = {
+				{
+					item = "ironIngot",
+					count = 1
+				}
+			}  ,
 			buildingGroup = "logistics",   
 			rotationStates = 4,
 			rotationVariants = { 24, 0, 16, 8 },

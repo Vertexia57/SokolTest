@@ -4,6 +4,12 @@
 #include <vector>
 #include <unordered_map>
 
+struct IdCountPair
+{
+	std::string id;
+	int count;
+};
+
 struct RecipieRefStruct
 {
 	RecipieRefStruct(JSONObject* ref)
@@ -32,12 +38,6 @@ struct RecipieRefStruct
 		timeToCraft = ref->getFloat("timeToCraft");
 		name = ref->getString("name");
 	}
-
-	struct IdCountPair 
-	{
-		std::string id;
-		int count;
-	};
 
 	std::string name = "null";
 

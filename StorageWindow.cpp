@@ -53,7 +53,7 @@ void StorageWindow::update()
 				else if (!itemHovered->output) // Input & Locked
 				{
 					// Same as if it wasn't locked, fill slot with as much as it can, from the player hand
-					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->refStruct->maxStack) ? itemHovered->refStruct->maxStack - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
+					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? itemHovered->maxStackSize - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
 					itemHovered->StackSize += amountToFill;
 					g_PlayerPointer->holdingItem.StackSize -= amountToFill;
 					if (g_PlayerPointer->holdingItem.StackSize <= 0)
@@ -62,7 +62,7 @@ void StorageWindow::update()
 				else // Output & Locked
 				{
 					// Fill player hand with an much as it can from the output
-					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->refStruct->maxStack) ? g_PlayerPointer->holdingItem.refStruct->maxStack - g_PlayerPointer->holdingItem.StackSize : itemHovered->StackSize;
+					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? g_PlayerPointer->holdingItem.maxStackSize - g_PlayerPointer->holdingItem.StackSize : itemHovered->StackSize;
 					itemHovered->StackSize -= amountToFill;
 					g_PlayerPointer->holdingItem.StackSize += amountToFill;
 				}
@@ -73,7 +73,7 @@ void StorageWindow::update()
 				{
 					// Slot was accessable, add the held item stack to the item stack in that location
 					// Account for overflow
-					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->refStruct->maxStack) ? itemHovered->refStruct->maxStack - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
+					int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? itemHovered->maxStackSize - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
 					itemHovered->StackSize += amountToFill;
 					g_PlayerPointer->holdingItem.StackSize -= amountToFill;
 					if (g_PlayerPointer->holdingItem.StackSize <= 0)

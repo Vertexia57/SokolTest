@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="Background.h" />
     <ClInclude Include="FallingHub.h" />
+    <ClInclude Include="HubTileEntity.h" />
     <ClInclude Include="Lost\FrameBuffer.h" />
     <ClInclude Include="Lost\Animator.h" />
     <ClInclude Include="Lost\Assert.h" />
@@ -257,6 +258,7 @@
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="FallingHub.cpp" />
+    <ClCompile Include="HubTileEntity.cpp" />
     <ClCompile Include="Lost\FrameBuffer.cpp" />
     <ClCompile Include="Lost\Animator.cpp" />
     <ClCompile Include="BoxWindow.cpp" />

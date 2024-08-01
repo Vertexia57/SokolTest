@@ -4,6 +4,7 @@
 #include "Container.h"
 #include <array>
 #include <functional>
+#include "ItemManager.h"
 
 struct TileEntityStruct
 {
@@ -34,7 +35,7 @@ struct TileEntityStruct
 	std::array<bool, 3> fillsLayers = { false, false, false };
 
 	bool building = false;
-	float cost = 0.0f;
+	std::vector<IdCountPair> cost;
 	float powerIdleUsage = 0.0f;
 	float powerActiveUsage = 0.0f;
 	float powerProduce = 0.0f;
@@ -87,7 +88,14 @@ struct TileEntityStruct
 		if (building)
 		{
 			JSONObject* buildingData = tileEntityData->getJSONObject("buildingData");
-			cost = buildingData->getFloat("cost");
+
+			JSONObject* costs = buildingData->getJSONObject("cost");
+			for (int i = 0; costs->getObjectList().count(std::to_string(i)); i++)
+			{
+				JSONObject* pair = costs->getJSONObject(std::to_string(i));
+				cost.push_back({ pair->getString("item"), pair->getInt("count") });
+			}
+
 			updateAction = buildingData->getString("updateAction");
 			updateData = buildingData->getJSONObject("updateData");
 			totalRotations = buildingData->getInt("rotationStates");

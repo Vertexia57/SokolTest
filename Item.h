@@ -55,6 +55,7 @@ struct Item
 	std::string itemName = "";
 	std::string itemID = "";
 	int StackSize = 0;
+	int maxStackSize = 0;
 
 	TextureID textureID = 0;
 	int variant = 0;

@@ -2,6 +2,7 @@
 #include "Container.h"
 #include "Entity.h"
 #include "StorageWindow.h"
+#include "HubTileEntity.h"
 
 class Player : public Entity
 {
@@ -26,8 +27,13 @@ public:
 	bool lockActions = false;
 
 	StorageWindow* inventoryWindow = nullptr;
+
+	inline void setConnectedHub(HubTileEntity* hub) { m_ConnectedHub = hub; };
+	inline HubTileEntity* getConnectedHub() const { return m_ConnectedHub; };
+
 private:
 	Container inventory;
+	HubTileEntity* m_ConnectedHub = nullptr;
 };
 
 extern Player* g_PlayerPointer;

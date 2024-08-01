@@ -32,7 +32,7 @@ int Container::addItem(Item item)
 			if (isSlotTaken(slot))
 			{
 				// Check the amount to fill the current item slot
-				int amountToFill = (m_Items[slot].StackSize + count > m_Items[slot].refStruct->maxStack) ? m_Items[slot].refStruct->maxStack - m_Items[slot].StackSize : count;
+				int amountToFill = (m_Items[slot].StackSize + count > m_Items[slot].maxStackSize) ? m_Items[slot].maxStackSize - m_Items[slot].StackSize : count;
 				m_Items[slot].StackSize += amountToFill;
 				count -= amountToFill;
 			}
@@ -139,7 +139,7 @@ int Container::addItemToSlot(Item& item, int slot)
 	if (isSlotTaken(slot))
 	{
 
-		int amountToFill = (m_Items[slot].StackSize + count > m_Items[slot].refStruct->maxStack) ? m_Items[slot].refStruct->maxStack - m_Items[slot].StackSize : count;
+		int amountToFill = (m_Items[slot].StackSize + count > m_Items[slot].maxStackSize) ? m_Items[slot].maxStackSize - m_Items[slot].StackSize : count;
 		m_Items[slot].StackSize += amountToFill;
 		count -= amountToFill;
 	}
@@ -188,7 +188,7 @@ int Container::findAccessableSlot(Item& item)
 		}
 		else
 		{
-			if (m_Items[i].itemID == item.itemID && m_Items[i].StackSize < m_Items[i].refStruct->maxStack)
+			if (m_Items[i].itemID == item.itemID && m_Items[i].StackSize < m_Items[i].maxStackSize)
 			{
 				foundSlot = i;
 				break;
@@ -207,7 +207,7 @@ bool Container::isSlotAccessable(int slot, Item& itemHoveredWith)
 		return true;
 	}
 
-	if (m_Items[slot].StackSize < m_Items[slot].refStruct->maxStack)
+	if (m_Items[slot].StackSize < m_Items[slot].maxStackSize)
 	{
 		if (m_Items[slot].itemID == itemHoveredWith.itemID)
 		{
