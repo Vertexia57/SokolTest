@@ -22,7 +22,7 @@ protected:
 	lost::Transform2D transform;
 	lost::Transform2D centerTransform;
 
-	Collider* colliderData;
+	Collider* colliderData = nullptr;
 	JSONObject* jsonData = nullptr;
 
 	// [!] TODO: Add a "Contains Item" array here, which each entity can carry. This will be used by factories and processes

@@ -10,6 +10,9 @@ Shader::~Shader()
 
 	sg_destroy_shader(shader);
 	sg_destroy_pipeline(pipeline);
+
+	if (m_Uniforms)
+		delete[] m_Uniforms;
 }
 
 void Shader::loadShader(const char* vertexShaderLoc, const char* fragmentShaderLoc, const char* _name)
@@ -25,11 +28,29 @@ void Shader::loadShader(const char* vertexShaderLoc, const char* fragmentShaderL
 void Shader::bindShader()
 {
 	sgp_set_pipeline(pipeline);
+	sgp_set_uniform(m_Uniforms, m_UniformCount * sizeof(float));
+}
+
+void Shader::setUniform(int slot, float val)
+{
+	m_Uniforms[slot] = val;
 }
 
 sg_shader_desc* Shader::m_CreateDescriptor(const char* vertexShaderCode, const char* fragmentShaderCode)
 {
 	sg_shader_desc* desc = new sg_shader_desc();
+
+	std::string fragmentCode = fragmentShaderCode;
+	size_t uniformsLoc = fragmentCode.find("uniforms", 0);
+	int count = 0;
+	if (uniformsLoc != std::string::npos)
+		count = fragmentCode.at(uniformsLoc + 9) - '0';
+
+	// Create uniforms
+	m_UniformCount = count * 4;
+	m_Uniforms = new float[m_UniformCount];
+	for (int i = 0; i < m_UniformCount; i++)
+		m_Uniforms[i] = 0.0f;
 
 	// Vertex Attribute init
 	desc->attrs[0].name = "coord";
@@ -40,11 +61,14 @@ sg_shader_desc* Shader::m_CreateDescriptor(const char* vertexShaderCode, const c
 	desc->fs.source = fragmentShaderCode;
 	desc->fs.entry = "main";
 	// Uniform Buffer
-	//desc->fs.uniform_blocks[0].size = 32; // Size of uniform block in bytes it seems, there are 8 floats, floats take 4 bytes
-	//desc->fs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
-	//desc->fs.uniform_blocks[0].uniforms[0].name = "uniforms";
-	//desc->fs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
-	//desc->fs.uniform_blocks[0].uniforms[0].array_count = 2;
+	if (count > 0)
+	{
+		desc->fs.uniform_blocks[0].size = count * 16; // Size of uniform block in bytes it seems, there are 8 floats, floats take 4 bytes
+		desc->fs.uniform_blocks[0].layout = SG_UNIFORMLAYOUT_STD140;
+		desc->fs.uniform_blocks[0].uniforms[0].name = "uniforms";
+		desc->fs.uniform_blocks[0].uniforms[0].type = SG_UNIFORMTYPE_FLOAT4;
+		desc->fs.uniform_blocks[0].uniforms[0].array_count = count;
+	}
 	// Sampler and texture2d init
 	desc->fs.images[0].used = true;
 	desc->fs.images[0].multisampled = false;

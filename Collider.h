@@ -32,9 +32,9 @@ public:
 	bool gravity = true;
 
 	lost::Vector2D velocity;
-private:
-	void m_CheckCollissions();
-	void m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities);
+protected:
+	virtual void m_CheckCollissions();
+	virtual void m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities);
 
 	std::vector<Tile*> testTilesH;
 	std::vector<Tile*> testTilesV;

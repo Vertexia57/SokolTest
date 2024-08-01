@@ -171,6 +171,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
+    <ClInclude Include="FallingHub.h" />
+    <ClInclude Include="Lost\FrameBuffer.h" />
     <ClInclude Include="Lost\Animator.h" />
     <ClInclude Include="Lost\Assert.h" />
     <ClInclude Include="BoxWindow.h" />
@@ -206,6 +209,7 @@
     <ClInclude Include="Lost\UIManager.h" />
     <ClInclude Include="Lost\UIWindow.h" />
     <ClInclude Include="OreDrill.h" />
+    <ClInclude Include="PhaseCollider.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerConduit.h" />
     <ClInclude Include="Random.h" />
@@ -240,6 +244,7 @@
     <ClInclude Include="sokol\util\sokol_nuklear.h" />
     <ClInclude Include="sokol\util\sokol_shape.h" />
     <ClInclude Include="sokol\util\sokol_spine.h" />
+    <ClInclude Include="StarBackground.h" />
     <ClInclude Include="STBImplementation.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_truetype.h" />
@@ -250,6 +255,9 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Background.cpp" />
+    <ClCompile Include="FallingHub.cpp" />
+    <ClCompile Include="Lost\FrameBuffer.cpp" />
     <ClCompile Include="Lost\Animator.cpp" />
     <ClCompile Include="BoxWindow.cpp" />
     <ClCompile Include="ChestTileEntity.cpp" />
@@ -284,6 +292,7 @@
     <ClCompile Include="Lost\Shader.cpp" />
     <ClCompile Include="Lost\ShaderManager.cpp" />
     <ClCompile Include="OreDrill.cpp" />
+    <ClCompile Include="PhaseCollider.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerConduit.cpp" />
     <ClCompile Include="RecipieSelectWindow.cpp" />
@@ -294,6 +303,7 @@
     <ClCompile Include="sokol\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="sokol\imgui\imgui_tables.cpp" />
     <ClCompile Include="sokol\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="StarBackground.cpp" />
     <ClCompile Include="StorageWindow.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileEntity.cpp" />

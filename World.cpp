@@ -3,6 +3,7 @@
 
 World::World()
 {
+	m_Background = new StarBackground();
 }
 
 World::~World()
@@ -13,6 +14,7 @@ World::~World()
 	delete worldGenerator;
 	for (Entity* entity : m_Entities)
 		delete entity;
+	delete m_Background;
 }
 
 void World::worldInit()
@@ -22,12 +24,20 @@ void World::worldInit()
 	worldTileWidth = worldWidth * chunkWidth;
 }
 
+void World::recreateBackground()
+{
+	delete m_Background;
+	m_Background = new StarBackground();
+}
+
 void World::update(lost::Bound2D renderBounds)
 {
 	//for (int x = floor(renderBounds.left / (chunkWidth * 32.0f)) - 1; x < ceil(renderBounds.right / (chunkWidth * 32.0f)) + 1; x++)
 	//{
 	//	if (m_Chunks.count(x))
 	//}
+
+	m_Background->update();
 
 	for (const auto& [val, chunk] : m_Chunks)
 		chunk->update();
@@ -61,6 +71,11 @@ void World::update(lost::Bound2D renderBounds)
 	}
 	
 	ImGui::Text("Current OOB TileEntities: %i", static_cast<int>(m_OutOfBoundsEntities.size()));
+}
+
+void World::renderBackground(lost::Bound2D renderBounds)
+{
+	m_Background->render();
 }
 
 void World::render(lost::Bound2D renderBounds)

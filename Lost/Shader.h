@@ -49,10 +49,12 @@ public:
 	// Binds the shader pipeline
 	void bindShader();
 
+	void setUniform(int slot, float val);
+
 	sg_shader shader;
 	sg_pipeline pipeline;
 	std::string name;
-	ShaderID id = 0;
+	ShaderID id = 0; 
 
 private:
 
@@ -65,4 +67,7 @@ private:
 
 	std::string vertexShaderLoc;
 	std::string fragmentShaderLoc;
+
+	int m_UniformCount = 0;
+	float* m_Uniforms = nullptr;
 };

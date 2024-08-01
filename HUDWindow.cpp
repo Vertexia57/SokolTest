@@ -101,6 +101,10 @@ void HUDWindow::update()
 					m_Rotation = 0;
 				}
 			}
+			else
+			{
+				m_HoveredBuildingSlot = -1;
+			}
 		}
 
 		m_HoveredGroupSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f) / 76.0f) : -1;
@@ -206,130 +210,133 @@ void HUDWindow::update()
 
 void HUDWindow::render()
 {
-	lost::useImage(m_TopLeftUITexID);
-	float imageWidth = lost::getImage(m_TopLeftUITexID)->width;
-	float imageHeight = lost::getImage(m_TopLeftUITexID)->height;
-	sgp_draw_textured_rect(0, { 0.0f, 0.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0.0f, 0.0f, imageWidth, imageHeight });
-	// Money Count
-	lost::renderTextPro(std::to_string(g_PlayerPointer->moneyCount), { 12.0f * 4.0f, 29.0f * 4.0f }, 1.0f, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_MIDDLE);
-
-	if (m_Building || !m_BuildMenuAnim->getComplete())
+	if (g_PlayerPointer)
 	{
-		int buildingGroupCount = g_TileManager.buildingGroups.size();
-		for (int i = 0; i < buildingGroupCount; i++)
+		lost::useImage(m_TopLeftUITexID);
+		float imageWidth = lost::getImage(m_TopLeftUITexID)->width;
+		float imageHeight = lost::getImage(m_TopLeftUITexID)->height;
+		sgp_draw_textured_rect(0, { 0.0f, 0.0f, imageWidth * 4.0f, imageHeight * 4.0f }, { 0.0f, 0.0f, imageWidth, imageHeight });
+		// Money Count
+		lost::renderTextPro(std::to_string(g_PlayerPointer->moneyCount), { 12.0f * 4.0f, 29.0f * 4.0f }, 1.0f, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_MIDDLE);
+
+		if (m_Building || !m_BuildMenuAnim->getComplete())
 		{
-			BuildingGroup& group = g_TileManager.buildingGroups[i];
-			lost::clearImage();
-			if (m_SelectedGroupSlot == i)
-				sgp_set_color(0.7f, 0.7f, 0.7f, 0.2f);
-			else if (m_HoveredGroupSlot != i)
-				sgp_set_color(0.0f, 0.0f, 0.0f, 0.2f);
-			else
-				sgp_set_color(0.5f, 0.5f, 0.5f, 0.2f);
-
-			sgp_draw_filled_rect((m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + i * 76.0f, m_Bounds.h - 76.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
-
-			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-			lost::useImage(group.groupIcon);
-			float iconWidth = lost::getImage(group.groupIcon)->width;
-			float iconHeight = lost::getImage(group.groupIcon)->height;
-			sgp_draw_textured_rect(0,
-				{ (m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + 6.0f + i * 76.0f, m_Bounds.h - 70.0f + m_BuildMenuAnim->getVal(), 64.0f, 64.0f },
-				{ 0.0f, 0.0f, iconWidth, iconHeight }
-			);
-		}
-
-		if (m_BuildSubMenuOpen || !m_BuildMenuAnim->getComplete() && m_SelectedGroupSlot != -1)
-		{
-			lost::clearImage();
-			sgp_set_color(0.0f, 0.0f, 0.0f, 0.4f);
-			sgp_draw_filled_rect(m_BuildSubMenuAnims[0]->getVal(), m_BuildSubMenuAnims[1]->getVal() + m_BuildMenuAnim->getVal(), m_BuildSubMenuAnims[2]->getVal(), m_BuildSubMenuAnims[3]->getVal());
-
-			if ((*m_SubMenuIconAnim)[0].getComplete())
+			int buildingGroupCount = g_TileManager.buildingGroups.size();
+			for (int i = 0; i < buildingGroupCount; i++)
 			{
-				int buildingCount = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size();
-				if (m_SelectedBuildingSlot != -1)
+				BuildingGroup& group = g_TileManager.buildingGroups[i];
+				lost::clearImage();
+				if (m_SelectedGroupSlot == i)
+					sgp_set_color(0.7f, 0.7f, 0.7f, 0.2f);
+				else if (m_HoveredGroupSlot != i)
+					sgp_set_color(0.0f, 0.0f, 0.0f, 0.2f);
+				else
+					sgp_set_color(0.5f, 0.5f, 0.5f, 0.2f);
+
+				sgp_draw_filled_rect((m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + i * 76.0f, m_Bounds.h - 76.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
+
+				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+				lost::useImage(group.groupIcon);
+				float iconWidth = lost::getImage(group.groupIcon)->width;
+				float iconHeight = lost::getImage(group.groupIcon)->height;
+				sgp_draw_textured_rect(0,
+					{ (m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + 6.0f + i * 76.0f, m_Bounds.h - 70.0f + m_BuildMenuAnim->getVal(), 64.0f, 64.0f },
+					{ 0.0f, 0.0f, iconWidth, iconHeight }
+				);
+			}
+
+			if (m_BuildSubMenuOpen || !m_BuildMenuAnim->getComplete() && m_SelectedGroupSlot != -1)
+			{
+				lost::clearImage();
+				sgp_set_color(0.0f, 0.0f, 0.0f, 0.4f);
+				sgp_draw_filled_rect(m_BuildSubMenuAnims[0]->getVal(), m_BuildSubMenuAnims[1]->getVal() + m_BuildMenuAnim->getVal(), m_BuildSubMenuAnims[2]->getVal(), m_BuildSubMenuAnims[3]->getVal());
+
+				if ((*m_SubMenuIconAnim)[0].getComplete())
 				{
-					sgp_set_color(0.5f, 0.5f, 0.5f, (*m_SubMenuIconAnim)[1].getVal() * 0.4);
-					sgp_draw_filled_rect((m_Bounds.w - buildingCount * 76.0f) / 2.0f + m_SelectedBuildingSlot * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 76.0f * 2.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
-				}
-				if (m_HoveredBuildingSlot != -1 && m_HoveredBuildingSlot != m_SelectedBuildingSlot)
-				{
-					sgp_set_color(0.3f, 0.3f, 0.3f, (*m_SubMenuIconAnim)[1].getVal() * 0.4);
-					sgp_draw_filled_rect((m_Bounds.w - buildingCount * 76.0f) / 2.0f + m_HoveredBuildingSlot * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 76.0f * 2.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
-				}
-
-				for (int i = 0; i < buildingCount; i++)
-				{
-					TileEntityStruct* buildingRef = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs[i];
-
-					int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
-					int maxTileLength = std::max(buildingRef->width, buildingRef->height);
-					float scale = 1.0f / ((float)maxTileLength);
-					float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
-					float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
-
-					sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
-					lost::useImage(buildingRef->texture);
-					sgp_draw_textured_rect(0,
-						{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f) - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h + (32.0f - buildingRef->height * 64.0f * scale / 2.0f) - 70.0f - 76.0f + m_BuildMenuAnim->getVal(), buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale },
-						{ 0.0f, 0.0f, imageWidth, imageHeight }
-					);
-
-					if (i == m_HoveredBuildingSlot)
+					int buildingCount = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size();
+					if (m_SelectedBuildingSlot != -1)
 					{
-						lost::clearImage();
-						lost::renderTextPro(buildingRef->name,
-							{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() }, 0.5f,
-							LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+						sgp_set_color(0.5f, 0.5f, 0.5f, (*m_SubMenuIconAnim)[1].getVal() * 0.4);
+						sgp_draw_filled_rect((m_Bounds.w - buildingCount * 76.0f) / 2.0f + m_SelectedBuildingSlot * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 76.0f * 2.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
+					}
+					if (m_HoveredBuildingSlot != -1 && m_HoveredBuildingSlot != m_SelectedBuildingSlot)
+					{
+						sgp_set_color(0.3f, 0.3f, 0.3f, (*m_SubMenuIconAnim)[1].getVal() * 0.4);
+						sgp_draw_filled_rect((m_Bounds.w - buildingCount * 76.0f) / 2.0f + m_HoveredBuildingSlot * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 76.0f * 2.0f + m_BuildMenuAnim->getVal(), 76.0f, 76.0f);
+					}
+
+					for (int i = 0; i < buildingCount; i++)
+					{
+						TileEntityStruct* buildingRef = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs[i];
+
+						int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
+						int maxTileLength = std::max(buildingRef->width, buildingRef->height);
+						float scale = 1.0f / ((float)maxTileLength);
+						float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
+						float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
+
+						sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+						lost::useImage(buildingRef->texture);
+						sgp_draw_textured_rect(0,
+							{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f) - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h + (32.0f - buildingRef->height * 64.0f * scale / 2.0f) - 70.0f - 76.0f + m_BuildMenuAnim->getVal(), buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale },
+							{ 0.0f, 0.0f, imageWidth, imageHeight }
+						);
+
+						if (i == m_HoveredBuildingSlot)
+						{
+							lost::clearImage();
+							lost::renderTextPro(buildingRef->name,
+								{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() }, 0.5f,
+								LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+						}
 					}
 				}
-			}
-			else if (!(*m_SubMenuIconAnim)[0].getComplete() && m_OldGroupSlot != -1)
-			{
-				int buildingCount = g_TileManager.buildingGroups[m_OldGroupSlot].buildingRefs.size();
-				for (int i = 0; i < buildingCount; i++)
+				else if (!(*m_SubMenuIconAnim)[0].getComplete() && m_OldGroupSlot != -1)
 				{
-					TileEntityStruct* buildingRef = g_TileManager.buildingGroups[m_OldGroupSlot].buildingRefs[i];
+					int buildingCount = g_TileManager.buildingGroups[m_OldGroupSlot].buildingRefs.size();
+					for (int i = 0; i < buildingCount; i++)
+					{
+						TileEntityStruct* buildingRef = g_TileManager.buildingGroups[m_OldGroupSlot].buildingRefs[i];
 
-					int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
-					int maxTileLength = std::max(buildingRef->width, buildingRef->height);
-					float scale = 1.0f / ((float)maxTileLength);
-					float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
-					float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
+						int maxImageLength = std::max(lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames, lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants);
+						int maxTileLength = std::max(buildingRef->width, buildingRef->height);
+						float scale = 1.0f / ((float)maxTileLength);
+						float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
+						float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
 
-					sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
-					lost::useImage(buildingRef->texture);
-					sgp_draw_textured_rect(0,
-						{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f) - (buildingGroupCount - 1) * 76.0f / 2.0f + m_OldGroupSlot * 76.0f, m_Bounds.h - 70.0f - 76.0f + m_BuildMenuAnim->getVal(), buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale },
-						{ 0.0f, 0.0f, imageWidth, imageHeight }
-					);
+						sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+						lost::useImage(buildingRef->texture);
+						sgp_draw_textured_rect(0,
+							{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f) - (buildingGroupCount - 1) * 76.0f / 2.0f + m_OldGroupSlot * 76.0f, m_Bounds.h - 70.0f - 76.0f + m_BuildMenuAnim->getVal(), buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale },
+							{ 0.0f, 0.0f, imageWidth, imageHeight }
+						);
 
-					//lost::clearImage();
-					//lost::renderTextPro(std::to_string((int)buildingRef->cost),
-					//	{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_OldGroupSlot * 76.0f, m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() }, 1.0f,
-					//	LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+						//lost::clearImage();
+						//lost::renderTextPro(std::to_string((int)buildingRef->cost),
+						//	{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_OldGroupSlot * 76.0f, m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() }, 1.0f,
+						//	LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+					}
 				}
+
 			}
-
 		}
-	}
 
-	if (!g_PlayerPointer->holdingItem.empty)
-	{
+		if (!g_PlayerPointer->holdingItem.empty)
+		{
 
-		lost::useImage(g_PlayerPointer->holdingItem.textureID);
-		float imageWidth = lost::getImage(g_PlayerPointer->holdingItem.textureID)->width / g_PlayerPointer->holdingItem.refStruct->frames;
-		float imageHeight = lost::getImage(g_PlayerPointer->holdingItem.textureID)->height / g_PlayerPointer->holdingItem.refStruct->variants;
+			lost::useImage(g_PlayerPointer->holdingItem.textureID);
+			float imageWidth = lost::getImage(g_PlayerPointer->holdingItem.textureID)->width / g_PlayerPointer->holdingItem.refStruct->frames;
+			float imageHeight = lost::getImage(g_PlayerPointer->holdingItem.textureID)->height / g_PlayerPointer->holdingItem.refStruct->variants;
 
-		sgp_rect renderArea = { lost::mousePos().x - 32.0f, lost::mousePos().y - 32.0f, 64.0f, 64.0f };
+			sgp_rect renderArea = { lost::mousePos().x - 32.0f, lost::mousePos().y - 32.0f, 64.0f, 64.0f };
 
-		sgp_draw_textured_rect(0, renderArea, { 0, imageHeight * g_PlayerPointer->holdingItem.variant, imageWidth, imageHeight });
-		lost::renderTextPro(
-			std::to_string(g_PlayerPointer->holdingItem.StackSize),
-			{ lost::mousePos().x + 32.0f, lost::mousePos().y + 32.0f },
-			0.5,
-			LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_MIDDLE
-		);
+			sgp_draw_textured_rect(0, renderArea, { 0, imageHeight * g_PlayerPointer->holdingItem.variant, imageWidth, imageHeight });
+			lost::renderTextPro(
+				std::to_string(g_PlayerPointer->holdingItem.StackSize),
+				{ lost::mousePos().x + 32.0f, lost::mousePos().y + 32.0f },
+				0.5,
+				LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_MIDDLE
+			);
+		}
 	}
 }

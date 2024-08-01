@@ -9,6 +9,7 @@
 #include <map>
 #include "Lost/Graph.h"
 #include "PowerConduit.h"
+#include "StarBackground.h"
 
 class World;
 extern World* g_World; // Global World Singleton
@@ -115,8 +116,10 @@ public:
 	~World();
 
 	void worldInit();
+	void recreateBackground();
 
 	void update(lost::Bound2D renderBounds);
+	void renderBackground(lost::Bound2D renderBounds);
 	void render(lost::Bound2D renderBounds);
 
 	void createChunk(int x);
@@ -180,5 +183,7 @@ private:
 
 	std::map<int, PowerCircuitStruct> m_PowerCircuits;
 
-	Generator* worldGenerator;
+	Generator* worldGenerator = nullptr;
+
+	Background* m_Background = nullptr;
 };

@@ -3,9 +3,7 @@
 
 Entity::Entity(lost::Bound2D bounds)
 {
-	colliderData = new Collider(bounds);
-
-	transform.position = { colliderData->bounds.x, colliderData->bounds.y };
+	transform.position = { bounds.x, bounds.y };
 }
 
 Entity::~Entity()
@@ -56,6 +54,7 @@ void Entity::render(lost::Bound2D renderBounds, float worldLoopWidth)
 
 void Entity::die()
 {
+	killEntity = true;
 }
 
 lost::Vector2D Entity::getPosition()

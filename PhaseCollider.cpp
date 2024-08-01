@@ -1,49 +1,29 @@
-#include "Collider.h"
+#include "PhaseCollider.h"
 #include "World.h"
-#include <list>
 
-Collider::Collider(lost::Bound2D bound)
-{
-	bounds = bound;
-	velocity = { 0.0f, 0.0f };
-
-	testTilesH.resize(2 + (int)fmaxf(floor(bounds.w / 32.0f), 0.0f));
-	testTilesV.resize(2 + (int)fmaxf(floor(bounds.w / 32.0f), 0.0f));
-}
-
-Collider::~Collider()
+PhaseCollider::PhaseCollider(lost::Bound2D bound)
+	: Collider(bound)
 {
 }
 
-void Collider::update()
+PhaseCollider::~PhaseCollider()
+{
+}
+
+void PhaseCollider::update()
 {
 	double deltaTime = lost::deltaTime / 1000.0f;
 
 	timeAlive += lost::deltaTime;
 	bounds = bounds + velocity * deltaTime;
 	if (gravity)
-		velocity = velocity + lost::Vector2D{ 0.0f, 1000.0f } * deltaTime;
+		velocity = velocity + lost::Vector2D{ 0.0f, 1000.0f } *deltaTime;
 
 	m_CheckCollissions();
 	bounds.calcSides();
-
-	// Actual Collission info
-	/*sgp_set_color(1.0, 0.0, 0.0, 1.0);
-	lost::clearImage();
-
-	sgp_point lines[5] = { 
-		{bounds.x - 2, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
-		{bounds.x + bounds.w + 1, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
-		{bounds.x + bounds.w + 1, bounds.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 1},
-		{bounds.x - 2, bounds.y + bounds.h - abs(velocity.y * deltaTime / 1000.0f) - 1},
-		{bounds.x - 2, bounds.y + abs(velocity.y * deltaTime / 1000.0f) + 1},
-	};
-
-	sgp_draw_lines_strip(lines, 5);
-	sgp_set_color(1.0, 1.0, 1.0, 1.0);*/
 }
 
-void Collider::m_CheckCollissions()
+void PhaseCollider::m_CheckCollissions()
 {
 	double deltaTime = lost::deltaTime;
 
@@ -62,8 +42,6 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.right = true;
-				velocity.x = fminf(velocity.x, 0.0f);
-				bounds.x -= testLocation.x - floor(testLocation.x / 32.0f) * 32.0f;
 				break;
 			}
 			else
@@ -83,8 +61,6 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.left = true;
-				velocity.x = fmaxf(velocity.x, 0.0f);
-				bounds.x -= testLocation.x - (floor(testLocation.x / 32.0f) + 1) * 32.0f;
 				break;
 			}
 			else
@@ -105,8 +81,6 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.down = true;
-				velocity.y = fminf(velocity.y, 0.0f);
-				bounds.y -= testLocation.y - floor(testLocation.y / 32.0f) * 32.0f;
 				break;
 			}
 			else
@@ -126,8 +100,6 @@ void Collider::m_CheckCollissions()
 			if (test->referenceStruct->collidable)
 			{
 				sideCollissions.up = true;
-				velocity.y = fmaxf(velocity.y, 0.0f);
-				bounds.y -= testLocation.y - (floor(testLocation.y / 32.0f) + 1) * 32.0f;
 				break;
 			}
 			else
@@ -140,7 +112,7 @@ void Collider::m_CheckCollissions()
 	m_CheckEntityCollisions(testEntities);
 }
 
-void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
+void PhaseCollider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 {
 	double deltaTime = lost::deltaTime;
 
@@ -169,9 +141,9 @@ void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 
 				std::array<float, 4> pushDist = {
 					bounds.x + bounds.w - 1 - hitbox.x,
-					bounds.x -(hitbox.x + hitbox.w - 1),
+					bounds.x - (hitbox.x + hitbox.w - 1),
 					bounds.y + bounds.h - 1 - hitbox.y,
-					bounds.y -(hitbox.y + hitbox.h - 1)
+					bounds.y - (hitbox.y + hitbox.h - 1)
 				};
 
 				uint32_t lowestIndex = 0;
@@ -188,23 +160,15 @@ void Collider::m_CheckEntityCollisions(std::vector<TileEntity*>& tileEntities)
 				switch (lowestIndex)
 				{
 				case 0:
-					bounds.x -= lowestValue;
-					velocity.x = fminf(velocity.x, 0.0f);
 					sideCollissions.right = true;
 					break;
 				case 1:
-					bounds.x += lowestValue;
-					velocity.x = fmaxf(velocity.x, 0.0f);
 					sideCollissions.left = true;
 					break;
 				case 2:
-					bounds.y -= lowestValue;
-					velocity.y = fminf(velocity.y, 0.0f);
 					sideCollissions.down = true;
 					break;
 				case 3:
-					bounds.y += lowestValue;
-					velocity.y = fmaxf(velocity.y, 0.0f);
 					sideCollissions.up = true;
 					break;
 				}

@@ -6,9 +6,11 @@ Player::Player(lost::Vector2D position)
 	, inventory(21)
 	, holdingItem()
 {
+	colliderData = new Collider({ position.x, position.y, 20.0f, 20.0f });
 	colliderData->gravity = false;
-	transform.scale = { 0.5f, 0.5f }; // The scale is only used by the camera
+	transform.scale = { 1.5f, 1.5f }; // The scale is only used by the camera
 	lost::globalCamera.bindGoalTransform(&centerTransform, 3);
+	g_PlayerPointer = this;
 }
 
 Player::~Player()

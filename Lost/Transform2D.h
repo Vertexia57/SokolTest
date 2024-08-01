@@ -194,12 +194,14 @@ namespace lost
 		{
 			x += vec.x;
 			y += vec.y;
+			calcSides();
 		}
 
 		void operator-=(Vector2D vec)
 		{
 			x -= vec.x;
 			y -= vec.y;
+			calcSides();
 		}
 
 	};
@@ -207,6 +209,11 @@ namespace lost
 	static float lerp(float a, float b, float delta)
 	{
 		return a + (b - a) * delta;
+	}
+
+	static float maxLerp(float a, float b, float delta, float maxChange)
+	{
+		return a + fmaxf(fminf((b - a) * delta, maxChange), -maxChange);
 	}
 
 }

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "../Random.h"
 
 Camera::Camera()
 {
@@ -31,11 +32,22 @@ void Camera::update(double deltaTime)
 		lost::Transform2D oldTransform = m_Transform;
 		m_Transform.lerp(*m_GoalTransform, fminf(deltaTime / 100.0f, 1.0f));
 		//m_Transform = *m_GoalTransform;
-		m_RotationOffset = lost::lerp(m_RotationOffset, -fmaxf(fminf((m_Transform - oldTransform).position.x / 200.0f, 0.7f), -0.7f), fminf(deltaTime / 50.0f, 1.0f));
+		if (m_RotateFollow)
+			m_RotationOffset = lost::maxLerp(m_RotationOffset, -fmaxf(fminf((m_Transform - oldTransform).position.x / 200.0f, 0.4f), -0.4f), fminf(deltaTime / 50.0f, 0.5f), 0.1f * deltaTime / 1000.0f);
 	}
 	else
 	{
 		fprintf(stderr, " [Camera::update()] Goal transform not found!!!");
+	}
+
+	if (m_Shake)
+	{
+		m_TransformOffset.position.x = randomf(-1.0f, 1.0f) * m_ShakeIntensity.x;
+		m_TransformOffset.position.y = randomf(-1.0f, 1.0f) * m_ShakeIntensity.y;
+	}
+	else
+	{
+		m_TransformOffset.position = { 0.0f, 0.0f };
 	}
 }
 
@@ -52,10 +64,10 @@ void Camera::setScale(lost::Vector2D scale)
 
 void Camera::setViewportTransforms()
 {
-	lost::Bound2D viewBounds = m_Bounds * m_Transform.scale + m_Transform.position + lost::Vector2D{ 0.0f, 0.141412f };
+	lost::Bound2D viewBounds = m_Bounds * (m_Transform.scale) + m_Transform.position + m_TransformOffset.position + lost::Vector2D{ 0.0f, 0.141412f };
 	viewBounds = viewBounds - lost::Vector2D{ viewBounds.w / 2.0f, viewBounds.h / 2.0f };
     sgp_project(viewBounds.left, viewBounds.right, viewBounds.top, viewBounds.bottom);
-	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x, m_Transform.position.y + m_Bounds.h / 2.0f);
+	sgp_rotate_at(m_Transform.rotation + m_RotationOffset, m_Transform.position.x + m_TransformOffset.position.x, m_Transform.position.y + m_Bounds.h / 2.0f + m_TransformOffset.position.y);
 }
 
 void Camera::resetViewportTransforms()
@@ -89,15 +101,44 @@ void Camera::addPosition(float x, float y)
 	m_Transform.position.y += y;
 }
 
-lost::Vector2D Camera::screenToWorld(lost::Vector2D mousePos)
+void Camera::startShake(lost::Vector2D intensity)
 {
-	mousePos = (mousePos - lost::Vector2D{ m_Bounds.w / 2.0f, m_Bounds.h / 2.0f }) * m_Transform.scale + m_Transform.position;
-	return mousePos;
+	m_ShakeIntensity = intensity;
+	m_Shake = true;
+}
+
+void Camera::stopShake()
+{
+	m_ShakeIntensity = { 0.0f, 0.0f };
+	m_Shake = false;
+}
+
+lost::Vector2D Camera::getPos()
+{
+	lost::Bound2D bounds = getViewBounds();
+	return { bounds.x, bounds.y };
+}
+
+lost::Vector2D Camera::getCenter()
+{
+	lost::Bound2D bounds = getViewBounds();
+	return { bounds.x + bounds.w / 2.0f, bounds.y + bounds.h / 2.0f };
+}
+
+lost::Vector2D Camera::screenToWorld(lost::Vector2D pos)
+{
+	pos = (pos - lost::Vector2D{ m_Bounds.w / 2.0f, m_Bounds.h / 2.0f }) * m_Transform.scale + m_Transform.position;
+	return pos;
+}
+
+float Camera::getRotation() const
+{
+	return m_Transform.rotation + m_RotationOffset;
 }
 
 lost::Bound2D Camera::getViewBounds()
 {
-	lost::Bound2D viewBounds = m_Bounds * (m_Transform.scale + lost::Vector2D{ 0.1f, 0.1f }) + m_Transform.position;
+	lost::Bound2D viewBounds = m_Bounds * (m_Transform.scale * 1.1f) + m_Transform.position + m_TransformOffset.position + lost::Vector2D{ 0.0f, 0.141412f };
 	viewBounds = viewBounds - lost::Vector2D{ viewBounds.w / 2.0f, viewBounds.h / 2.0f };
 	return viewBounds;
 }

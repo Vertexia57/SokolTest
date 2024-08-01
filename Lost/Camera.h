@@ -33,14 +33,27 @@ public:
 	bool hasFocus(lost::Transform2D* transformPtr);
 	void addPosition(float x, float y);
 
-	lost::Vector2D screenToWorld(lost::Vector2D mousePos);
+	void startShake(lost::Vector2D intensity);
+	void stopShake();
+
+	lost::Vector2D getPos();
+	lost::Vector2D getCenter();
+	lost::Vector2D screenToWorld(lost::Vector2D pos);
+	float getRotation() const;
 
 	lost::Bound2D getViewBounds();
+
+	inline void setRotateFollow(bool rotate) { m_RotateFollow = rotate; };
 
 private:
 	void m_UpdateGoalPtr();
 
 	lost::Transform2D m_Transform = { 0, 0 };
+	lost::Transform2D m_TransformOffset = { 0, 0 };
+	lost::Vector2D m_ShakeIntensity = { 0.0f, 0.0f };
+	bool m_Shake = false;
+
+	bool m_RotateFollow = true;
 
 	lost::Transform2D* m_GoalTransform = nullptr;
 	std::map<lost::Transform2D*, int> cameraFollowList;

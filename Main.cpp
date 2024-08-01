@@ -7,6 +7,8 @@
 #include "Player.h"
 #include "StorageWindow.h"
 #include "HUDWindow.h"
+#include "StarBackground.h"
+#include "FallingHub.h"
 
 #define SOKOL_IMPL
 #define SOKOL_IMGUI_IMPL
@@ -30,6 +32,12 @@ static void event_userdata_cb(const sapp_event* user_event, void* user_data)
 {
 	simgui_handle_event(user_event);
 	lost::feedInputEvent(user_event);
+	
+	if (user_event->type == sapp_event_type::SAPP_EVENTTYPE_RESIZED)
+	{
+		if (g_World)
+			g_World->recreateBackground();
+	}
 }
 
 // [!] TODO: Stop using std::string for tileID's itemID's and other things
@@ -79,9 +87,11 @@ static void frame()
 	lost::calcProcessTime("Update Time");
 
 	lost::globalCamera.update(lost::deltaTime);
-	lost::globalCamera.setViewportTransforms();
 
 	lost::bindShader(lost::getShader(0));
+	g_World->renderBackground(lost::globalCamera.getViewBounds());
+
+	lost::globalCamera.setViewportTransforms();
 
 	g_World->render(lost::globalCamera.getViewBounds());
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -200,12 +210,13 @@ static void init(void) {
 	lost::loadImage("GameData/HoverNBox.png", "HoverNBox");
 	lost::loadImage("GameData/HUDTopLeft.png", "HUDTopLeft");
 	lost::loadImage("GameData/Credit.png", "Credit");
+	lost::loadImage("GameData/StarImage.png", "starImage");
 	lost::loadImageQueue();
 
 	g_World = new World();
 	g_World->worldInit();
-	g_PlayerPointer = new Player({ 0, 0 });
-	g_World->addEntity(g_PlayerPointer);
+	//g_PlayerPointer = new Player({ 0, 0 });
+	g_World->addEntity(new FallingHub({0, -8000.0f}));
 
 	simgui_desc_t simguiSetupDesc = {};
 	simgui_setup(&simguiSetupDesc);
