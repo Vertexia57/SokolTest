@@ -1,4 +1,5 @@
 #include "HubTileEntity.h"
+#include "Player.h"
 
 HubTileEntity::HubTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation)
 	: TileEntity(tileEntityRef_, rotation)
@@ -12,10 +13,13 @@ HubTileEntity::HubTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation
 	item.StackSize = 500;
 
 	insertItem(item);
+
+	g_PlayerPointer->setConnectedHub(this);
 }
 
 HubTileEntity::~HubTileEntity()
 {
+	g_PlayerPointer->setConnectedHub(nullptr);
 }
 
 Item HubTileEntity::extractItem(int count, bool output)

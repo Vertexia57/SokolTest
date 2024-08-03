@@ -7,8 +7,8 @@ BoxWindow::BoxWindow(lost::Bound2D bounds)
 	m_NBoxData = {};
 	m_NBoxData.leftSize = 10;
 	m_NBoxData.rightSize = 6;
-	m_NBoxData.topSize = 10;
-	m_NBoxData.bottomSize = 4;
+	m_NBoxData.topSize = 13;
+	m_NBoxData.bottomSize = 6;
 	m_NBoxData.bounds = m_Bounds;
 	m_NBoxData.scale = 6.0f;
 	m_NBoxData.imageSize = { 24, 24 };

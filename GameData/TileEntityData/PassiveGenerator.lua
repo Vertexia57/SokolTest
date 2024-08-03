@@ -40,7 +40,7 @@ data:extend(
         powerData = {
             powerIdleUsage = 0.0,  
             powerActiveUsage = 0.0,  
-            powerProduce = 400.0,  
+            powerProduce = 1000.0,  
 		}
 	}
 )

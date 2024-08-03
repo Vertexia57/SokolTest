@@ -3,6 +3,8 @@
 #include "TileManager.h"
 #include "Generator.h"
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 
 class World;
 
@@ -18,6 +20,10 @@ public:
 
 	void generateChunk(Generator* generator, World* parentWorld);
 	void loadChunkGeneratedData(Generator* generator);
+
+	// Generate functions that update condition variables for a seperate thread
+	void generateChunkMutex(Generator* generator, World* parentWorld, std::mutex& mutex, std::condition_variable& cv, bool* controlVariableValue);
+	void loadChunkGeneratedDataMutex(Generator* generator, std::mutex& mutex, std::condition_variable& cv, bool* controlVariableValue);
 
 	void addTileEntity(TileEntity* tileEntity, lost::Vector2D position);
 	void destroyTileEntity(TileEntity* tileEntity);
@@ -42,5 +48,6 @@ private:
 	std::vector<TileEntity*> m_TileEntities;
 	World* m_ParentWorld;
 	std::thread generationThread;
+	//std::thread structGenerationThread; // Used by structure generation
 	ChunkDataStruct chunkData;
 };

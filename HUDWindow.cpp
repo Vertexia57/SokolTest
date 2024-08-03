@@ -162,6 +162,10 @@ void HUDWindow::update()
 				{
 					// [!] TODO: Refund items on deconstruct
 					//g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+					std::vector<IdCountPair>& cost = tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+					for (IdCountPair& pair : cost)
+						g_PlayerPointer->getConnectedHub()->getInventory()->addItem(g_ItemManager.getItemData(pair.id), pair.count);
+
 					g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
 				}
 
@@ -204,9 +208,7 @@ void HUDWindow::update()
 					{
 						createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
 						for (IdCountPair& pair : cost)
-						{
 							g_PlayerPointer->getConnectedHub()->getInventory()->removeItem(g_ItemManager.getItemData(pair.id), pair.count);
-						}
 					}
 
 				}

@@ -100,7 +100,10 @@ namespace lost
 		lost::clearImage();
 
 		for (UIWindow* window : m_UIWindows)
-			window->render();
+		{
+			if (!window->toRemove)
+				window->render();
+		}
 
 		lost::bindShader(oldShader);
 	}

@@ -13,7 +13,7 @@ data:extend(
         dataType = "recipie",
         name = "Ferrite Powder Crushing",
 
-        craftingGroup = "crusher",
+        craftingGroup = "press",
         ID = "ferriteCrushRecipie",
         timeToCraft = 4.0,
 

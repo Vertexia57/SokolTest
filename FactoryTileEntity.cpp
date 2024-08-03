@@ -11,6 +11,8 @@ FactoryTileEntity::FactoryTileEntity(TileEntityStruct* tileEntityRef_, uint32_t 
 
 FactoryTileEntity::~FactoryTileEntity()
 {
+	if (lost::UIHasWindow(m_RecipieWindow))
+		m_RecipieWindow->toRemove = true;
 	if (m_Storage)
 		delete m_Storage;
 }
@@ -67,24 +69,33 @@ void FactoryTileEntity::setRecipie(RecipieRefStruct* recipie)
 	if (m_Storage)
 		delete m_Storage;
 
-	int slotReq = recipie->ingredients.size() + recipie->results.size();
-	m_Storage = new Container(slotReq);
-
-	int slotIndex = 0;
-	for (IdCountPair& pair : recipie->ingredients)
+	if (recipie != nullptr)
 	{
-		m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
-		slotIndex++;
+
+		int slotReq = recipie->ingredients.size() + recipie->results.size();
+		m_Storage = new Container(slotReq);
+
+		int slotIndex = 0;
+		for (IdCountPair& pair : recipie->ingredients)
+		{
+			m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
+			slotIndex++;
+		}
+
+		for (IdCountPair& pair : recipie->results)
+		{
+			m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
+			m_Storage->getItem(slotIndex)->output = true;
+			slotIndex++;
+		}
+
+		m_TimeToCraft = recipie->timeToCraft;
+	}
+	else
+	{
+		m_Storage = nullptr;
 	}
 
-	for (IdCountPair& pair : recipie->results)
-	{
-		m_Storage->lockSlot(g_ItemManager.getItemData(pair.id), slotIndex);
-		m_Storage->getItem(slotIndex)->output = true;
-		slotIndex++;
-	}
-
-	m_TimeToCraft = recipie->timeToCraft;
 	m_SetRecipie = recipie;
 
 	for (int x = floor(m_Hitbox.x - 1); x < ceil(m_Hitbox.x + m_Hitbox.w + 1); x++)
@@ -95,6 +106,11 @@ void FactoryTileEntity::setRecipie(RecipieRefStruct* recipie)
 			tile->tileUpdate();
 		}
 	}
+}
+
+RecipieRefStruct* FactoryTileEntity::getRecipie() const
+{
+	return m_SetRecipie;
 }
 
 void FactoryTileEntity::checkRecipie()
@@ -153,6 +169,7 @@ void FactoryTileEntity::mouseInteractFunction()
 		else
 		{
 			m_RecipieWindow->toRemove = true;
+			m_RecipieWindow = nullptr;
 		}
 	}
 }

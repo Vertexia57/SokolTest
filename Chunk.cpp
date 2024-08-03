@@ -90,6 +90,61 @@ void Chunk::loadChunkGeneratedData(Generator* generator)
 	generatedData = true;
 }
 
+void Chunk::generateChunkMutex(Generator* generator, World* parentWorld_, std::mutex& mutex, std::condition_variable& cv, bool* controlVariable)
+{
+	// Lock the mutex while we write to the control variable
+	// Putting in it's own scope will unlock the mutex after we've exited the scope
+	// since the lock_guard is removed
+	{
+		std::lock_guard lock(mutex);
+		*controlVariable = false;
+	}
+	// Notify the control variable that this value has been updated
+	cv.notify_one();
+
+	// Create the thread
+	m_ParentWorld = parentWorld_;
+	ready = false;
+	generatedData = false;
+	generationThread = std::thread(&Chunk::loadChunkGeneratedDataMutex, this, generator, std::ref(mutex), std::ref(cv), controlVariable);
+}
+
+void Chunk::loadChunkGeneratedDataMutex(Generator* generator, std::mutex& mutex, std::condition_variable& cv, bool* controlVariable)
+{
+	chunkData = generator->generateChunk(chunkCoord.x, m_Width, m_Height, m_ParentWorld->worldWidth * m_Width);
+
+	for (int y = 0; y < chunkData.height; y++)
+	{
+		for (int x = 0; x < chunkData.width; x++)
+		{
+			std::vector<TileEntity*> oldCellTileEntityRefs = m_Tiles[x + y * m_Width]->tileEntitiesWithin;
+			delete getLocalTile(x, y);
+			m_Tiles[x + y * m_Width] = new Tile({ x + chunkCoord.x * m_Width, y + chunkCoord.y * m_Height }, chunkData.tileMap[x + y * m_Width]);
+			m_Tiles[x + y * m_Width]->tileEntitiesWithin = oldCellTileEntityRefs;
+		}
+	}
+
+	for (int y = -1; y <= m_Height; y++)
+	{
+		for (int xPos = -1; xPos <= m_Width; xPos++)
+		{
+			m_ParentWorld->updateTileConnections(xPos + chunkCoord.x * m_Width, y);
+		}
+	}
+
+	generatedData = true;
+
+	// Lock the mutex while we write to the control variable
+	// Putting in it's own scope will unlock the mutex after we've exited the scope
+	// since the lock_guard is removed
+	{
+		std::lock_guard lock(mutex);
+		*controlVariable = true;
+	}
+	// Notify the control variable that this value has been updated
+	cv.notify_one();
+}
+
 void Chunk::addTileEntity(TileEntity* tileEntity, lost::Vector2D position)
 {
 	m_TileEntities.push_back(tileEntity);
@@ -113,7 +168,10 @@ void Chunk::update()
 {
 	if (!ready && generatedData) 
 	{
-		generationThread.join();
+		if (generationThread.joinable())
+			generationThread.join();
+		//if (structGenerationThread.joinable())
+		//	structGenerationThread.join();
 		ready = true;
 		m_ParentWorld->finishCreation(chunkCoord.x);
 

@@ -197,6 +197,17 @@ static void init(void) {
 			g_TileManager.loadExtraData(loaderState, pathToString.c_str());
 	}
 
+	g_World = new World();
+
+	// Reads the files within the ExtraData folder and loads them if they end in .lua
+	tileDataPath = "GameData/WorldGeneration/Structures/";
+	for (const auto& entry : std::filesystem::directory_iterator(tileDataPath))
+	{
+		std::string pathToString = entry.path().string();
+		if (pathToString.substr(pathToString.size() - 4, 4) == ".lua")
+			g_World->addStructureCode(pathToString.substr(36, pathToString.size() - 40).c_str(), read_text_file(pathToString.c_str()));
+	}
+
 	g_TileManager.createImageData(loaderState);
 	g_TileManager.createBuildingGroups(loaderState);
 	g_TileManager.createTileData(loaderState);
@@ -212,8 +223,6 @@ static void init(void) {
 	lost::loadImage("GameData/Credit.png", "Credit");
 	lost::loadImage("GameData/StarImage.png", "starImage");
 	lost::loadImageQueue();
-
-	g_World = new World();
 	g_World->worldInit();
 	//g_PlayerPointer = new Player({ 0, 0 });
 	g_World->addEntity(new FallingHub({0, -8000.0f}));

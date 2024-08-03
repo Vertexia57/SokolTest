@@ -41,7 +41,7 @@ data:extend(
             cost = {
 				{
 					item = "ironIngot",
-					count = 5
+					count = 3
 				}
 			},  
 			buildingGroup = "logistics",  

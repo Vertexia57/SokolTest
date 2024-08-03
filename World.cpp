@@ -22,6 +22,8 @@ void World::worldInit()
 	m_BorderAir = new Tile({ 0, 0 }, g_TileManager.getTileRef("air"));
 	worldGenerator = new Generator("GameData\\WorldGeneration\\Generator.lua");
 	worldTileWidth = worldWidth * chunkWidth;
+
+	queueStructure(GenerateStructureStruct{ "Box", 20, 20 });
 }
 
 void World::recreateBackground()
@@ -39,9 +41,34 @@ void World::update(lost::Bound2D renderBounds)
 
 	m_Background->update();
 
-	for (const auto& [val, chunk] : m_Chunks)
-		chunk->update();
 
+	// Update all chunks
+	int newChunkGeneratingCount = 0;
+	for (const auto& [val, chunk] : m_Chunks)
+	{
+		chunk->update();
+		if (!chunk->ready)
+			newChunkGeneratingCount++;
+	}
+
+	if (newChunkGeneratingCount != m_GeneratingChunks)
+	{
+		if (m_GeneratingStruct)
+		{
+			// If currently generating a structure update the generating chunks count on the conditional
+			{
+				std::lock_guard lock(m_StructureThreadMutex);
+				m_GeneratingChunks = newChunkGeneratingCount;
+			}
+			m_StructureThreadCondition.notify_one();
+		}
+		else
+		{
+			m_GeneratingChunks = newChunkGeneratingCount;
+		}
+	}
+
+	// Loop through all entities in the world and remove them from the world if necessary
 	for (int i = m_Entities.size() - 1; i >= 0; i--)
 	{
 		m_Entities[i]->loopPosition(worldTileWidth * 32.0f);
@@ -53,8 +80,8 @@ void World::update(lost::Bound2D renderBounds)
 		}
 	}
 
+	// Remove any unused power circuits
 	std::vector<int> eraseList = {};
-
 	for (auto& [key, val] : m_PowerCircuits)
 	{
 		val.calcConsumption();
@@ -69,8 +96,19 @@ void World::update(lost::Bound2D renderBounds)
 			m_PowerCircuits.erase(id);
 		}
 	}
-	
-	ImGui::Text("Current OOB TileEntities: %i", static_cast<int>(m_OutOfBoundsEntities.size()));
+
+	// Check if generation thread needs to be joined
+	if (!m_GeneratingStruct && m_ThreadActive && m_StructureGenerationThread.joinable())
+	{
+		m_ThreadActive = false;
+		m_StructureGenerationThread.join();
+	}
+
+	// Check if generation thread needs to be started
+	if (!m_GeneratingStruct && !m_StructureGenerationQueue.empty())
+	{
+		startGenerate();
+	}
 }
 
 void World::renderBackground(lost::Bound2D renderBounds)
@@ -379,6 +417,16 @@ void World::setTile(TileRefStruct* tile, int x, int y)
 	}
 }
 
+void World::forceSetTile(TileRefStruct* tile, int x, int y)
+{
+	int loopedX = loopX(x);
+	if (m_Chunks.count((int)floor(loopedX / (float)chunkWidth)) > 0 && y >= 0 && y < chunkHeight)
+	{
+		m_Chunks[(int)floor(loopedX / (float)chunkWidth)]->setTile(tile, loopedX, y);
+		updateTileNeighbors(loopedX, y);
+	}
+}
+
 void World::updateTileConnections(int x, int y)
 {
 	Tile* thisTile = forceGetTileAt(x, y);
@@ -650,6 +698,126 @@ void World::mergePowerCircuits(uint32_t mergeOnto, uint32_t mergeFrom)
 	from.connectedEntities = {};
 }
 
+void World::queueStructure(GenerateStructureStruct structureData)
+{
+	m_StructureGenerationQueue.push(structureData);
+}
+
+void World::startGenerate()
+{
+	std::cout << " [World::StartGenerate()] Started Generation of StructureQueue" << std::endl;
+	if (!m_GeneratingStruct)
+		m_StructureGenerationThread = std::thread(&World::generateStructure, this);
+}
+
+void World::generateStructure()
+{
+	// Mark the generation thread as active, preventing others from activating
+	m_GeneratingStruct = true;
+	m_ThreadActive = true;
+
+	// Store the current amount of data on the queue
+	// Using this to check if we've gone through the queue rather than checking the active length of it
+	// removes the chance that we try and read the data of a generation structure struct while it's being
+	// added by another thread
+	int loopCount = m_StructureGenerationQueue.size();
+
+	for (int i = 0; i < loopCount; i++)
+	{
+		// Get the first index's data from the queue
+		GenerateStructureStruct structureData = m_StructureGenerationQueue.front();
+
+		std::cout << " [World::GenerateStructure()] Started Generation of " << structureData.structureID << std::endl;
+
+		// Create the lua state
+		lua_State* L = luaL_newstate();
+		luaL_openlibs(L);
+		luaBindDebugPrint(L);
+
+		// Bind c functions
+		lua_pushcfunction(L, LuaAwaitChunkGeneration);
+		lua_setglobal(L, "AwaitChunkGeneration");
+		lua_pushcfunction(L, LuaSetTileAt);
+		lua_setglobal(L, "SetTile");
+		lua_pushcfunction(L, LuaGetTileIDAt);
+		lua_setglobal(L, "GetTile");
+
+		std::string preSetData = "spawnPos = { x = " + std::to_string(structureData.startPos.x) + ", y = " + std::to_string(structureData.startPos.y) + " }";
+
+		checkLua(L, luaL_dostring(L, preSetData.c_str()));
+
+		// Run the lua code
+		if (m_StructureGeneratorCode.count(structureData.structureID))
+			checkLua(L, luaL_dostring(L, m_StructureGeneratorCode[structureData.structureID].c_str()));
+		else
+			lost::lassert("Structure with ID: " + structureData.structureID + " doesn't exist! Maybe file name is different to ID in generator?");
+
+		lua_close(L);
+
+		// Remove the first index from the queue
+		m_StructureGenerationQueue.pop();
+	}
+
+	// Unmark the generation thread
+	m_GeneratingStruct = false;
+}
+
+void World::awaitChunkGeneration(int minX, int maxX)
+{
+	// Convert from tile units to chunk units
+	minX = floor((float)minX / chunkWidth);
+	maxX = floor((float)maxX / chunkWidth);
+
+	int chunkCount = maxX - minX + 1;
+	bool* chunkComplete = new bool[chunkCount];
+	for (int i = 0; i < chunkCount; i++)
+		chunkComplete[i] = false;
+	
+	// Generate all the chunks required
+	for (int x = minX; x <= maxX; x++)
+	{
+		std::cout << " [World::AwaitChunkGeneration()] Started Generating chunk " << x << std::endl;
+
+		if (m_Chunks.count(loopChunkX(x)))
+		{
+			// Chunk already generated
+			chunkComplete[x - minX] = true;
+
+			// [=] The edge case where the chunk is still being generated, shouldn't occur anymore, as it awaits for ALL chunks to be generated
+		}
+		else
+		{
+			// Chunk not generated, create it
+			m_Chunks[loopChunkX(x)] = new Chunk({ loopChunkX(x), 0}, chunkWidth, chunkHeight);
+			m_Chunks[loopChunkX(x)]->generateChunkMutex(worldGenerator, this, m_StructureThreadMutex, m_StructureThreadCondition, chunkComplete + (x - minX));
+		}
+	}
+
+	std::cout << " [World::AwaitChunkGeneration()] Awaiting Completion" << std::endl;
+
+	// Lock this thread until all chunks are complete
+	int& currentGeneratingChunks = m_GeneratingChunks; // Need to create a reference in this function for it to be captured
+
+	std::unique_lock lock(m_StructureThreadMutex);
+	m_StructureThreadCondition.wait(lock, [chunkComplete, chunkCount, currentGeneratingChunks]{
+		for (int i = 0; i < chunkCount; i++)
+		{
+			if (!chunkComplete[i])
+				return false;
+		}
+		return currentGeneratingChunks == 0;
+	});
+
+	std::cout << " [World::AwaitChunkGeneration()] Completed" << std::endl;
+
+	delete[] chunkComplete;
+}
+
+void World::addStructureCode(std::string ID, std::string code)
+{
+	m_StructureGeneratorCode[ID] = code;
+}
+
 World* g_World = nullptr;
 
 void PowerCircuitStruct::removeNode(PowerConduit* conduit)
@@ -708,3 +876,35 @@ void PowerCircuitStruct::removeNode(PowerConduit* conduit)
 		}
 	}
 };
+
+int LuaAwaitChunkGeneration(lua_State* L)
+{
+	int minX = lua_tointeger(L, 1);
+	int maxX = lua_tointeger(L, 2);
+	lua_pop(L, -1);
+	lua_pop(L, -1);
+
+	g_World->awaitChunkGeneration(minX, maxX);
+	return 0;
+}
+
+int LuaGetTileIDAt(lua_State* L)
+{
+	int x = lua_tointeger(L, 1);
+	int y = lua_tointeger(L, 2);
+	lua_pop(L, -1);
+	lua_pop(L, -1);
+	lua_pushstring(L, g_World->forceGetTileAt(x, y)->referenceStruct->name.c_str());
+	return 1;
+}
+
+int LuaSetTileAt(lua_State* L)
+{
+	int x = lua_tointeger(L, 2);
+	int y = lua_tointeger(L, 3);
+	std::string id = lua_tostring(L, 1);
+	lua_pop(L, -1);
+	lua_pop(L, -1);
+	g_World->forceSetTile(g_TileManager.getTileRef(id), x, y);
+	return 0;
+}

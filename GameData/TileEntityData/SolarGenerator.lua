@@ -1,8 +1,8 @@
 data:addImages(
     {
         {
-			file = "Placeholder.png",
-			ID = "placeholder",
+			file = "TileEntityData/Images/SolarGenerator.png",
+			ID = "solarArray",
 			pass = "albedo"
         }
     }
@@ -12,12 +12,12 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "Crusher",
-		ID = "crusher",
+		name = "Solar Array",
+		ID = "solarArray",
 		description = "",
 		
 		imageData = {
-			images = { "placeholder" },
+			images = { "solarArray" },
 			frames = 1,
 			variants = 1,
 			randomVariant = false,
@@ -25,19 +25,19 @@ data:extend(
 		},
 		
 		width = 3.0,
-		height = 3.0,
+		height = 2.0,
 		renderLayer = 1,
 		
 		placementOffsetX = -1.0,
-		placementOffsetY = -2.0,
+		placementOffsetY = -1.0,
 		
 		stable = false,
-		collidable = true,
+		collidable = false,
 		requiresSupport = true,
 		fillsLayers = { true, false, false },
 
         building = true,
-		buildingData = {
+        buildingData = {
             cost = {
 				{
 					item = "ironIngot",
@@ -45,21 +45,19 @@ data:extend(
 				},
 				{
 					item = "copperIngot",
-					count = 5
+					count = 20
 				}
 			},
-			buildingGroup = "production",  
+			buildingGroup = "electric",  
 			rotationStates = 1,
-            updateAction = "factory",
+            updateAction = "none",
             updateData = {
-				craftingGroup = "crusher",
-				speed = 1.0
             }
-		},
+        },
 		powerData = {
-            powerIdleUsage = 10.0,  
-            powerActiveUsage = 50.0,  
-            powerProduce = 0.0
+            powerIdleUsage = 0.0,  
+            powerActiveUsage = 0.0,  
+            powerProduce = 200.0
 		}
     }
 )

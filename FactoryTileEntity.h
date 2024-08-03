@@ -15,6 +15,7 @@ public:
 	virtual void tileUpdate() override;
 
 	void setRecipie(RecipieRefStruct* recipie);
+	RecipieRefStruct* getRecipie() const;
 	void checkRecipie();
 
 	virtual Item extractItem(int count, bool output = true);

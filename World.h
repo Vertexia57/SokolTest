@@ -1,12 +1,17 @@
 #pragma once
+#include <map>
+#include <array>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
 #include "Tile.h"
 #include "TileEntity.h"
 #include "Chunk.h"
-#include <array>
 #include "Generator.h"
 #include "Entity.h"
 #include "Lost/Transform2D.h"
-#include <map>
 #include "Lost/Graph.h"
 #include "PowerConduit.h"
 #include "StarBackground.h"
@@ -109,6 +114,13 @@ struct PowerCircuitStruct
 	}
 };
 
+struct GenerateStructureStruct
+{
+	std::string structureID;
+	lost::IntVector2D startPos;
+	lost::Bound2D bounds = { 0.0f, 0.0f, 0.0f, 0.0f };
+};
+
 class World
 {
 public:
@@ -140,30 +152,83 @@ public:
 	bool checkStable(lost::Bound2D bounds);
 
 	void setTile(TileRefStruct* tile, int x, int y);
+	// Ignores the chunks "ready" flag
+	void forceSetTile(TileRefStruct* tile, int x, int y);
+
+	// [--------------------]
+	//    Update Functions
+	// [--------------------]
+
+	// Updates the tile's coneection in and around the tile location given
 	void updateTileConnections(int x, int y);
+	// Updates the tile's coneection in and around the tile location given
 	void updateTileNeighbors(int x, int y);
 
+	// Updates an individual tile
 	void tileUpdate(int x, int y);
+	// Updates an individual tile
 	void tileUpdate(lost::IntVector2D pos);
+	// Updates the tiles in the area given
 	void tileUpdateArea(int x, int y, int w, int h);
+	// Updates the tiles in the area given
 	void tileUpdateArea(lost::Bound2D area);
+
+
 
 	void addEntity(Entity* entity);
 
+	// [----------------------]
+	//    Get Tile Functions
+	// [----------------------]
+
 	Tile* getTileAt(int x, int y);
+	// Ignores the chunks "ready" flag
 	Tile* forceGetTileAt(int x, int y);
 
+	// Returns the tile entities in the area given, uses distance to check if it's in range
 	std::vector<TileEntity*> getTileEntitiesInArea(int x, int y, float range);
+	// Returns the tile entities in the area given, uses a box to check if it's in range
 	std::vector<TileEntity*> getTileEntitiesInBoxArea(int x, int y, float range);
 
+	// [---------------------]
+	//    Looping Functions
+	// [---------------------]
+	
+	// Loops the x value around the world width, uses tile units
 	int loopX(int x);
+	// Loops the x value around the world width, uses tile units
 	float loopX(float x);
+	// Loops the x value around the world width, uses chunk units
 	int loopChunkX(int x);
+	// Loops the x value around the world width, uses chunk units
 	float loopChunkX(float x);
 
+	// [---------------------------]
+	//    Power Network Functions
+	// [---------------------------]
+
+	// Creates a power circuit and returns the id of that circuit
 	uint32_t createPowerCircuit();
+	// Returns the power circuit struct with the id given
 	PowerCircuitStruct& getPowerCircuit(uint32_t id);
+	// Merges two power networks into one
 	void mergePowerCircuits(uint32_t mergeOnto, uint32_t mergeFrom);
+
+	// [-----------------------]
+	//    Structure Functions
+	// [-----------------------]
+
+	// Adds a structure to the queue
+	void queueStructure(GenerateStructureStruct structureData);
+	// Starts the next generation, is ran if no structure is being generated / the queue is empty
+	// Note: Is only ran when after a chunk is generated
+	void startGenerate();
+	// Generates the structure that is first in the queue, this is the one that runs on the structure thread
+	void generateStructure();
+	// A function ran by lua, used as a break point to generate the chunks
+	void awaitChunkGeneration(int minX, int maxX);
+	
+	void addStructureCode(std::string ID, std::string code);
 
 	int worldMaxX = 0;
 	int worldMinX = 0;
@@ -176,6 +241,14 @@ public:
 private:
 	Tile* m_BorderAir = nullptr;
 
+	std::mutex m_StructureThreadMutex;
+	std::condition_variable m_StructureThreadCondition;
+	bool m_ThreadActive = false;
+	bool m_GeneratingStruct = false;
+	int m_GeneratingChunks = 0;
+	std::thread m_StructureGenerationThread;
+	std::queue<GenerateStructureStruct> m_StructureGenerationQueue;
+
 	std::map<int, Chunk*> m_Chunks;
 	std::vector<Entity*> m_Entities;
 
@@ -184,6 +257,11 @@ private:
 	std::map<int, PowerCircuitStruct> m_PowerCircuits;
 
 	Generator* worldGenerator = nullptr;
+	std::map<std::string, std::string> m_StructureGeneratorCode = {};
 
 	Background* m_Background = nullptr;
 };
+
+extern int LuaAwaitChunkGeneration(lua_State* L);
+extern int LuaGetTileIDAt(lua_State* L);
+extern int LuaSetTileAt(lua_State* L);

@@ -1,12 +1,10 @@
 local perlin = assert(loadfile(localDir .. "\\Perlin.lua"))()
 
 tileAtlas = { "air", "stone", "ironOre", "copperOre" }
-tileEntityAtlas = { "petrifiedTree", "passiveGenerator", "pebbles" }
+tileEntityAtlas = { "petrifiedTree", "pebbles" }
 
 tileArray = { }
 tileEntities = { }
-
-placedPassiveGenerator = not (chunkX == 0)
 
 math.randomseed(generatorSeed + chunkX)
 
@@ -93,20 +91,9 @@ for y = 1, chunkHeight, 1 do
             if (tileArray[y][x] == 0 and tileArray[y + 1][x] == 1) then
                 tileEntities[tileEntityCount] = {}
                 tileEntities[tileEntityCount][0] = actualY
-                tileEntities[tileEntityCount][1] = 2
-                tileEntities[tileEntityCount][2] = actualX
-                tileEntityCount = tileEntityCount + 1
-            end
-        end
-
-        if not placedPassiveGenerator then
-            if (tileArray[y][x] == 0 and tileArray[y + 1][x] == 1 and (tileArray[y][x - 1] == 0 and tileArray[y + 1][x - 1] == 1 or x == 1) and (tileArray[y + 1][x + 1] == 1 and tileArray[y][x + 1] == 0 or x == chunkWidth)) then
-                tileEntities[tileEntityCount] = {}
-                tileEntities[tileEntityCount][0] = actualY
                 tileEntities[tileEntityCount][1] = 1
                 tileEntities[tileEntityCount][2] = actualX
                 tileEntityCount = tileEntityCount + 1
-                placedPassiveGenerator = true
             end
         end
     end

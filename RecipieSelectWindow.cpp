@@ -1,5 +1,6 @@
 #include "RecipieSelectWindow.h"
 #include "FactoryTileEntity.h"
+#include "Player.h"
 
 RecipieSelectWindow::RecipieSelectWindow(lost::Bound2D bounds, FactoryTileEntity* factoryRef, std::string& craftingGroup)
 	: BoxWindow(bounds)
@@ -33,21 +34,166 @@ void RecipieSelectWindow::update()
 	int slotY = (int)floor((float)(mousePos.y - m_Bounds.y - 10 - m_ToastHeight) / m_SlotSize);
 	int slotIndex = slotX + slotY * m_ContainerWidth;
 
-	if (slotX >= 0 && slotX < m_ContainerWidth && slotY >= 0 && slotY < m_ContainerHeight)
+	if (!m_FactoryRef->hasInventory())
 	{
-		m_HighlightedSlot = { slotX, slotY };
-		if (lost::mouseTapped(0) && slotIndex < m_CraftingGroupRef->size())
+		Container* refContainer = m_FactoryRef->getInventory();
+		if (slotX >= 0 && slotX < m_ContainerWidth && slotY >= 0 && slotY < m_ContainerHeight)
 		{
-			toRemove = true;
-			auto it = m_CraftingGroupRef->begin();
-			for (int i = 0; i < slotIndex; i++)
-				it++;
-			m_FactoryRef->setRecipie(it->second);
+			m_HighlightedSlot = { slotX, slotY };
+			if (lost::mouseTapped(0) && slotIndex < m_CraftingGroupRef->size())
+			{
+				toRemove = true;
+				auto it = m_CraftingGroupRef->begin();
+				for (int i = 0; i < slotIndex; i++)
+					it++;
+				m_FactoryRef->setRecipie(it->second);
+			}
+		}
+		else
+		{
+			m_HighlightedSlot = { -1, -1 };
 		}
 	}
 	else
 	{
-		m_HighlightedSlot = { -1, -1 };
+		// Use base container logic
+
+		if (slotIndex == m_FactoryRef->getRecipie()->ingredients.size())
+		{
+			slotIndex = -1;
+			slotX = -1;
+			slotY = -1;
+		}
+		else if (slotIndex > m_FactoryRef->getRecipie()->ingredients.size())
+		{
+			slotIndex--;
+		}
+
+		Container* refContainer = m_FactoryRef->getInventory();
+		if (slotX >= 0 && slotX < m_ContainerWidth && slotY >= 0 && slotY < m_ContainerHeight && slotIndex < refContainer->size)
+		{
+			m_HighlightedSlot = { slotX, slotY };
+
+			// Left click
+			if (lost::mouseTapped(0))
+			{
+				Item* itemHovered = refContainer->getItem(slotIndex);
+				if ((itemHovered->empty || g_PlayerPointer->holdingItem.empty || !refContainer->isSlotSameType(slotIndex, g_PlayerPointer->holdingItem)) && !itemHovered->locked)
+				{
+					// Slot wasn't accessable, swap
+					SwapItems(itemHovered, &g_PlayerPointer->holdingItem);
+				}
+				else if ((g_PlayerPointer->holdingItem.empty || g_PlayerPointer->holdingItem.itemID == itemHovered->itemID) && itemHovered->locked && itemHovered->StackSize > 0)
+				{
+					// Player hand is empty or contains the item that matches the locked slot
+
+					if (g_PlayerPointer->holdingItem.empty) // Any
+					{
+						// Fill the player hand with the locked slot's item and set the stack size of the slot to 0
+						g_PlayerPointer->holdingItem = *itemHovered;
+						g_PlayerPointer->holdingItem.locked = false;
+						itemHovered->StackSize = 0;
+					}
+					else if (!itemHovered->output) // Input & Locked
+					{
+						// Same as if it wasn't locked, fill slot with as much as it can, from the player hand
+						int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? itemHovered->maxStackSize - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
+						itemHovered->StackSize += amountToFill;
+						g_PlayerPointer->holdingItem.StackSize -= amountToFill;
+						if (g_PlayerPointer->holdingItem.StackSize <= 0)
+							g_PlayerPointer->holdingItem = Item();
+					}
+					else // Output & Locked
+					{
+						// Fill player hand with an much as it can from the output
+						int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? g_PlayerPointer->holdingItem.maxStackSize - g_PlayerPointer->holdingItem.StackSize : itemHovered->StackSize;
+						itemHovered->StackSize -= amountToFill;
+						g_PlayerPointer->holdingItem.StackSize += amountToFill;
+					}
+				}
+				else
+				{
+					if (refContainer->isSlotAccessable(slotIndex, g_PlayerPointer->holdingItem))
+					{
+						// Slot was accessable, add the held item stack to the item stack in that location
+						// Account for overflow
+						int amountToFill = (itemHovered->StackSize + g_PlayerPointer->holdingItem.StackSize > itemHovered->maxStackSize) ? itemHovered->maxStackSize - itemHovered->StackSize : g_PlayerPointer->holdingItem.StackSize;
+						itemHovered->StackSize += amountToFill;
+						g_PlayerPointer->holdingItem.StackSize -= amountToFill;
+						if (g_PlayerPointer->holdingItem.StackSize <= 0)
+							g_PlayerPointer->holdingItem = Item();
+					}
+				}
+				m_FactoryRef->checkRecipie();
+			}
+
+			// Right Click
+			if (lost::mouseTapped(1))
+			{
+				Item* itemHovered = refContainer->getItem(slotIndex);
+				if (g_PlayerPointer->holdingItem.empty)
+				{
+					// Player was not holding an item, half the stack
+					if (itemHovered->StackSize > 1)
+					{
+						int total = itemHovered->StackSize;
+						g_PlayerPointer->holdingItem = *itemHovered;
+						g_PlayerPointer->holdingItem.locked = false; // In case the item that was hovered was locked
+						g_PlayerPointer->holdingItem.StackSize = (int)ceil((float)total / 2.0f);
+						total -= (int)ceil((float)total / 2.0f);
+						itemHovered->StackSize = total;
+					}
+					else if (itemHovered->StackSize > 0)
+					{
+						// Slot was just a stack of one, swap the empty hand and the slot
+						if (!itemHovered->locked)
+						{
+							SwapItems(itemHovered, &g_PlayerPointer->holdingItem);
+						}
+						else // Locked
+						{
+							g_PlayerPointer->holdingItem = *itemHovered;
+							g_PlayerPointer->holdingItem.locked = false;
+							itemHovered->StackSize = 0;
+						}
+					}
+					m_FactoryRef->checkRecipie();
+				}
+				else if (refContainer->isSlotAccessable(slotIndex, g_PlayerPointer->holdingItem))
+				{
+					// Player is holding an item and that slot is accessable
+
+					if (itemHovered->empty)
+					{
+						// The slot was empty
+						*itemHovered = g_PlayerPointer->holdingItem;
+						itemHovered->StackSize = 1;
+					}
+					else
+					{
+						// The slot wasn't empty but was accessable
+						itemHovered->StackSize++;
+					}
+
+					g_PlayerPointer->holdingItem.StackSize--;
+					if (g_PlayerPointer->holdingItem.StackSize <= 0)
+						g_PlayerPointer->holdingItem = Item();
+					m_FactoryRef->checkRecipie();
+				}
+			}
+		}
+		else
+		{
+			// Hovered slot was outside of actual slot range
+			m_HighlightedSlot = { -1, -1 };
+
+			if (slotIndex == refContainer->size && slotX >= 0 && slotX < m_ContainerWidth && slotY >= 0 && slotY < m_ContainerHeight)
+			{
+				m_HighlightedSlot = { slotIndex + 1, 0 };
+				if (lost::mouseTapped(0))
+					m_FactoryRef->setRecipie(nullptr);
+			}
+		}
 	}
 }
 
@@ -62,9 +208,24 @@ void RecipieSelectWindow::render()
 		{
 			for (int x = 0; x < m_ContainerWidth; x++)
 			{
-				if (index <= m_FactoryRef->getInventory()->size - 1)
+				size_t slotIndex = index;
+				int slotX = x;
+				int slotY = y;
+
+				if (index == m_FactoryRef->getRecipie()->ingredients.size())
 				{
-					Item* item = m_FactoryRef->getInventory()->getItem(index);
+					slotIndex = -1;
+					slotX = -1;
+					slotY = -1;
+				}
+				else if (index > m_FactoryRef->getRecipie()->ingredients.size())
+				{
+					slotIndex--;
+				}
+
+				if (slotIndex <= m_FactoryRef->getInventory()->size - 1)
+				{
+					Item* item = m_FactoryRef->getInventory()->getItem(slotIndex);
 
 					lost::NBoxData slotNBox = {};
 					slotNBox.bottomSize = 2;
@@ -73,7 +234,7 @@ void RecipieSelectWindow::render()
 					slotNBox.leftSize = 2;
 					slotNBox.imageSize = { 5, 5 };
 					slotNBox.scale = 4.0f;
-					slotNBox.bounds = { m_Bounds.x + 15.0f + x * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + y * m_SlotSize, m_SlotSize, m_SlotSize };
+					slotNBox.bounds = { m_Bounds.x + 15.0f + slotX * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + slotY * m_SlotSize, m_SlotSize, m_SlotSize };
 					slotNBox.texture = lost::getImageID("SlotNBox");
 					lost::renderNBox(slotNBox);
 
@@ -89,12 +250,12 @@ void RecipieSelectWindow::render()
 						float imageWidth = lost::getImage(item->textureID)->width / item->refStruct->frames;
 						float imageHeight = lost::getImage(item->textureID)->height / item->refStruct->variants;
 
-						sgp_rect renderArea = { m_Bounds.x + 15.0f + x * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + y * m_SlotSize, m_SlotSize, m_SlotSize };
+						sgp_rect renderArea = { m_Bounds.x + 15.0f + slotX * m_SlotSize, m_Bounds.y + 20.0f + m_ToastHeight + slotY * m_SlotSize, m_SlotSize, m_SlotSize };
 
 						sgp_draw_textured_rect(0, renderArea, { 0, imageHeight * item->variant, imageWidth, imageHeight });
 						lost::renderTextPro(
 							std::to_string(item->StackSize),
-							{ m_Bounds.x + x * m_SlotSize + m_SlotSize, m_Bounds.y + m_ToastHeight + y * m_SlotSize + m_SlotSize },
+							{ m_Bounds.x + slotX * m_SlotSize + m_SlotSize, m_Bounds.y + m_ToastHeight + slotY * m_SlotSize + m_SlotSize },
 							0.5,
 							LOST_TEXT_ALIGN_RIGHT, LOST_TEXT_ALIGN_MIDDLE
 						);
