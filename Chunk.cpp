@@ -87,6 +87,11 @@ void Chunk::loadChunkGeneratedData(Generator* generator)
 		}
 	}
 
+	for (GenerateStructureStruct& s : chunkData.structures)
+	{
+		m_ParentWorld->queueStructure(s);
+	}
+
 	generatedData = true;
 }
 
@@ -100,7 +105,7 @@ void Chunk::generateChunkMutex(Generator* generator, World* parentWorld_, std::m
 		*controlVariable = false;
 	}
 	// Notify the control variable that this value has been updated
-	cv.notify_one();
+	cv.notify_all();
 
 	// Create the thread
 	m_ParentWorld = parentWorld_;
@@ -132,6 +137,11 @@ void Chunk::loadChunkGeneratedDataMutex(Generator* generator, std::mutex& mutex,
 		}
 	}
 
+	for (GenerateStructureStruct& s : chunkData.structures)
+	{
+		m_ParentWorld->queueStructure(s);
+	}
+
 	generatedData = true;
 
 	// Lock the mutex while we write to the control variable
@@ -142,7 +152,7 @@ void Chunk::loadChunkGeneratedDataMutex(Generator* generator, std::mutex& mutex,
 		*controlVariable = true;
 	}
 	// Notify the control variable that this value has been updated
-	cv.notify_one();
+	cv.notify_all();
 }
 
 void Chunk::addTileEntity(TileEntity* tileEntity, lost::Vector2D position)

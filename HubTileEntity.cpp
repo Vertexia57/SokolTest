@@ -11,7 +11,9 @@ HubTileEntity::HubTileEntity(TileEntityStruct* tileEntityRef_, uint32_t rotation
 
 	Item item = Item(g_ItemManager.getItemData("ironIngot"));
 	item.StackSize = 500;
-
+	insertItem(item);
+	item = Item(g_ItemManager.getItemData("copperIngot"));
+	item.StackSize = 500;
 	insertItem(item);
 
 	g_PlayerPointer->setConnectedHub(this);

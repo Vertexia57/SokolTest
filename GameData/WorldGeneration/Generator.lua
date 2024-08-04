@@ -6,7 +6,10 @@ tileEntityAtlas = { "petrifiedTree", "pebbles" }
 tileArray = { }
 tileEntities = { }
 
+structures = { }
+
 math.randomseed(generatorSeed + chunkX)
+generatedOre = false
 
 function getNoise(x, scale)
     return perlin:noise(x * scale, 0, generatorSeed)
@@ -37,22 +40,7 @@ for x = 1, chunkWidth, 1 do
     -- cPrint(tostring(x - 1 + chunkX * chunkWidth))
 end
 
-local oreMap = {}
-for y = 1, chunkHeight, 1 do
-    oreMap[y] = {}
-    for x = 1, chunkWidth, 1 do
-        local distFromSurface = math.max((y - 1) - (noiseMap[x] * 20.0 + 30.0), 0)
-        local depleetion = math.abs(distFromSurface - 5) * 0.05
-
-        xValue = math.sin((x - 1 + chunkX * chunkWidth) / worldWidth * 2.0 * math.pi) * 1.5
-        yValue = math.cos((x - 1 + chunkX * chunkWidth) / worldWidth * 2.0 * math.pi) * 1.5
-        oreMap[y][x] = tonumber(detailNoise(xValue, yValue, (y - 1) / worldWidth * 15.0 * math.pi, 1.1, 1)) * 2.0 - 1.5
-        oreMap[y][x] = oreMap[y][x] - oreMap[y][x] * depleetion
-    end
-end
-
 -- Generate terrain
-local tileEntityCount = 1
 
 for y = 1, chunkHeight, 1 do
     for x = 1, chunkWidth, 1 do
@@ -61,42 +49,54 @@ for y = 1, chunkHeight, 1 do
         actualY = y - 1
 
         if (actualY > noiseMap[x] * 20.0 + 30.0) then
-            if (oreMap[y][x] > 0.4) then
-                tileArray[y][x] = 2
-            elseif (oreMap[y][x] < -0.4) then
-                tileArray[y][x] = 3
-            else 
-                tileArray[y][x] = 1
-            end
+            tileArray[y][x] = 1
         else
             tileArray[y][x] = 0
         end
     end
 end
 
-for y = 1, chunkHeight, 1 do
-    for x = 1, chunkWidth, 1 do
+local tileEntityCount = 1
+local depth = 0
+
+for x = 1, chunkWidth, 1 do
+    depth = 0
+    for y = 1, chunkHeight, 1 do
+        if (tileArray[y][x] == 1) then
+            depth = depth + 1
+        end
 
         actualX = x - 1
         actualY = y - 1
         if (math.random() <= 0.3) then
             if (tileArray[y][x] == 0 and tileArray[y + 1][x] == 1 and (tileArray[y][x - 1] == 0 and tileArray[y + 1][x - 1] == 1 or x == 1) and (tileArray[y + 1][x + 1] == 1 and tileArray[y][x + 1] == 0 or x == chunkWidth)) then
                 tileEntities[tileEntityCount] = {}
-                tileEntities[tileEntityCount][0] = actualY
                 tileEntities[tileEntityCount][1] = 0
                 tileEntities[tileEntityCount][2] = actualX
+                tileEntities[tileEntityCount][3] = actualY
                 tileEntityCount = tileEntityCount + 1
             end
         elseif (math.random() <= 0.3) then
             if (tileArray[y][x] == 0 and tileArray[y + 1][x] == 1) then
                 tileEntities[tileEntityCount] = {}
-                tileEntities[tileEntityCount][0] = actualY
                 tileEntities[tileEntityCount][1] = 1
                 tileEntities[tileEntityCount][2] = actualX
+                tileEntities[tileEntityCount][3] = actualY
                 tileEntityCount = tileEntityCount + 1
+            end
+        end
+
+        if (not generatedOre and chunkX % 2 == 0) then
+            if (depth >= 10) then
+                structures[#structures + 1] = {}
+                structures[#structures][1] = "Box"
+                structures[#structures][2] = actualX
+                structures[#structures][3] = actualY
+                structures[#structures][4] = { ore = "copperOre" }
+                generatedOre = true
             end
         end
     end
 end
 
-return tileEntities, tileEntityAtlas, tileArray, tileAtlas
+return tileEntities, tileEntityAtlas, tileArray, tileAtlas, structures

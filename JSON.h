@@ -129,3 +129,5 @@ public:
 JSONObject* LoadJSONObject(std::string fileLocation);
 JSONArray* LoadJSONArray(std::string fileLocation);
 JSONObject* LuaStackToJSONObject(lua_State* luaState);
+static void SubJSONObjectToLuaStack(JSONObject* jsonObject, lua_State* luaState, std::string objectName);
+void JSONObjectToLuaTable(JSONObject* jsonObject, lua_State* luaState, std::string name);

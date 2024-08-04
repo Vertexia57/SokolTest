@@ -49,7 +49,7 @@ data:extend(
             updateAction = "factory",
             updateData = {
 				craftingGroup = "furnace",
-				speed = 0.5
+				speed = 1.0
             }
 		},
 		powerData = {

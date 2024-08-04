@@ -23,7 +23,7 @@ void World::worldInit()
 	worldGenerator = new Generator("GameData\\WorldGeneration\\Generator.lua");
 	worldTileWidth = worldWidth * chunkWidth;
 
-	queueStructure(GenerateStructureStruct{ "Box", 20, 20 });
+	//queueStructure(GenerateStructureStruct{ "Box", 20, 20 });
 }
 
 void World::recreateBackground()
@@ -60,7 +60,7 @@ void World::update(lost::Bound2D renderBounds)
 				std::lock_guard lock(m_StructureThreadMutex);
 				m_GeneratingChunks = newChunkGeneratingCount;
 			}
-			m_StructureThreadCondition.notify_one();
+			m_StructureThreadCondition.notify_all();
 		}
 		else
 		{
@@ -701,6 +701,8 @@ void World::mergePowerCircuits(uint32_t mergeOnto, uint32_t mergeFrom)
 void World::queueStructure(GenerateStructureStruct structureData)
 {
 	m_StructureGenerationQueue.push(structureData);
+	if (!m_GeneratingStruct)
+		startGenerate();
 }
 
 void World::startGenerate()
@@ -742,6 +744,12 @@ void World::generateStructure()
 		lua_pushcfunction(L, LuaGetTileIDAt);
 		lua_setglobal(L, "GetTile");
 
+		if (structureData.extraData)
+		{
+			JSONObjectToLuaTable(structureData.extraData, L, "extraData");
+			delete structureData.extraData;
+		}
+
 		std::string preSetData = "spawnPos = { x = " + std::to_string(structureData.startPos.x) + ", y = " + std::to_string(structureData.startPos.y) + " }";
 
 		checkLua(L, luaL_dostring(L, preSetData.c_str()));
@@ -776,7 +784,7 @@ void World::awaitChunkGeneration(int minX, int maxX)
 	// Generate all the chunks required
 	for (int x = minX; x <= maxX; x++)
 	{
-		std::cout << " [World::AwaitChunkGeneration()] Started Generating chunk " << x << std::endl;
+		std::cout << " [World::AwaitChunkGeneration()] Started Generating chunk " << loopChunkX(x) << std::endl;
 
 		if (m_Chunks.count(loopChunkX(x)))
 		{
@@ -796,7 +804,7 @@ void World::awaitChunkGeneration(int minX, int maxX)
 	std::cout << " [World::AwaitChunkGeneration()] Awaiting Completion" << std::endl;
 
 	// Lock this thread until all chunks are complete
-	int& currentGeneratingChunks = m_GeneratingChunks; // Need to create a reference in this function for it to be captured
+	int* currentGeneratingChunks = &m_GeneratingChunks; // Need to create a reference in this function for it to be captured
 
 	std::unique_lock lock(m_StructureThreadMutex);
 	m_StructureThreadCondition.wait(lock, [chunkComplete, chunkCount, currentGeneratingChunks]{
@@ -805,7 +813,7 @@ void World::awaitChunkGeneration(int minX, int maxX)
 			if (!chunkComplete[i])
 				return false;
 		}
-		return currentGeneratingChunks == 0;
+		return *currentGeneratingChunks == 0;
 	});
 
 	std::cout << " [World::AwaitChunkGeneration()] Completed" << std::endl;

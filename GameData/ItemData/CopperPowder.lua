@@ -15,7 +15,7 @@ data:extend(
         
         craftingGroup = "press",
         ID = "copperCrushRecipie",
-        timeToCraft = 4.0,
+        timeToCraft = 2.0,
 
         ingredients = {
             { item = "copperOre", count = 1 }

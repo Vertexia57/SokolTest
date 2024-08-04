@@ -44,8 +44,8 @@ data:extend(
 					count = 15
 				},
 				{
-					item = "copperIngot",
-					count = 20
+					item = "copperSheet",
+					count = 10
 				}
 			},
 			buildingGroup = "electric",  

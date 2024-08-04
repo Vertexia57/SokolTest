@@ -114,13 +114,6 @@ struct PowerCircuitStruct
 	}
 };
 
-struct GenerateStructureStruct
-{
-	std::string structureID;
-	lost::IntVector2D startPos;
-	lost::Bound2D bounds = { 0.0f, 0.0f, 0.0f, 0.0f };
-};
-
 class World
 {
 public:

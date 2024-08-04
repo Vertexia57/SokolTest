@@ -53,6 +53,43 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height, int 
 
 	checkLua(L, luaL_dostring(L, (generatorCode).c_str()));
 
+	ChunkDataStruct dataStruct = {};
+	dataStruct.width = width;
+	dataStruct.height = height;
+
+	// Reads Fifth given return value
+	std::vector<GenerateStructureStruct> structureCreates = {};
+
+	lua_pushnil(L);
+	while (lua_next(L, -2)) {
+		lua_pushnil(L); // Checks next sub array of the value
+
+		GenerateStructureStruct structureCreateStruct = {};
+
+		lua_next(L, -2);
+		structureCreateStruct.structureID = lua_tostring(L, -1);
+		lua_pop(L, 1);
+
+		lua_next(L, -2);
+		structureCreateStruct.startPos.x = (int)lua_tointeger(L, -1) + chunkX * width;
+		lua_pop(L, 1);
+
+		lua_next(L, -2);
+		structureCreateStruct.startPos.y = (int)lua_tointeger(L, -1);
+		lua_pop(L, 1);
+
+		lua_next(L, -2);
+		structureCreateStruct.extraData = LuaStackToJSONObject(L);
+		//lua_pop(L, 1);
+
+		structureCreates.push_back(structureCreateStruct);
+
+		lua_pop(L, 2); // Clears it from the lua stack
+	}
+	lua_pop(L, 1); // Clears it from the lua stack
+
+	dataStruct.structures = structureCreates;
+
 	std::vector<int> MapRefIDs = {};
 	MapRefIDs.reserve(width * height);
 	std::vector<std::string> MapTileAtlas = {};
@@ -77,9 +114,6 @@ ChunkDataStruct Generator::generateChunk(int chunkX, int width, int height, int 
 	}
 	lua_pop(L, 1); // Clears it from the lua stack
 
-	ChunkDataStruct dataStruct = {};
-	dataStruct.width = width;
-	dataStruct.height = height;
 	dataStruct.tileMap.reserve(width * height);
 
 	std::vector<TileRefStruct*> refList;

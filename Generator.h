@@ -11,12 +11,21 @@ struct TileEntityCreateStruct
 	lost::Vector2D position;
 };
 
+struct GenerateStructureStruct
+{
+	std::string structureID;
+	lost::IntVector2D startPos;
+	lost::Bound2D bounds = { 0.0f, 0.0f, 0.0f, 0.0f };
+	JSONObject* extraData = nullptr;
+};
+
 struct ChunkDataStruct
 {
 	int width;
 	int height;
 	std::vector<TileRefStruct*> tileMap;
 	std::vector<TileEntityCreateStruct> tileEntities;
+	std::vector<GenerateStructureStruct> structures;
 };
 
 class Chunk;

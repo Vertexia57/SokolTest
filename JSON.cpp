@@ -897,3 +897,76 @@ JSONObject* LuaStackToJSONObject(lua_State* luaState)
 
 	return jsonReturn;
 }
+
+static void SubJSONObjectToLuaStack(JSONObject* jsonObject, lua_State* luaState, std::string objectName)
+{
+	std::vector<JSONIDSpecifier>* specifiers = jsonObject->getData()->getSpecifiers();
+
+	lua_newtable(luaState);
+
+	for (auto& [name, id] : jsonObject->getObjectList())
+	{
+		int type = (*specifiers)[id].Type;
+		switch (type)
+		{
+		case JSON_TYPE_INT:
+			lua_pushinteger(luaState, jsonObject->getInt(name));
+			break;
+		case JSON_TYPE_FLOAT:
+			lua_pushnumber(luaState, jsonObject->getFloat(name));
+			break;
+		case JSON_TYPE_BOOL:
+			lua_pushboolean(luaState, jsonObject->getBool(name));
+			break;
+		case JSON_TYPE_STRING:
+			lua_pushstring(luaState, jsonObject->getString(name).c_str());
+			break;
+		case JSON_TYPE_JSON_OBJECT:
+			SubJSONObjectToLuaStack(jsonObject->getJSONObject(name), luaState, name);
+			break;
+		case JSON_TYPE_JSON_ARRAY:
+			break;
+		}
+		lua_setfield(luaState, -2, name.c_str());
+	}
+
+	lua_setfield(luaState, -2, objectName.c_str());
+}
+
+void JSONObjectToLuaTable(JSONObject* jsonObject, lua_State* luaState, std::string name)
+{
+	if (jsonObject)
+	{
+		std::vector<JSONIDSpecifier>* specifiers = jsonObject->getData()->getSpecifiers();
+
+		lua_newtable(luaState);
+
+		for (auto& [name, id] : jsonObject->getObjectList())
+		{
+			int type = (*specifiers)[id].Type;
+			switch (type)
+			{
+			case JSON_TYPE_INT:
+				lua_pushinteger(luaState, jsonObject->getInt(name));
+				break;
+			case JSON_TYPE_FLOAT:
+				lua_pushnumber(luaState, jsonObject->getFloat(name));
+				break;
+			case JSON_TYPE_BOOL:
+				lua_pushboolean(luaState, jsonObject->getBool(name));
+				break;
+			case JSON_TYPE_STRING:
+				lua_pushstring(luaState, jsonObject->getString(name).c_str());
+				break;
+			case JSON_TYPE_JSON_OBJECT:
+				SubJSONObjectToLuaStack(jsonObject->getJSONObject(name), luaState, name);
+				break;
+			case JSON_TYPE_JSON_ARRAY:
+				break;
+			}
+			lua_setfield(luaState, -2, name.c_str());
+		}
+
+		lua_setglobal(luaState, name.c_str());
+	}
+}
