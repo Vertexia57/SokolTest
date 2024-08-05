@@ -31,7 +31,7 @@ void FactoryTileEntity::update()
 		m_Active = false;
 	}
 
-	if (m_CraftingTime >= m_TimeToCraft && m_CanCraft)
+	if (m_CraftingTime >= m_TimeToCraft && m_CanCraft && m_SetRecipie)
 	{
 		m_CraftingTime = 0.0f;
 
@@ -62,6 +62,42 @@ void FactoryTileEntity::update()
 void FactoryTileEntity::tileUpdate()
 {
 	TileEntity::tileUpdate();
+}
+
+void FactoryTileEntity::render()
+{
+	TileEntity::render();
+
+	if (m_SetRecipie)
+	{
+		TextureID icon = m_SetRecipie->icon;
+		if (icon == -1)
+			icon = g_ItemManager.getItemData(m_SetRecipie->results[0].id)->textureID;
+
+		lost::useImage(icon);
+		float imageWidth = lost::getImage(icon)->width;
+		float imageHeight = lost::getImage(icon)->height;
+			
+		sgp_draw_textured_rect(0, { (float)position.x * 32.0f + m_Hitbox.w * 16.0f - 32.0f, (float)position.y * 32.0f + m_Hitbox.h * 16.0f - 32.0f, 64.0f, 64.0f }, { imageWidth * m_Frame, imageHeight * m_Variant, imageWidth, imageHeight });
+	}
+}
+
+void FactoryTileEntity::renderAt(lost::Vector2D pos)
+{
+	TileEntity::renderAt(pos);
+
+	if (m_SetRecipie)
+	{
+		TextureID icon = m_SetRecipie->icon;
+		if (icon == -1)
+			icon = g_ItemManager.getItemData(m_SetRecipie->results[0].id)->textureID;
+
+		lost::useImage(icon);
+		float imageWidth = lost::getImage(icon)->width;
+		float imageHeight = lost::getImage(icon)->height;
+
+		sgp_draw_textured_rect(0, { (float)pos.x * 32.0f + m_Hitbox.w * 16.0f - 32.0f, (float)pos.y * 32.0f + m_Hitbox.h * 16.0f - 32.0f, 64.0f, 64.0f }, { imageWidth * m_Frame, imageHeight * m_Variant, imageWidth, imageHeight });
+	}
 }
 
 void FactoryTileEntity::setRecipie(RecipieRefStruct* recipie)
@@ -159,11 +195,11 @@ void FactoryTileEntity::mouseInteractFunction()
 	{
 		if (!lost::UIHasWindow(m_RecipieWindow))
 		{
-			g_PlayerPointer->openInventory({ 0.0f, 0.0f }, false);
+			//g_PlayerPointer->openInventory({ 0.0f, 0.0f }, false);
 			m_RecipieWindow = new RecipieSelectWindow({ floor(sapp_width() / 2.0f), floor(sapp_height() / 2.0f), 500, 300 }, this, m_CraftingGroup);
 			m_RecipieWindow->setName("Select Recipie");
 			m_RecipieWindow->setType("recipie", true);
-			m_RecipieWindow->setPosition({ floor(m_RecipieWindow->getBounds().x - m_RecipieWindow->getBounds().w - 20.0f), floor(sapp_height() / 2.0f) });
+			m_RecipieWindow->setPosition({ floor(m_RecipieWindow->getBounds().x - m_RecipieWindow->getBounds().w / 2.0f), floor(sapp_height() / 2.0f) });
 			lost::addUIWindow(m_RecipieWindow);
 		}
 		else

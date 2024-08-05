@@ -58,7 +58,7 @@ void StarBackground::render()
 		};
 
 		float fadeVal = 1.0f - (m_Stars[i].depth - 1.0f) / 10.0f;
-		sgp_set_color(1.0f, 1.0f, 1.0f, fadeVal);
+		sgp_set_color(randomf(0.8f, 1.0f), randomf(0.8f, 1.0f), randomf(0.8f, 1.0f), fadeVal);
 
 		sgp_push_transform();
 		sgp_rotate_at(m_Stars[i].rotation, m_Stars[i].renderPosition.x + 5.0f, m_Stars[i].renderPosition.y + 5.0f);

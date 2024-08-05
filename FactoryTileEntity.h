@@ -14,6 +14,9 @@ public:
 	virtual void update() override;
 	virtual void tileUpdate() override;
 
+	virtual void render() override;
+	virtual void renderAt(lost::Vector2D pos) override;
+
 	void setRecipie(RecipieRefStruct* recipie);
 	RecipieRefStruct* getRecipie() const;
 	void checkRecipie();
@@ -27,6 +30,7 @@ public:
 	virtual void mouseInteractFunction() override;
 protected:
 	RecipieRefStruct* m_SetRecipie = nullptr;
+	TextureID recipieIconID = -1;
 	std::string m_CraftingGroup = "base";
 
 	RecipieSelectWindow* m_RecipieWindow = nullptr;

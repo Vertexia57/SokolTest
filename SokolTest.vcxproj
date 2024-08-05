@@ -172,6 +172,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
+    <ClInclude Include="DroneBay.h" />
+    <ClInclude Include="DroneEntity.h" />
     <ClInclude Include="FallingHub.h" />
     <ClInclude Include="HubTileEntity.h" />
     <ClInclude Include="Lost\FrameBuffer.h" />
@@ -257,6 +259,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
+    <ClCompile Include="DroneBay.cpp" />
+    <ClCompile Include="DroneEntity.cpp" />
     <ClCompile Include="FallingHub.cpp" />
     <ClCompile Include="HubTileEntity.cpp" />
     <ClCompile Include="Lost\FrameBuffer.cpp" />

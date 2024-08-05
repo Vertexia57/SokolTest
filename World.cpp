@@ -826,6 +826,55 @@ void World::addStructureCode(std::string ID, std::string code)
 	m_StructureGeneratorCode[ID] = code;
 }
 
+void World::addDroneBay(DroneBay* bay)
+{
+	m_WorldDroneBays[bay->getName()].push_back(bay);
+}
+
+void World::removeDroneBay(DroneBay* bay)
+{
+	std::vector<DroneBay*>& nameGroup = m_WorldDroneBays[bay->getName()];
+	for (int i = 0; i < nameGroup.size(); i++)
+	{
+		if (nameGroup[i] == bay)
+		{
+			nameGroup.erase(nameGroup.begin() + i);
+			break;
+		}
+	}
+}
+
+DroneBay* World::getTransferBay(DroneBay* thisBay)
+{
+	std::vector<DroneBay*>& nameGroup = m_WorldDroneBays[thisBay->getName()];
+
+	DroneBay* lowestBay = nullptr;
+
+	for (int i = 0; i < nameGroup.size(); i++)
+	{
+		//if (nameGroup[i].canTransfer(thisBay->))
+		if (nameGroup[i] != thisBay && !nameGroup[i]->isSending())
+		{
+			if (lowestBay)
+			{
+				if (lowestBay->canRecieve(*nameGroup[i]->getInventory()->getItem(0)))
+				{
+					if (lowestBay->getInventory()->getItem(0)->StackSize > nameGroup[i]->getInventory()->getItem(0)->StackSize)
+						lowestBay = nameGroup[i];
+				}
+			}
+			else
+			{
+				lowestBay = nameGroup[i];
+				if (!lowestBay->canRecieve(*nameGroup[i]->getInventory()->getItem(0)))
+					lowestBay = nullptr;
+			}
+		}
+	}
+
+	return lowestBay;
+}
+
 World* g_World = nullptr;
 
 void PowerCircuitStruct::removeNode(PowerConduit* conduit)

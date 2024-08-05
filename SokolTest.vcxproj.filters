@@ -286,6 +286,12 @@
     <ClInclude Include="HubTileEntity.h">
       <Filter>Game\BuildingObjects</Filter>
     </ClInclude>
+    <ClInclude Include="DroneBay.h">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="DroneEntity.h">
+      <Filter>Game\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lost\Camera.cpp">
@@ -452,6 +458,12 @@
     </ClCompile>
     <ClCompile Include="HubTileEntity.cpp">
       <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="DroneBay.cpp">
+      <Filter>Game\BuildingObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="DroneEntity.cpp">
+      <Filter>Game\Entity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -42,114 +42,49 @@ void HUDWindow::update()
 	m_Bounds = { 0.0f, 0.0f, (float)sapp_width(), (float)sapp_height() };
 	selected = false;
 
-	if (lost::keyTapped(SAPP_KEYCODE_B))
+	if (g_PlayerPointer && m_CanInteract)
 	{
-		m_Building = !m_Building;
-		if (m_Building)
-			m_Rotation = 0;
-		if (!g_PlayerPointer->lockActions && m_Building)
+
+		if (lost::keyTapped(SAPP_KEYCODE_B))
 		{
-			g_PlayerPointer->lockActions = true;
-			m_BuildMenuAnim->setGoal(0.0f);
-		}
-		if (g_PlayerPointer->lockActions && !m_Building)
-		{
-			g_PlayerPointer->lockActions = false;
-			m_BuildMenuAnim->setGoal(85.0f * 2.0f);
-		}
-	}
-
-	if (lost::keyTapped(SAPP_KEYCODE_E))
-		g_PlayerPointer->openInventory({ 0.0f, 0.0f }, true);
-
-	if (!m_Building)
-	{
-		lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
-		lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
-		Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-
-		for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
-		{
-			lost::unbindShader();
-			lost::clearImage();
-
-			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
-			tileHovered->tileEntitiesWithin[i]->renderHitbox();
-			if (!lost::isUISelected())
+			m_Building = !m_Building;
+			if (m_Building)
+				m_Rotation = 0;
+			if (!g_PlayerPointer->lockActions && m_Building)
 			{
-				tileHovered->tileEntitiesWithin[i]->mouseInteractFunction();
+				g_PlayerPointer->lockActions = true;
+				m_BuildMenuAnim->setGoal(0.0f);
 			}
-
-			lost::bindShader(lost::getShader(0));
-		}
-	}
-	else
-	{
-		int buildingGroupCount = g_TileManager.buildingGroups.size();
-		if (m_SelectedGroupSlot != -1)
-		{
-			int buildingCount = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size();
-
-			m_HoveredBuildingSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f * 2 && lost::mousePos().y <= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingCount * 76.0f) / 2.0f + (buildingGroupCount - 1) * 76.0f / 2.0f - m_SelectedGroupSlot * 76.0f) / 76.0f) : -1;
-			if (m_HoveredBuildingSlot >= 0 && m_HoveredBuildingSlot < buildingCount)
+			if (g_PlayerPointer->lockActions && !m_Building)
 			{
-				selected = true;
-				if (lost::mouseTapped(0))
+				g_PlayerPointer->lockActions = false;
+				m_BuildMenuAnim->setGoal(85.0f * 2.0f);
+			}
+		}
+
+		if (lost::keyTapped(SAPP_KEYCODE_E))
+		{
+			bool hasInventoryWindowOpen = false;
+			for (UIWindow* window : lost::uiManager->getWindows())
+			{
+				if (window->inventoryWindow)
 				{
-					m_SelectedBuilding = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs[m_HoveredBuildingSlot];
-					m_SelectedBuildingSlot = m_HoveredBuildingSlot;
-					m_Rotation = 0;
+					hasInventoryWindowOpen = true;
+					break;
 				}
 			}
+
+			if (!hasInventoryWindowOpen)
+				g_PlayerPointer->openInventory({ 0.0f, 0.0f }, true);
 			else
-			{
-				m_HoveredBuildingSlot = -1;
-			}
+				lost::removeInventoryWindows();
 		}
 
-		m_HoveredGroupSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f) / 76.0f) : -1;
-		if (m_HoveredGroupSlot >= 0 && m_HoveredGroupSlot < buildingGroupCount)
+		if (!m_Building)
 		{
-			selected = true;
-			if (lost::mouseTapped(0) && m_HoveredGroupSlot != m_SelectedGroupSlot)
-			{
-				m_OldGroupSlot = m_SelectedGroupSlot;
-				m_SelectedGroupSlot = m_HoveredGroupSlot;
-				if (!m_BuildSubMenuOpen)
-				{
-					// Set the values of the bounds animations
-					m_BuildSubMenuAnims[0]->setVal(
-						(m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + m_SelectedGroupSlot * 76.0f // buildingSlotX
-						- ((g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() - 1) * 76.0f / 2)); // offset
-					m_BuildSubMenuAnims[1]->setVal(m_Bounds.h - 2 * 76.0f);
-					m_BuildSubMenuAnims[2]->setVal(g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() * 76.0f);
-					m_BuildSubMenuAnims[3]->setVal(76.0f);
-				}
-				else
-				{
-					// Set the end values of the bounds animations
-					m_BuildSubMenuAnims[0]->setGoal(
-						(m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + m_SelectedGroupSlot * 76.0f // buildingSlotX
-						- ((g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() - 1) * 76.0f / 2)); // offset
-					m_BuildSubMenuAnims[1]->setGoal(m_Bounds.h - 2 * 76.0f);
-					m_BuildSubMenuAnims[2]->setGoal(g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() * 76.0f);
-					m_BuildSubMenuAnims[3]->setGoal(76.0f);
-				}
-				m_BuildSubMenuOpen = true;
-				m_SubMenuIconAnim->restart();
-				m_SelectedBuildingSlot = -1;
-			}
-		}
-
-		if (lost::keyTapped(SAPP_KEYCODE_R) && m_SelectedBuilding->totalRotations != 0)
-			m_Rotation = (m_Rotation + 1) % m_SelectedBuilding->totalRotations;
-
-		lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
-		lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
-
-		Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
-		if (tileHovered)
-		{
+			lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+			lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
+			Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
 
 			for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
 			{
@@ -158,69 +93,153 @@ void HUDWindow::update()
 
 				sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 				tileHovered->tileEntitiesWithin[i]->renderHitbox();
-				if (!lost::isUISelected() && lost::mouseDown(1))
+				if (!lost::isUISelected())
 				{
-					// [!] TODO: Refund items on deconstruct
-					//g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
-					std::vector<IdCountPair>& cost = tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
-					for (IdCountPair& pair : cost)
-						g_PlayerPointer->getConnectedHub()->getInventory()->addItem(g_ItemManager.getItemData(pair.id), pair.count);
-
-					g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+					tileHovered->tileEntitiesWithin[i]->mouseInteractFunction();
 				}
 
 				lost::bindShader(lost::getShader(0));
 			}
-
-			if (!lost::isUISelected() && m_SelectedBuilding)
+		}
+		else
+		{
+			int buildingGroupCount = g_TileManager.buildingGroups.size();
+			if (m_SelectedGroupSlot != -1)
 			{
-				lost::useImage(m_SelectedBuilding->texture);
-				float imageWidth = lost::getImage(m_SelectedBuilding->texture)->width / m_SelectedBuilding->totalFrames;
-				float imageHeight = lost::getImage(m_SelectedBuilding->texture)->height / m_SelectedBuilding->totalVariants;
+				int buildingCount = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size();
 
-				if (m_CanPlaceBuilding)
-					sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
-				else
-					sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
-
-				if (m_SelectedBuilding->rotationVariants.size() > 0)
-					sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_SelectedBuilding->rotationVariants[m_Rotation], imageWidth, imageHeight });
-				else
-					sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_Rotation, imageWidth, imageHeight });
-				lost::clearImage();
-
-				m_CanPlaceBuilding = (!m_SelectedBuilding->requiresSupport || g_World->checkStable(
-					{ blockMouse.x + m_SelectedBuilding->placementOffsetX, blockMouse.y + 1, m_SelectedBuilding->width, 1.0f}
-				)) && (g_World->checkCanPlace(
-					{blockMouse.x + m_SelectedBuilding->placementOffsetX, blockMouse.y + m_SelectedBuilding->placementOffsetY, m_SelectedBuilding->width, m_SelectedBuilding->height }, m_SelectedBuilding->fillsLayers
-				));
-				if (lost::mouseDown(0) && m_CanPlaceBuilding)
+				m_HoveredBuildingSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f * 2 && lost::mousePos().y <= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingCount * 76.0f) / 2.0f + (buildingGroupCount - 1) * 76.0f / 2.0f - m_SelectedGroupSlot * 76.0f) / 76.0f) : -1;
+				if (m_HoveredBuildingSlot >= 0 && m_HoveredBuildingSlot < buildingCount)
 				{
-					std::vector<IdCountPair>& cost = m_SelectedBuilding->cost;
-					bool hasResources = true;
-					for (IdCountPair& pair : cost)
+					selected = true;
+					if (lost::mouseTapped(0))
 					{
-						if (g_PlayerPointer->getConnectedHub()->getInventory()->countItem(g_ItemManager.getItemData(pair.id)) < pair.count)
-							hasResources = false;
+						m_SelectedBuilding = g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs[m_HoveredBuildingSlot];
+						m_SelectedBuildingSlot = m_HoveredBuildingSlot;
+						m_Rotation = 0;
 					}
-
-					if (hasResources)
-					{
-						createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
-						for (IdCountPair& pair : cost)
-							g_PlayerPointer->getConnectedHub()->getInventory()->removeItem(g_ItemManager.getItemData(pair.id), pair.count);
-					}
-
+				}
+				else
+				{
+					m_HoveredBuildingSlot = -1;
 				}
 			}
-			
-			if (!lost::isUISelected() && lost::mouseTapped(2))
+
+			m_HoveredGroupSlot = (lost::mousePos().y >= m_Bounds.h - 1.0f - 76.0f) ? floor((lost::mousePos().x - (m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f) / 76.0f) : -1;
+			if (m_HoveredGroupSlot >= 0 && m_HoveredGroupSlot < buildingGroupCount)
 			{
-				g_World->addEntity(new ItemEntity({ worldMouse.x, worldMouse.y }, g_ItemManager.getItemData("ironOre"), 1));
+				selected = true;
+				if (lost::mouseTapped(0) && m_HoveredGroupSlot != m_SelectedGroupSlot)
+				{
+					m_OldGroupSlot = m_SelectedGroupSlot;
+					m_SelectedGroupSlot = m_HoveredGroupSlot;
+					if (!m_BuildSubMenuOpen)
+					{
+						// Set the values of the bounds animations
+						m_BuildSubMenuAnims[0]->setVal(
+							(m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + m_SelectedGroupSlot * 76.0f // buildingSlotX
+							- ((g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() - 1) * 76.0f / 2)); // offset
+						m_BuildSubMenuAnims[1]->setVal(m_Bounds.h - 2 * 76.0f);
+						m_BuildSubMenuAnims[2]->setVal(g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() * 76.0f);
+						m_BuildSubMenuAnims[3]->setVal(76.0f);
+					}
+					else
+					{
+						// Set the end values of the bounds animations
+						m_BuildSubMenuAnims[0]->setGoal(
+							(m_Bounds.w - buildingGroupCount * 76.0f) / 2.0f + m_SelectedGroupSlot * 76.0f // buildingSlotX
+							- ((g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() - 1) * 76.0f / 2)); // offset
+						m_BuildSubMenuAnims[1]->setGoal(m_Bounds.h - 2 * 76.0f);
+						m_BuildSubMenuAnims[2]->setGoal(g_TileManager.buildingGroups[m_SelectedGroupSlot].buildingRefs.size() * 76.0f);
+						m_BuildSubMenuAnims[3]->setGoal(76.0f);
+					}
+					m_BuildSubMenuOpen = true;
+					m_SubMenuIconAnim->restart();
+					m_SelectedBuildingSlot = -1;
+				}
+			}
+
+			if (lost::keyTapped(SAPP_KEYCODE_R) && m_SelectedBuilding->totalRotations != 0)
+				m_Rotation = (m_Rotation + 1) % m_SelectedBuilding->totalRotations;
+
+			lost::Vector2D worldMouse = lost::globalCamera.screenToWorld(lost::mousePos());
+			lost::Vector2D blockMouse = { floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f) };
+
+			Tile* tileHovered = g_World->getTileAt(floor(worldMouse.x / 32.0f), floor(worldMouse.y / 32.0f));
+			if (tileHovered)
+			{
+
+				for (int i = tileHovered->tileEntitiesWithin.size() - 1; i >= 0; i--)
+				{
+					lost::unbindShader();
+					lost::clearImage();
+
+					sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
+					tileHovered->tileEntitiesWithin[i]->renderHitbox();
+					if (!lost::isUISelected() && lost::mouseDown(1))
+					{
+						// [!] TODO: Refund items on deconstruct
+						//g_PlayerPointer->moneyCount += tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+						std::vector<IdCountPair>& cost = tileHovered->tileEntitiesWithin[i]->tileEntityRef->cost;
+						for (IdCountPair& pair : cost)
+							g_PlayerPointer->getConnectedHub()->getInventory()->addItem(g_ItemManager.getItemData(pair.id), pair.count);
+
+						g_World->destroyTileEntity(tileHovered->tileEntitiesWithin[i]);
+					}
+
+					lost::bindShader(lost::getShader(0));
+				}
+
+				if (!lost::isUISelected() && m_SelectedBuilding)
+				{
+					lost::useImage(m_SelectedBuilding->texture);
+					float imageWidth = lost::getImage(m_SelectedBuilding->texture)->width / m_SelectedBuilding->totalFrames;
+					float imageHeight = lost::getImage(m_SelectedBuilding->texture)->height / m_SelectedBuilding->totalVariants;
+
+					if (m_CanPlaceBuilding)
+						sgp_set_color(1.0f, 1.0f, 1.0f, 0.2f);
+					else
+						sgp_set_color(1.0f, 0.1f, 0.1f, 0.2f);
+
+					if (m_SelectedBuilding->rotationVariants.size() > 0)
+						sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_SelectedBuilding->rotationVariants[m_Rotation], imageWidth, imageHeight });
+					else
+						sgp_draw_textured_rect(0, { (blockMouse.x + m_SelectedBuilding->placementOffsetX) * 32.0f, (blockMouse.y + m_SelectedBuilding->placementOffsetY) * 32.0f, m_SelectedBuilding->width * 32.0f, m_SelectedBuilding->height * 32.0f }, { 0, imageHeight * m_Rotation, imageWidth, imageHeight });
+					lost::clearImage();
+
+					m_CanPlaceBuilding = (!m_SelectedBuilding->requiresSupport || g_World->checkStable(
+						{ blockMouse.x + m_SelectedBuilding->placementOffsetX, blockMouse.y + 1, m_SelectedBuilding->width, 1.0f }
+					)) && (g_World->checkCanPlace(
+						{ blockMouse.x + m_SelectedBuilding->placementOffsetX, blockMouse.y + m_SelectedBuilding->placementOffsetY, m_SelectedBuilding->width, m_SelectedBuilding->height }, m_SelectedBuilding->fillsLayers
+					));
+					if (lost::mouseDown(0) && m_CanPlaceBuilding)
+					{
+						std::vector<IdCountPair>& cost = m_SelectedBuilding->cost;
+						bool hasResources = true;
+						for (IdCountPair& pair : cost)
+						{
+							if (g_PlayerPointer->getConnectedHub()->getInventory()->countItem(g_ItemManager.getItemData(pair.id)) < pair.count)
+								hasResources = false;
+						}
+
+						if (hasResources)
+						{
+							createBuilding(m_SelectedBuilding, blockMouse, m_Rotation);
+							for (IdCountPair& pair : cost)
+								g_PlayerPointer->getConnectedHub()->getInventory()->removeItem(g_ItemManager.getItemData(pair.id), pair.count);
+						}
+
+					}
+				}
+
+				if (!lost::isUISelected() && lost::mouseTapped(2))
+				{
+					g_World->addEntity(new ItemEntity({ worldMouse.x, worldMouse.y }, g_ItemManager.getItemData("ironOre"), 1));
+				}
+
 			}
 
 		}
-
 	}
 
 	sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -322,7 +341,23 @@ void HUDWindow::render()
 						float imageWidth = (float)lost::getImage(buildingRef->texture)->width / buildingRef->totalFrames;
 						float imageHeight = (float)lost::getImage(buildingRef->texture)->height / buildingRef->totalVariants;
 
-						sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+						bool canCraft = true;
+						std::vector<IdCountPair>& cost = buildingRef->cost;
+						for (int j = 0; j < cost.size(); j++)
+						{
+							IdCountPair& pair = cost[j];
+							// Very slow, ran every frame
+							if (g_PlayerPointer->getConnectedHub()->getInventory()->countItem(g_ItemManager.getItemData(pair.id)) < pair.count)
+							{
+								canCraft = false;
+								break;
+							}
+						}
+
+						if (canCraft)
+							sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+						else
+							sgp_set_color(0.2f, 0.2f, 0.2f, (*m_SubMenuIconAnim)[1].getVal());
 						lost::useImage(buildingRef->texture);
 						sgp_draw_textured_rect(0,
 							{ (m_Bounds.w - buildingCount * 76.0f) / 2.0f + 6.0f + i * 76.0f + (32.0f - buildingRef->width * 64.0f * scale / 2.0f) - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h + (32.0f - buildingRef->height * 64.0f * scale / 2.0f) - 70.0f - 76.0f + m_BuildMenuAnim->getVal(), buildingRef->width * 64.0f * scale, buildingRef->height * 64.0f * scale },
@@ -331,11 +366,46 @@ void HUDWindow::render()
 
 						if (i == m_HoveredBuildingSlot)
 						{
+							if (canCraft)
+								sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+							else
+								sgp_set_color(0.8f, 0.3f, 0.3f, (*m_SubMenuIconAnim)[1].getVal());
+
 							lost::clearImage();
 							lost::renderTextPro(buildingRef->name,
 								{ (m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f, m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() }, 0.5f,
 								LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+
+							std::vector<IdCountPair>& cost = buildingRef->cost;
+							for (int j = 0; j < cost.size(); j++)
+							{
+								IdCountPair& pair = cost[j];
+								lost::Vector2D renderPos = {
+									(m_Bounds.w - buildingCount * 76.0f + 76.0f) / 2.0f + i * 76.0f - (buildingGroupCount - 1) * 76.0f / 2.0f + m_SelectedGroupSlot * 76.0f + j * 32.0f - cost.size() * 16.0f,
+									m_Bounds.h - 74.0f - 76.0f + m_BuildMenuAnim->getVal() - 55.0f
+								};
+
+								ItemRefStruct* itemRef = g_ItemManager.getItemData(pair.id);
+								lost::useImage(itemRef->textureID);
+								float imageWidth = lost::getImage(itemRef->textureID)->width / itemRef->frames;
+								float imageHeight = lost::getImage(itemRef->textureID)->height / itemRef->variants;
+
+								sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+								sgp_draw_textured_rect(0, { renderPos.x, renderPos.y, 32.0f, 32.0f }, { 0, 0, imageWidth, imageHeight });
+
+								// Very slow, ran every frame
+								if (g_PlayerPointer->getConnectedHub()->getInventory()->countItem(g_ItemManager.getItemData(pair.id)) >= pair.count)
+									sgp_set_color(1.0f, 1.0f, 1.0f, (*m_SubMenuIconAnim)[1].getVal());
+								else
+									sgp_set_color(0.8f, 0.3f, 0.3f, (*m_SubMenuIconAnim)[1].getVal());
+
+								lost::clearImage();
+								lost::renderTextPro(std::to_string(pair.count),
+									{ renderPos.x + 16.0f, renderPos.y + 5.0f }, 0.5f,
+									LOST_TEXT_ALIGN_MIDDLE, LOST_TEXT_ALIGN_BOTTOM);
+							}
 						}
+
 					}
 				}
 				else if (!(*m_SubMenuIconAnim)[0].getComplete() && m_OldGroupSlot != -1)

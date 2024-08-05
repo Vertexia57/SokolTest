@@ -79,11 +79,29 @@ namespace lost
 			return sqrtf(powf(x, 2) + powf(y, 2));
 		}
 
-		void normalize()
+		Vector2D& normalize()
 		{
 			float mag = magnitude();
-			x /= mag;
-			y /= mag;
+			if (mag != 0.0f)
+			{
+				x /= mag;
+				y /= mag;
+			}
+			else
+			{
+				x = 0.0f;
+				y = 0.0f;
+			}
+
+			return *this;
+		}
+
+		Vector2D normalized()
+		{
+			float mag = magnitude();
+			if (mag != 0.0f)
+				return { x / mag, y / mag };
+			return { 0.0f, 0.0f };
 		}
 
 		IntVector2D toInt()

@@ -12,8 +12,8 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "Extruder",
-		ID = "extruder",
+		name = "Assembler",
+		ID = "assembler",
 		description = "",
 		
 		imageData = {
@@ -25,11 +25,11 @@ data:extend(
 		},
 		
 		width = 3.0,
-		height = 2.0,
+		height = 3.0,
 		renderLayer = 1,
 		
 		placementOffsetX = -1.0,
-		placementOffsetY = -1.0,
+		placementOffsetY = -2.0,
 		
 		stable = false,
 		collidable = true,
@@ -40,19 +40,19 @@ data:extend(
 		buildingData = {
             cost = {
 				{
-					item = "ironIngot",
+					item = "ironSheet",
 					count = 20
 				},
 				{
 					item = "copperSheet",
-					count = 10
+					count = 15
 				}
 			}, 
 			buildingGroup = "production",  
 			rotationStates = 1,
             updateAction = "factory",
             updateData = {
-				craftingGroup = "extruder",
+				craftingGroup = "assembler",
 				speed = 1.0
             }
 		},

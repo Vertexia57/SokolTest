@@ -7,6 +7,7 @@
 #include "DistributorTileEntity.h"
 #include "JunctionTileEntity.h"
 #include "FactoryTileEntity.h"
+#include "DroneBay.h"
 
 static std::map<std::string, int> updateActionNames = {
 	{ "none", 0 },
@@ -16,7 +17,8 @@ static std::map<std::string, int> updateActionNames = {
 	{ "conveyerBelt", 4 },
 	{ "distributor", 5 },
 	{ "junction", 6 },
-	{ "factory", 7 }
+	{ "factory", 7 },
+	{ "droneBay", 8 }
 };
 
 static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D position, uint32_t rotation)
@@ -53,6 +55,9 @@ static void createBuilding(TileEntityStruct* tileEntityRef, lost::Vector2D posit
 			break;
 		case 7: // factory
 			g_World->addTileEntity(new FactoryTileEntity(tileEntityRef, rotation), buildX, buildY);
+			break;
+		case 8: // droneBay
+			g_World->addTileEntity(new DroneBay(tileEntityRef, rotation), buildX, buildY);
 			break;
 		default:
 			g_World->addTileEntity(new TileEntity(tileEntityRef, rotation), buildX, buildY);

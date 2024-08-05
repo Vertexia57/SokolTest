@@ -15,6 +15,7 @@
 #include "Lost/Graph.h"
 #include "PowerConduit.h"
 #include "StarBackground.h"
+#include "DroneBay.h"
 
 class World;
 extern World* g_World; // Global World Singleton
@@ -223,6 +224,10 @@ public:
 	
 	void addStructureCode(std::string ID, std::string code);
 
+	void addDroneBay(DroneBay* bay);
+	void removeDroneBay(DroneBay* bay);
+	DroneBay* getTransferBay(DroneBay* thisBay);
+
 	int worldMaxX = 0;
 	int worldMinX = 0;
 
@@ -232,6 +237,8 @@ public:
 	int worldTileWidth;
 	int worldWidth = 20;
 private:
+	std::map<std::string, std::vector<DroneBay*>> m_WorldDroneBays;
+
 	Tile* m_BorderAir = nullptr;
 
 	std::mutex m_StructureThreadMutex;

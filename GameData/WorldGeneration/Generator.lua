@@ -87,12 +87,18 @@ for x = 1, chunkWidth, 1 do
         end
 
         if (not generatedOre and chunkX % 2 == 0) then
-            if (depth >= 10) then
+            if (depth >= 15) then
                 structures[#structures + 1] = {}
-                structures[#structures][1] = "Box"
+                structures[#structures][1] = "OrePatch"
                 structures[#structures][2] = actualX
                 structures[#structures][3] = actualY
-                structures[#structures][4] = { ore = "copperOre" }
+                if (chunkX % 6 == 0) then
+                    structures[#structures][4] = { ore = "copperOre" }
+                elseif ((chunkX + 2) % 6 == 0) then
+                    structures[#structures][4] = { ore = "ironOre" }
+                else
+                    structures[#structures][4] = { ore = "stoneOre" }
+                end
                 generatedOre = true
             end
         end

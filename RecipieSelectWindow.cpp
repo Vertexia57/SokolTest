@@ -414,6 +414,7 @@ void RecipieSelectWindow::render()
 			sgp_set_color(0.9f, 0.9f, 0.9f, 0.9f);
 			lost::renderTextPro("Results:", textPos, 0.4, LOST_TEXT_ALIGN_LEFT, LOST_TEXT_ALIGN_TOP);
 			textPos.y += lost::textHeight("Results:", 0.4, -1) + 10;
+			sgp_set_color(1.0f, 1.0f, 1.0f, 1.0f);
 
 			int resultsIndex = 0;
 			for (IdCountPair& pair : (*m_CraftingGroupRef).at(hoveredKey)->results)

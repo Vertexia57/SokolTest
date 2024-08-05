@@ -26,6 +26,8 @@ namespace lost
 		void renderUI();
 
 		bool isUISelected();
+
+		inline std::vector<UIWindow*>& getWindows() { return m_UIWindows; };
 	private:
 		std::vector<UIWindow*> m_UIWindows;
 	};

@@ -35,3 +35,8 @@ void HubTileEntity::insertItem(Item& item)
 	if (hasInventory() && !item.empty)
 		m_Storage->addItem(item);
 }
+
+bool HubTileEntity::canInsert(Item& item) const
+{
+	return m_Storage->countItem(item.refStruct) < 4000;
+}

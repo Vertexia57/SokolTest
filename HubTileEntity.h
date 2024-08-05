@@ -19,6 +19,7 @@ public:
 	virtual Item extractItem(int count, bool output = true);
 	// Overrides the normal tile entity insert code to change the max stack size
 	virtual void insertItem(Item& item);
+	virtual bool canInsert(Item& item) const;
 protected:
 	StorageWindow* m_StorageWindow = nullptr;
 };

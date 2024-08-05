@@ -13,7 +13,11 @@ public:
 
 	virtual void update() override;
 	virtual void render() override;
+
+	inline void setHUDInteraction(bool state) { m_CanInteract = state; };
 protected:
+	bool m_CanInteract = true;
+
 	TextureID m_TopLeftUITexID;
 	bool m_Building = false;
 	int m_BuildingSlot = 0;

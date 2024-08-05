@@ -12,7 +12,7 @@ data:extend(
     {
 		dataType = "tileEntity",
 		
-		name = "Miner",
+		name = "Drill",
 		ID = "miner",
 		description = "",
 		
@@ -48,7 +48,7 @@ data:extend(
 			rotationStates = 1,
             updateAction = "miner",
             updateData = {
-                timePerMine = 3.0
+                timePerMine = 1.5
             }
         },
 		powerData = {
